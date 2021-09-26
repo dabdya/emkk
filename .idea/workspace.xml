@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,7 +71,7 @@
       <option name="presentableId" value="Default" />
       <updated>1631868308599</updated>
       <workItem from="1631868320731" duration="4553000" />
-      <workItem from="1632644115374" duration="1831000" />
+      <workItem from="1632644115374" duration="6192000" />
     </task>
     <servers />
   </component>
