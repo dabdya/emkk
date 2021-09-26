@@ -25,10 +25,10 @@ class User(models.Model):
 
 
 class Trip(models.Model):
-    status = models.ForeignKey(TripStatus, on_delete=models.SET_NULL)
-    type_ = models.ForeignKey(TripType, on_delete=models.SET_NULL)
-    leader = models.ForeignKey(User, on_delete=models.SET_NULL)
-    group_name = models.CharField(max_length=100, required=False)
+    status = models.ForeignKey(TripStatus, on_delete=models.SET_NULL, null=True)
+    _type = models.ForeignKey(TripType, on_delete=models.SET_NULL, null=True)
+    leader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    group_name = models.CharField(max_length=100, null=True)
     difficulty_category = models.IntegerField()
     district = models.CharField(max_length=100)
     participants_count = models.IntegerField()
@@ -36,26 +36,26 @@ class Trip(models.Model):
     end_date = models.DateField()
     coordinator_info = models.TextField()
     insurance_info = models.TextField()
-    start_apply = models.TextField(required=False)
-    end_apply = models.TextField(required=False)
+    start_apply = models.TextField(null=True)
+    end_apply = models.TextField(null=True)
 
 
 class Document(models.Model):
     """Документы, прилагаемые к заявке"""
-    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL)
+    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
     physical_path = models.FilePathField(max_length=255)
 
 
 class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
-    user = models.ForeignKey(User, on_delete=models.SET_NULL)
-    trip_type = models.ForeignKey(TripType, on_delete=models.SET_NULL)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    trip_type = models.ForeignKey(TripType, on_delete=models.SET_NULL, null=True)
     difficulty_category = models.IntegerField()
 
 
 class Review(models.Model):
     """Рецензия. Выдается работниоком МКК на конкретную заявку"""
-    reviewer = models.ForeignKey(User, on_delete=models.SET_NULL)
-    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL)
-    result = models.ForeignKey(TripStatus, on_delete=models.SET_NULL)
+    reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
+    result = models.ForeignKey(TripStatus, on_delete=models.SET_NULL, null=True)
     result_comment = models.TextField()
