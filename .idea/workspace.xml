@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="add urls">
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
     </list>
@@ -73,7 +74,7 @@
       <option name="presentableId" value="Default" />
       <updated>1631868308599</updated>
       <workItem from="1631868320731" duration="4553000" />
-      <workItem from="1632644115374" duration="16256000" />
+      <workItem from="1632644115374" duration="16466000" />
     </task>
     <task id="LOCAL-00001" summary="make migrations">
       <created>1632653133943</created>
@@ -96,7 +97,14 @@
       <option name="project" value="LOCAL" />
       <updated>1632662964440</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="add workspace">
+      <created>1632663541347</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1632663541347</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -106,17 +114,18 @@
     <MESSAGE value="make migrations" />
     <MESSAGE value="add urls" />
     <MESSAGE value="add trips_view" />
-    <option name="LAST_COMMIT_MESSAGE" value="add trips_view" />
+    <MESSAGE value="add workspace" />
+    <option name="LAST_COMMIT_MESSAGE" value="add workspace" />
   </component>
   <component name="WindowStateProjectService">
     <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1632655733550">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1632655733550" />
-    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632662962520">
+    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632663693642">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632662962520" />
+    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632663693642" />
     <state width="1493" height="213" key="GridCell.Tab.0.bottom" timestamp="1632660492511">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -137,9 +146,9 @@
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="361" y="180" key="Vcs.Push.Dialog.v2/0.30.1536.834@0.30.1536.834" timestamp="1632653202727" />
-    <state x="512" y="239" key="git4idea.merge.GitPullDialog" timestamp="1632663322345">
+    <state x="512" y="239" key="git4idea.merge.GitPullDialog" timestamp="1632663716623">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="512" y="239" key="git4idea.merge.GitPullDialog/0.30.1536.834@0.30.1536.834" timestamp="1632663322345" />
+    <state x="512" y="239" key="git4idea.merge.GitPullDialog/0.30.1536.834@0.30.1536.834" timestamp="1632663716623" />
   </component>
 </project>
