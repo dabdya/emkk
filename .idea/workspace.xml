@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="add urls">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -122,10 +122,10 @@
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1632655733550" />
-    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632663795133">
+    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632664190579">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632663795133" />
+    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632664190579" />
     <state width="1493" height="213" key="GridCell.Tab.0.bottom" timestamp="1632660492511">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
