@@ -10,6 +10,20 @@ class TripType(models.Model):
     name = models.CharField(max_length=50)
 
 
+class UserRole(models.Model):
+    """Роли в МКК. Секретарь/Рецензент/Выпускающий/Руководитель группы"""
+    name = models.CharField(max_length=255)
+    priority_level = models.IntegerField()  # TODO узнать, выстроены ли их права линейно
+
+
+class User(models.Model):
+    """Все пользователи. Все те, кто зарегистрированы"""
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=100)
+    email = models.CharField(max_length=100)
+    role = models.ManyToManyField(UserRole)
+
+
 class Trip(models.Model):
     status = models.ForeignKey(TripStatus, on_delete=models.SET_NULL)
     type_ = models.ForeignKey(TripType, on_delete=models.SET_NULL)
@@ -32,19 +46,11 @@ class Document(models.Model):
     physical_path = models.FilePathField(max_length=255)
 
 
-class User(models.Model):
-    """Все пользователи. Все те, кто зарегистрированы"""
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
-    role = models.ManyToManyField(Role)
-
-
 class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.SET_NULL)
-    tripType = models.ForeignKey(TripType, on_delete=models.SET_NULL)
-    difficultyCategory = models.IntegerField()
+    trip_type = models.ForeignKey(TripType, on_delete=models.SET_NULL)
+    difficulty_category = models.IntegerField()
 
 
 class Review(models.Model):
@@ -53,9 +59,3 @@ class Review(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.SET_NULL)
     result = models.ForeignKey(TripStatus, on_delete=models.SET_NULL)
     result_comment = models.TextField()
-
-
-class Role(models.Model):
-    """Роли в МКК. Секретарь/Рецензент/Выпускающий/Руководитель группы"""
-    name = models.CharField(max_length=255)
-    priorityLevel = models.IntegerField()  # TODO узнать, выстроены ли их права линейно
