@@ -1,0 +1,6 @@
+<h1>Список всех заявок</h1>
+<ul>
+{% for trip in trips_list %}
+    <li>{{ trip.group_name }}</li>
+{% endfor %}
+</ul>

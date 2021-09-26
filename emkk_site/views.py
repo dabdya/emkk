@@ -1,10 +1,18 @@
 from django.http import HttpResponse
-import random
+from django.template import loader
+from django.views import View
+
+from .models import Trip
 
 
-def index(request):
-    ans = random.randint(0,1)
-    ans = "ДА!" if ans else "Нет :("
-    return HttpResponse(f"""
-    <h1>Можно ли пойти в поход? (пожалуйста)</h1>
-    <h1>{ans}</h1>""")
+class TripsView(View):
+    def get(self, request, *args, **kwargs):
+        trips = Trip.objects.all()
+        template = loader.get_template('emkk_site/trips.html')
+        context = {
+            'trips_list': trips,
+        }
+        return HttpResponse(template.render(context, request))
+
+    def post(self, request, *args, **kwargs):
+        pass
