@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="">
+    <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="add urls">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/manage.py" beforeDir="false" afterPath="$PROJECT_DIR$/manage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,6 +14,7 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Python Script" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -30,6 +30,7 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
@@ -42,6 +43,7 @@
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
+        <env name="DJANGO_SETTINGS_MODULE" value="emkk.settings" />
       </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="" />
@@ -71,11 +73,73 @@
       <option name="presentableId" value="Default" />
       <updated>1631868308599</updated>
       <workItem from="1631868320731" duration="4553000" />
-      <workItem from="1632644115374" duration="6192000" />
+      <workItem from="1632644115374" duration="16256000" />
     </task>
+    <task id="LOCAL-00001" summary="make migrations">
+      <created>1632653133943</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1632653133943</updated>
+    </task>
+    <task id="LOCAL-00002" summary="add urls">
+      <created>1632657986069</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1632657986070</updated>
+    </task>
+    <task id="LOCAL-00003" summary="add trips_view">
+      <created>1632662964439</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1632662964440</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="make migrations" />
+    <MESSAGE value="add urls" />
+    <MESSAGE value="add trips_view" />
+    <option name="LAST_COMMIT_MESSAGE" value="add trips_view" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1632655733550">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1632655733550" />
+    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632662962520">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632662962520" />
+    <state width="1493" height="213" key="GridCell.Tab.0.bottom" timestamp="1632660492511">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state width="1493" height="213" key="GridCell.Tab.0.bottom/0.30.1536.834@0.30.1536.834" timestamp="1632660492511" />
+    <state width="1493" height="213" key="GridCell.Tab.0.center" timestamp="1632660492510">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state width="1493" height="213" key="GridCell.Tab.0.center/0.30.1536.834@0.30.1536.834" timestamp="1632660492510" />
+    <state width="1493" height="213" key="GridCell.Tab.0.left" timestamp="1632660492509">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state width="1493" height="213" key="GridCell.Tab.0.left/0.30.1536.834@0.30.1536.834" timestamp="1632660492509" />
+    <state width="1493" height="213" key="GridCell.Tab.0.right" timestamp="1632660492510">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state width="1493" height="213" key="GridCell.Tab.0.right/0.30.1536.834@0.30.1536.834" timestamp="1632660492510" />
+    <state x="361" y="180" key="Vcs.Push.Dialog.v2" timestamp="1632653202727">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="361" y="180" key="Vcs.Push.Dialog.v2/0.30.1536.834@0.30.1536.834" timestamp="1632653202727" />
+    <state x="512" y="239" key="git4idea.merge.GitPullDialog" timestamp="1632663322345">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="512" y="239" key="git4idea.merge.GitPullDialog/0.30.1536.834@0.30.1536.834" timestamp="1632663322345" />
   </component>
 </project>
