@@ -43,7 +43,7 @@ class Trip(models.Model):
 class Document(models.Model):
     """Документы, прилагаемые к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
-    physical_path = models.FilePathField(max_length=255)
+    location = models.FilePathField(max_length=255)
 
 
 class UserExperience(models.Model):
