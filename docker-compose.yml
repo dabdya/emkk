@@ -1,0 +1,31 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=emkk
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+  migration:
+    image: emkk-backend
+    build: .
+    command: python manage.py migrate
+    volumes:
+      - .:/code
+    links:
+      - db
+    depends_on:
+      - db
+  backend:
+    image: emkk-backend
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/emkk
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db

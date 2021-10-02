@@ -1,15 +1,35 @@
-from django.core.exceptions import ObjectDoesNotExist
-from django.http import HttpResponse
-from django.template import loader
-from django.views import View
+from django.http import HttpResponse, HttpResponseRedirect
 from .serializers import DocumentSerializer, TripSerializer, UserSerializer, ReviewSerializer
 from rest_framework import generics
+from rest_framework.views import APIView
 from .models import Document, Trip, Review, User
 
 
-class DocumentView(generics.ListCreateAPIView):
+class DocumentList(generics.ListCreateAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+
+    def create(self, request, *args, **kwargs):
+        trip_id = request.data['trip']
+        file = request.FILES['file']
+        document = Document(
+            trip_id=trip_id,
+            content=file.read(),
+            content_type=file.content_type)
+        document.save()
+        return HttpResponse(status=201)
+
+
+class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        document = Document.objects.get(pk=kwargs['pk'])
+        response = HttpResponse(
+            document.content, content_type=document.content_type)
+        response['Content-Disposition'] = 'attachment'
+        return response
 
 
 class UserView(generics.ListCreateAPIView):
@@ -22,28 +42,22 @@ class TripView(generics.ListCreateAPIView):
     serializer_class = TripSerializer
 
 
-class ReviewView(generics.ListCreateAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
+# class ReviewView(generics.ListCreateAPIView):
+#     queryset = Review.objects.all()
+#     serializer_class = ReviewSerializer
 
-# class TripsView(View):
-#     def get(self, request, *args, **kwargs):
-#         trips = Trip.objects.all()
-#         template = loader.get_template('emkk_site/trips.html')
-#         context = {
-#             'trips_list': trips,
-#         }
-#         return HttpResponse(template.render(context, request))
+class ReviewList(APIView):
+    """Возвращает список всех рецензий при GET /reviews,
+    либо создает наовую рецензию при POST /reviews"""
 
-#     def post(self, request, *args, **kwargs):
-#         pass
+    def get(self, request):
+        reviews = Review.objects.all()
+        serializer = ReviewSerializer(reviews, many=True)
+        return HttpResponse(serializer.data, status=200)
 
-
-# def get_trip_by_id(request, *args, **kwargs):
-#     trip_id = kwargs['trip_id']
-#     try:
-#         trip = Trip.objects.get(pk=int(trip_id))
-#     except ObjectDoesNotExist:
-#         trip = None
-#         return HttpResponse("<html><body>Trip is not Found.</body></html>") #TODO Заменить на шаблонизатор
-#     return HttpResponse(f"<html><body>This is trip #{trip.pk}.</body></html>")
+    def post(self, request):
+        serializer = ReviewSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return HttpResponse(serializer.data, status=201)
+        return HttpResponse(serializer.errors, status=400)

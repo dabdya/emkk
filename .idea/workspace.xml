@@ -2,14 +2,23 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="fix conflicts">
+      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/db.sqlite3" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/migrations/0001_initial.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/emkk_site/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emkk_site/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DjangoConsoleOptions" custom-start-script="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)">
+    <option name="myCustomStartScript" value="import sys; print('Python %s on %s' % (sys.version, sys.platform))&#10;import django; print('Django %s' % django.get_version())&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;if 'setup' in dir(django): django.setup()&#10;import django_manage_shell; django_manage_shell.run(PROJECT_ROOT)" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -24,13 +33,16 @@
   </component>
   <component name="JupyterTrust" id="dedea65a-dfae-4a28-b142-759e35912f38" />
   <component name="ProjectId" id="1yGBziSHUQ8bgcImtLuJwZGpxns" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
@@ -76,6 +88,9 @@
       <workItem from="1631868320731" duration="4553000" />
       <workItem from="1632644115374" duration="16466000" />
       <workItem from="1632666152824" duration="522000" />
+      <workItem from="1633148136527" duration="20471000" />
+      <workItem from="1633182417306" duration="3694000" />
+      <workItem from="1633186186366" duration="4781000" />
     </task>
     <task id="LOCAL-00001" summary="make migrations">
       <created>1632653133943</created>
@@ -120,34 +135,38 @@
     <option name="LAST_COMMIT_MESSAGE" value="fix conflicts" />
   </component>
   <component name="WindowStateProjectService">
-    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1632655733550">
+    <state x="496" y="30" key="#Dockerfile" timestamp="1633182623741">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1632655733550" />
+    <state x="496" y="30" key="#Dockerfile/0.30.1536.834@0.30.1536.834" timestamp="1633182623741" />
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1633185337706">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1633185337706" />
     <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1632666173575">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser/0.30.1536.834@0.30.1536.834" timestamp="1632666173574" />
-    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1632666169955">
+    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1633190837638">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1632666169955" />
-    <state width="746" height="213" key="GridCell.Tab.0.bottom" timestamp="1632666584823">
+    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1633190837638" />
+    <state width="1493" height="155" key="GridCell.Tab.0.bottom" timestamp="1633182389190">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state width="746" height="213" key="GridCell.Tab.0.bottom/0.30.1536.834@0.30.1536.834" timestamp="1632666584823" />
-    <state width="746" height="213" key="GridCell.Tab.0.center" timestamp="1632666584822">
+    <state width="1493" height="155" key="GridCell.Tab.0.bottom/0.30.1536.834@0.30.1536.834" timestamp="1633182389190" />
+    <state width="1493" height="155" key="GridCell.Tab.0.center" timestamp="1633182389189">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state width="746" height="213" key="GridCell.Tab.0.center/0.30.1536.834@0.30.1536.834" timestamp="1632666584822" />
-    <state width="746" height="213" key="GridCell.Tab.0.left" timestamp="1632666584822">
+    <state width="1493" height="155" key="GridCell.Tab.0.center/0.30.1536.834@0.30.1536.834" timestamp="1633182389189" />
+    <state width="1493" height="155" key="GridCell.Tab.0.left" timestamp="1633182389189">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state width="746" height="213" key="GridCell.Tab.0.left/0.30.1536.834@0.30.1536.834" timestamp="1632666584822" />
-    <state width="746" height="213" key="GridCell.Tab.0.right" timestamp="1632666584823">
+    <state width="1493" height="155" key="GridCell.Tab.0.left/0.30.1536.834@0.30.1536.834" timestamp="1633182389189" />
+    <state width="1493" height="155" key="GridCell.Tab.0.right" timestamp="1633182389190">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state width="746" height="213" key="GridCell.Tab.0.right/0.30.1536.834@0.30.1536.834" timestamp="1632666584823" />
+    <state width="1493" height="155" key="GridCell.Tab.0.right/0.30.1536.834@0.30.1536.834" timestamp="1633182389190" />
     <state x="361" y="180" key="Vcs.Push.Dialog.v2" timestamp="1632653202727">
       <screen x="0" y="30" width="1536" height="834" />
     </state>

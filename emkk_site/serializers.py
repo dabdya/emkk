@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from .models import Document, User, Trip, Review
 
+
 class DocumentSerializer(serializers.ModelSerializer):
-     class Meta:
+    class Meta:
         model = Document
         fields = '__all__'
 

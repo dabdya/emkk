@@ -2,18 +2,20 @@ from django.db import models
 
 
 class TripStatus(models.Model):
+    """Справочник по статусам заявки"""
     name = models.CharField(max_length=50)
     description = models.TextField()
 
 
 class TripType(models.Model):
+    """Справочник по типам заявки"""
     name = models.CharField(max_length=50)
 
 
 class UserRole(models.Model):
     """Роли в МКК. Секретарь/Рецензент/Выпускающий/Руководитель группы"""
     name = models.CharField(max_length=255)
-    priority_level = models.IntegerField()  # TODO узнать, выстроены ли их права линейно
+    priority_level = models.IntegerField()
 
 
 class User(models.Model):
@@ -25,6 +27,7 @@ class User(models.Model):
 
 
 class Trip(models.Model):
+    """Заявка на поход"""
     status = models.ForeignKey(TripStatus, on_delete=models.SET_NULL, null=True)
     _type = models.ForeignKey(TripType, on_delete=models.SET_NULL, null=True)
     leader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
@@ -41,9 +44,11 @@ class Trip(models.Model):
 
 
 class Document(models.Model):
-    """Документы, прилагаемые к заявке"""
+    """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
-    location = models.FilePathField(max_length=255)
+    file = models.FileField()
+    content = models.BinaryField()
+    content_type = models.CharField(max_length=50, null=True)
 
 
 class UserExperience(models.Model):
