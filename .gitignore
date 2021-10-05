@@ -1,2 +1,4 @@
-__pycache__/
 frontend/node_modules
+__pycache__/
+venv/
+.idea/

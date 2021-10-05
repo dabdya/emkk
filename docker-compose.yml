@@ -1,31 +1,39 @@
-version: "3.9"
+version: "3"
 
 services:
   db:
+    container_name: 'emkk-db'
     image: postgres
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=emkk
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-  migration:
-    image: emkk-backend
-    build: .
-    command: python manage.py migrate
-    volumes:
-      - .:/code
-    links:
-      - db
-    depends_on:
-      - db
+      - POSTGRES_DB=emkk_db
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=pass
+    ports:
+    - "5432:5432"
+
   backend:
-    image: emkk-backend
+    container_name: 'emkk-backend'
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/emkk
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=emkk_db
+      - DB_USER=admin
+      - DB_PASSWORD=pass
     ports:
       - "8000:8000"
     depends_on:
       - db
+
+  frontend:
+    container_name: 'emkk-frontend'
+    build: ./frontend
+    command: npm run start
+    ports:
+    - "3000:3000"
+    depends_on:
+      - backend
