@@ -2,15 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5c18d800-31e4-44e2-b66b-e28c9a05bf24" name="Default Changelist" comment="fix conflicts">
-      <change afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/emkk.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/emkk.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/db.sqlite3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/serializers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emkk_site/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/emkk_site/views.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +42,8 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunManager">
     <configuration name="emkk" type="Python.DjangoServer" factoryName="Django server">
@@ -90,7 +86,14 @@
       <workItem from="1632666152824" duration="522000" />
       <workItem from="1633148136527" duration="20471000" />
       <workItem from="1633182417306" duration="3694000" />
-      <workItem from="1633186186366" duration="4781000" />
+      <workItem from="1633186186366" duration="5600000" />
+      <workItem from="1633334840086" duration="398000" />
+      <workItem from="1633414734758" duration="1346000" />
+      <workItem from="1633430055442" duration="798000" />
+      <workItem from="1633430886907" duration="1311000" />
+      <workItem from="1633443389587" duration="3227000" />
+      <workItem from="1633448065727" duration="7394000" />
+      <workItem from="1633458843324" duration="4451000" />
     </task>
     <task id="LOCAL-00001" summary="make migrations">
       <created>1632653133943</created>
@@ -120,7 +123,21 @@
       <option name="project" value="LOCAL" />
       <updated>1632663541347</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Create docker-compose, add document download">
+      <created>1633191214606</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1633191214607</updated>
+    </task>
+    <task id="LOCAL-00006" summary="add dockerfiles &amp; docker-compose">
+      <created>1633463456178</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1633463456178</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -132,25 +149,27 @@
     <MESSAGE value="add trips_view" />
     <MESSAGE value="add workspace" />
     <MESSAGE value="fix conflicts" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix conflicts" />
+    <MESSAGE value="Create docker-compose, add document download" />
+    <MESSAGE value="add dockerfiles &amp; docker-compose" />
+    <option name="LAST_COMMIT_MESSAGE" value="add dockerfiles &amp; docker-compose" />
   </component>
   <component name="WindowStateProjectService">
     <state x="496" y="30" key="#Dockerfile" timestamp="1633182623741">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="496" y="30" key="#Dockerfile/0.30.1536.834@0.30.1536.834" timestamp="1633182623741" />
-    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1633185337706">
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1633431835490">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1633185337706" />
-    <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1632666173575">
+    <state x="223" y="102" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.30.1536.834@0.30.1536.834" timestamp="1633431835490" />
+    <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser" timestamp="1633460581517">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser/0.30.1536.834@0.30.1536.834" timestamp="1632666173574" />
-    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1633190837638">
+    <state x="526" y="250" key="#com.intellij.fileTypes.FileTypeChooser/0.30.1536.834@0.30.1536.834" timestamp="1633460581517" />
+    <state x="393" y="42" key="CommitChangelistDialog2" timestamp="1633463454410">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
-    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1633190837638" />
+    <state x="393" y="42" key="CommitChangelistDialog2/0.30.1536.834@0.30.1536.834" timestamp="1633463454410" />
     <state width="1493" height="155" key="GridCell.Tab.0.bottom" timestamp="1633182389190">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -167,6 +186,10 @@
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state width="1493" height="155" key="GridCell.Tab.0.right/0.30.1536.834@0.30.1536.834" timestamp="1633182389190" />
+    <state x="277" y="90" key="SettingsEditor" timestamp="1633431784555">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="277" y="90" key="SettingsEditor/0.30.1536.834@0.30.1536.834" timestamp="1633431784555" />
     <state x="361" y="180" key="Vcs.Push.Dialog.v2" timestamp="1632653202727">
       <screen x="0" y="30" width="1536" height="834" />
     </state>
@@ -175,5 +198,9 @@
       <screen x="0" y="30" width="1536" height="834" />
     </state>
     <state x="512" y="239" key="git4idea.merge.GitPullDialog/0.30.1536.834@0.30.1536.834" timestamp="1632663716623" />
+    <state x="431" y="186" key="search.everywhere.popup" timestamp="1633456724503">
+      <screen x="0" y="30" width="1536" height="834" />
+    </state>
+    <state x="431" y="186" key="search.everywhere.popup/0.30.1536.834@0.30.1536.834" timestamp="1633456724503" />
   </component>
 </project>
