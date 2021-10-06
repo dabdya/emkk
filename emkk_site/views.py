@@ -1,17 +1,59 @@
-from django.http import HttpResponse, HttpResponseRedirect
-from .serializers import DocumentSerializer, TripSerializer, UserSerializer, ReviewSerializer
+from rest_framework.response import Response
 from rest_framework import generics
-from rest_framework.views import APIView
+from rest_framework import status
+from django.http import Http404
+
+from .serializers import (
+    DocumentSerializer, TripSerializer,
+    UserSerializer, ReviewSerializer)
+
 from .models import Document, Trip, Review, User
 
-import random
-import json
+
+class TripList(generics.ListCreateAPIView):
+    queryset = Trip.objects.all()
+    serializer_class = TripSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = TripSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def create(self, request, *args, **kwargs):
+        serializer = TripSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-def index(request):
-    ans = random.randint(0,1)
-    ans = "ДА!" if ans else "Нет :("
-    return HttpResponse(json.dumps({"Можно ли пойти в поход?": f"{ans}"}))
+class TripDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Trip.objects.all()
+    serializer_class = TripSerializer
+
+    def retrieve(self, request, *args, **kwargs):
+        trip = self.get_object()
+        serializer = TripSerializer(trip)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def destroy(self, request, *args, **kwargs):
+        trip = self.get_object()
+        trip.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def update(self, request, *args, **kwargs):
+        trip = self.get_object()
+        serializer = TripSerializer(trip, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self):
+        try:
+            return Trip.objects.get(pk=self.kwargs['pk'])
+        except Trip.DoesNotExist as error:
+            raise Http404
 
 
 class DocumentList(generics.ListCreateAPIView):
@@ -21,12 +63,12 @@ class DocumentList(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         trip_id = request.data['trip']
         file = request.FILES['file']
+
         document = Document(
-            trip_id=trip_id,
-            content=file.read(),
-            content_type=file.content_type)
+            trip_id=trip_id, content=file.read(), content_type=file.content_type)
+
         document.save()
-        return HttpResponse(status=201)
+        return Response(status=status.HTTP_201_CREATED)
 
 
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -41,16 +83,21 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     #     return response
 
 
-class UserView(generics.ListCreateAPIView):
+class UserList(generics.ListCreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
-class TripView(generics.ListCreateAPIView):
-    queryset = Trip.objects.all()
-    serializer_class = TripSerializer
+class UserDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 
-class ReviewView(generics.ListCreateAPIView):
+class ReviewList(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+
+
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer

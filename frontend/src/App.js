@@ -8,13 +8,14 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const gg = await fetch("http://localhost:8000/rand/");
+    const gg = await fetch("http://localhost:8000/api/trips");
     let json = await gg.json();
-    this.setState({j: json['Можно ли пойти в поход?']});
+    console.log(json);
+    this.setState({j: 'Посмотри в консоль, там пришел джейсончик, пока не знаю как его отрендерить :('});
     }
 
   render() {
-    return <h1>{ this.state.j }</h1>;
+    return <h2>{ this.state.j}</h2>;
   }
 }
 

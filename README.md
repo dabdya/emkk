@@ -10,6 +10,11 @@
 Князев Игорь | ФТ-301 | <a href=https://github.com/Knyazzini>Knyazzini</a>
 
 
+## Документация API
+
+Пока существует в базвом виде на ```/api```
+
+
 ## Как запускать проект и не мучаться с зависимостями
 
 1. Установить Docker для вашей операционной системы <a href=https://docs.docker.com/desktop/windows/install/>Windows</a> | <a href=https://docs.docker.com/engine/install/>Linux</a>

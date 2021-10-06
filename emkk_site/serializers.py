@@ -14,13 +14,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TripSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Trip
-        fields = '__all__'
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
+        fields = '__all__'
+
+
+class TripSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
         fields = '__all__'
