@@ -8,7 +8,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const gg = await fetch("http://127.0.0.1:8000/rand/");
+    const gg = await fetch("http://localhost:8000/rand/");
     let json = await gg.json();
     this.setState({j: json['Можно ли пойти в поход?']});
     }

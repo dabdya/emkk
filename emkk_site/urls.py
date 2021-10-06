@@ -8,5 +8,5 @@ urlpatterns = [
     path('api/reviews', ReviewView.as_view()),
     path('api/trips', TripView.as_view()),
     path('api/users', UserView.as_view()),
-    path('rand', index)
+    path('rand/', index)
 ]
