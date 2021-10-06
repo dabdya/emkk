@@ -4,6 +4,15 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from .models import Document, Trip, Review, User
 
+import random
+import json
+
+
+def index(request):
+    ans = random.randint(0,1)
+    ans = "ДА!" if ans else "Нет :("
+    return HttpResponse(json.dumps({"Можно ли пойти в поход?": f"{ans}"}))
+
 
 class DocumentList(generics.ListCreateAPIView):
     queryset = Document.objects.all()
@@ -24,12 +33,12 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        document = Document.objects.get(pk=kwargs['pk'])
-        response = HttpResponse(
-            document.content, content_type=document.content_type)
-        response['Content-Disposition'] = 'attachment'
-        return response
+    # def retrieve(self, request, *args, **kwargs):
+    #     document = Document.objects.get(pk=kwargs['pk'])
+    #     response = HttpResponse(
+    #         document.content, content_type=document.content_type)
+    #     response['Content-Disposition'] = 'attachment'
+    #     return response
 
 
 class UserView(generics.ListCreateAPIView):
@@ -42,22 +51,6 @@ class TripView(generics.ListCreateAPIView):
     serializer_class = TripSerializer
 
 
-# class ReviewView(generics.ListCreateAPIView):
-#     queryset = Review.objects.all()
-#     serializer_class = ReviewSerializer
-
-class ReviewList(APIView):
-    """Возвращает список всех рецензий при GET /reviews,
-    либо создает наовую рецензию при POST /reviews"""
-
-    def get(self, request):
-        reviews = Review.objects.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return HttpResponse(serializer.data, status=200)
-
-    def post(self, request):
-        serializer = ReviewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return HttpResponse(serializer.data, status=201)
-        return HttpResponse(serializer.errors, status=400)
+class ReviewView(generics.ListCreateAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer

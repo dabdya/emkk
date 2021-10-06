@@ -5,6 +5,6 @@ RUN apk update
 
 COPY package.json /frontend/
 COPY package-lock.json /frontend/
-RUN npm i
+RUN npm install
 
-COPY . /frontend
+COPY . /frontend/
