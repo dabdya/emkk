@@ -20,7 +20,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TripSerializer(serializers.ModelSerializer):
+class TripGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
         fields = '__all__'
+
+
+class TripPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        exclude = ['status', ]

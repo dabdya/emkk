@@ -4,7 +4,7 @@ from rest_framework import status
 from django.http import Http404
 
 from .serializers import (
-    DocumentSerializer, TripSerializer,
+    DocumentSerializer, TripGetSerializer, TripPostSerializer,
     UserSerializer, ReviewSerializer)
 
 from .models import Document, Trip, Review, User
@@ -12,28 +12,34 @@ from .models import Document, Trip, Review, User
 
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
+    serializer_classes = {
+        'GET': TripGetSerializer,
+        'POST': TripPostSerializer,
+    }
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = TripSerializer(queryset, many=True)
+        serializer = self.get_serializer_class()(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = TripSerializer(data=request.data)
+        serializer = self.get_serializer_class()(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        return self.serializer_classes.get(self.request.method)
+
 
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
+    serializer_class = TripGetSerializer
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
-        serializer = TripSerializer(trip)
+        serializer = self.get_serializer()(trip)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
@@ -43,7 +49,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         trip = self.get_object()
-        serializer = TripSerializer(trip, data=request.data)
+        serializer = self.get_serializer()(trip, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

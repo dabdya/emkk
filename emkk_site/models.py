@@ -1,15 +1,23 @@
 from django.db import models
 
 
-class TripStatus(models.Model):
-    """Справочник по статусам заявки"""
-    name = models.CharField(max_length=50)
-    description = models.TextField()
+class TripStatus(models.TextChoices):
+    ROUTE_COMPLETED = 'route_completed'
+    ON_ROUTE = 'on_route'
+    CREATED = 'created'
+    ON_REVIEW = 'on_review'
+    AT_ISSUER = 'at_issuer'
+    ON_REWORK = 'in_rework'
+    ACCEPTED = 'accepted'
+    REJECTED = 'rejected'
 
 
-class TripType(models.Model):
-    """Справочник по типам заявки"""
-    name = models.CharField(max_length=50)
+class TripKind(models.TextChoices):
+    PEDESTRIAN = 'pedestrian'
+    CYCLING = 'cycling'
+    MOUNTAIN = 'mountain'
+    WATER = 'water'
+    SKI = 'ski'
 
 
 class UserRole(models.Model):
@@ -27,11 +35,13 @@ class User(models.Model):
 
 
 class Trip(models.Model):
-    """Заявка на поход"""
-    status = models.ForeignKey(TripStatus, on_delete=models.SET_NULL, null=True)
-    _type = models.ForeignKey(TripType, on_delete=models.SET_NULL, null=True)
-    leader = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    group_name = models.CharField(max_length=100, null=True)
+
+    status = models.CharField(
+        choices=TripStatus.choices, default=TripStatus.CREATED, max_length=30)
+    kind = models.CharField(choices=TripKind.choices, max_length=30)
+
+    leader = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    group_name = models.CharField(max_length=100)
     difficulty_category = models.IntegerField()
     district = models.CharField(max_length=100)
     participants_count = models.IntegerField()
@@ -43,24 +53,25 @@ class Trip(models.Model):
     end_apply = models.TextField(null=True)
 
 
+class Review(models.Model):
+    """Рецензия. Выдается работниоком МКК на конкретную заявку"""
+    reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    result = models.CharField(
+        choices=TripStatus.choices, max_length=30, default=TripStatus.ON_REVIEW)
+    result_comment = models.TextField()
+
+
 class Document(models.Model):
     """Документ, прилагаемый к заявке"""
-    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
-    file = models.FileField()
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    file = models.FileField(blank=True)
     content = models.BinaryField()
     content_type = models.CharField(max_length=50, null=True)
 
 
 class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    trip_type = models.ForeignKey(TripType, on_delete=models.SET_NULL, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    kind = models.CharField(choices=TripKind.choices, max_length=30)
     difficulty_category = models.IntegerField()
-
-
-class Review(models.Model):
-    """Рецензия. Выдается работниоком МКК на конкретную заявку"""
-    reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
-    trip = models.ForeignKey(Trip, on_delete=models.SET_NULL, null=True)
-    result = models.ForeignKey(TripStatus, on_delete=models.SET_NULL, null=True)
-    result_comment = models.TextField()
