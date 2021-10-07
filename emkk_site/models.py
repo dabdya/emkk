@@ -65,7 +65,7 @@ class Review(models.Model):
 class Document(models.Model):
     """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    file = models.FileField(blank=True)
+    file = models.FileField()
     content = models.BinaryField()
     content_type = models.CharField(max_length=50, null=True)
 
