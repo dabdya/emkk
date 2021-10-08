@@ -3,9 +3,11 @@ from .models import Document, User, Trip, Review
 
 
 class DocumentSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+
     class Meta:
         model = Document
-        fields = '__all__'
+        exclude = ['content_type', 'content', ]
 
 
 class UserSerializer(serializers.ModelSerializer):

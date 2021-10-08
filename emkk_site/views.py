@@ -1,3 +1,5 @@
+from rest_framework.renderers import JSONRenderer, BaseRenderer, BrowsableAPIRenderer, MultiPartRenderer
+from rest_framework.parsers import BaseParser, MultiPartParser, FileUploadParser
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
@@ -39,7 +41,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
-        serializer = self.get_serializer()(trip)
+        serializer = self.serializer_class(trip)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def destroy(self, request, *args, **kwargs):
@@ -49,7 +51,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def update(self, request, *args, **kwargs):
         trip = self.get_object()
-        serializer = self.get_serializer()(trip, data=request.data)
+        serializer = self.serializer_class(trip, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -62,14 +64,40 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
             raise Http404
 
 
+# class PDFRenderer(BaseRenderer):
+#     media_type = 'application/pdf'
+#     format = 'pdf'
+#     charset = None
+#     render_style = 'binary'
+#
+#     def render(self, data, media_type=None, renderer_context=None):
+#         return data
+
+
 class DocumentList(generics.ListCreateAPIView):
-    queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
+    parser_classes = [MultiPartParser, ]
+
+    def get_queryset(self):
+        queryset = Document.objects.all()
+        trip_id = self.request.query_params.get('trip_id')
+        if not trip_id:
+            return queryset
+        return queryset.filter(trip_id=trip_id)
+
+    def list(self, request, *args, **kwargs):
+        serializer = self.get_serializer(self.get_queryset(), many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
         trip_id = request.data['trip']
-        file = request.FILES['file']
 
+        if not Trip.objects.filter(pk=trip_id).exists():
+            return Response(status=status.HTTP_404_NOT_FOUND,
+                            data={'error': 'related trip not found'})
+
+        file = request.FILES['file']
         document = Document(
             trip_id=trip_id, content=file.read(), content_type=file.content_type)
 

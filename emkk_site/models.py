@@ -52,6 +52,9 @@ class Trip(models.Model):
     start_apply = models.TextField(null=True)
     end_apply = models.TextField(null=True)
 
+    def __str__(self):
+        return self.group_name
+
 
 class Review(models.Model):
     """Рецензия. Выдается работниоком МКК на конкретную заявку"""
@@ -65,7 +68,6 @@ class Review(models.Model):
 class Document(models.Model):
     """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    file = models.FileField()
     content = models.BinaryField()
     content_type = models.CharField(max_length=50, null=True)
 
