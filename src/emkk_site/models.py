@@ -1,4 +1,5 @@
 from django.db import models
+from src.jwt_auth.models import User
 
 
 class TripStatus(models.TextChoices):
@@ -20,27 +21,13 @@ class TripKind(models.TextChoices):
     SKI = 'ski'
 
 
-class UserRole(models.Model):
-    """Роли в МКК. Секретарь/Рецензент/Выпускающий/Руководитель группы"""
-    name = models.CharField(max_length=255)
-    priority_level = models.IntegerField()
-
-
-class User(models.Model):
-    """Все пользователи. Все те, кто зарегистрированы"""
-    name = models.CharField(max_length=100)
-    phone = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
-    role = models.ManyToManyField(UserRole)
-
-
 class Trip(models.Model):
-
+    """Заявка. Подается руководителем группы"""
     status = models.CharField(
         choices=TripStatus.choices, default=TripStatus.CREATED, max_length=30)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
 
-    leader = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
     difficulty_category = models.IntegerField()
     district = models.CharField(max_length=100)
@@ -58,7 +45,7 @@ class Trip(models.Model):
 
 class Review(models.Model):
     """Рецензия. Выдается работниоком МКК на конкретную заявку"""
-    reviewer = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     result = models.CharField(
         choices=TripStatus.choices, max_length=30, default=TripStatus.ON_REVIEW)
@@ -72,8 +59,8 @@ class Document(models.Model):
     content_type = models.CharField(max_length=50, null=True)
 
 
-class UserExperience(models.Model):
-    """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField()
+# class UserExperience(models.Model):
+#     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+#     kind = models.CharField(choices=TripKind.choices, max_length=30)
+#     difficulty_category = models.IntegerField()

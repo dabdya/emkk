@@ -1,43 +1,43 @@
-from rest_framework.renderers import JSONRenderer, BaseRenderer, BrowsableAPIRenderer, MultiPartRenderer
-from rest_framework.parsers import BaseParser, MultiPartParser, FileUploadParser
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
+from rest_framework.authentication import SessionAuthentication
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import Http404
 
-from .serializers import (
-    DocumentSerializer, TripGetSerializer, TripPostSerializer,
-    UserSerializer, ReviewSerializer)
 
-from .models import Document, Trip, Review, User
+from .serializers import (
+    DocumentSerializer, TripSerializer, ReviewSerializer,
+    DocumentDetailSerializer)
+
+from .models import Document, Trip, Review
 
 
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
-    serializer_classes = {
-        'GET': TripGetSerializer,
-        'POST': TripPostSerializer,
-    }
+    serializer_class = TripSerializer
+    authentication_classes = [SessionAuthentication, ]
+    permission_classes = [IsAuthenticated, ]
 
     def list(self, request, *args, **kwargs):
+        print(request.user)
         queryset = self.get_queryset()
-        serializer = self.get_serializer_class()(queryset, many=True)
+        serializer = TripSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer_class()(data=request.data)
+        serializer = self.serializer_class(data=request.data, excluded_fields=["status"])
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def get_serializer_class(self):
-        return self.serializer_classes.get(self.request.method)
-
 
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripGetSerializer
+    serializer_class = TripSerializer
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
@@ -62,16 +62,6 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
             return Trip.objects.get(pk=self.kwargs['pk'])
         except Trip.DoesNotExist as error:
             raise Http404
-
-
-# class PDFRenderer(BaseRenderer):
-#     media_type = 'application/pdf'
-#     format = 'pdf'
-#     charset = None
-#     render_style = 'binary'
-#
-#     def render(self, data, media_type=None, renderer_context=None):
-#         return data
 
 
 class DocumentList(generics.ListCreateAPIView):
@@ -107,7 +97,34 @@ class DocumentList(generics.ListCreateAPIView):
 
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
-    serializer_class = DocumentSerializer
+    serializer_class = DocumentDetailSerializer
+    renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
+    parser_classes = [MultiPartParser, ]
+
+    def retrieve(self, request, *args, **kwargs):
+        document = self.get_object()
+        serializer = self.serializer_class(document)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def update(self, request, *args, **kwargs):
+        document = self.get_object()
+        serializer = self.serializer_class(document, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def destroy(self, request, *args, **kwargs):
+        document = self.get_object()
+        document.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    def get_object(self):
+        try:
+            return Document.objects.get(pk=self.kwargs['pk'])
+        except Trip.DoesNotExist as error:
+            raise Http404
 
     # def retrieve(self, request, *args, **kwargs):
     #     document = Document.objects.get(pk=kwargs['pk'])
@@ -115,16 +132,6 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     #         document.content, content_type=document.content_type)
     #     response['Content-Disposition'] = 'attachment'
     #     return response
-
-
-class UserList(generics.ListCreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-
-class UserDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 
 class ReviewList(generics.ListCreateAPIView):
