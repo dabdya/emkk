@@ -1,6 +1,8 @@
 import React from "react";
 import { Trips }  from "./Trips.js";
-import { Login } from "./Login.js";
+import Login from "./Login.js";
+import Registration from "./Registration.js";
+
 import {
 	BrowserRouter as Router,
 	Switch,
@@ -21,6 +23,9 @@ export default function App() {
 						<li>
 							<Link to="/login">Login</Link>
 						</li>
+						<li>
+							<Link to="/registration">Registration</Link>
+						</li>
 					</ul>
 				</nav>
 
@@ -31,6 +36,10 @@ export default function App() {
 
 					<Route path="/login">
 						<Login />
+					</Route>
+
+					<Route path="/registration">
+						<Registration />
 					</Route>
 				</Switch>
 			</div>

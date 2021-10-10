@@ -26,7 +26,6 @@ class LoginSerializer(serializers.Serializer):
             )
 
         user = authenticate(username=username, password=password)
-        print(password)
         if not user:
             raise serializers.ValidationError(
                 "A user with this username and password was not found"
