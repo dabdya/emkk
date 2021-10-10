@@ -16,7 +16,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
@@ -27,6 +26,8 @@ SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4
 DEBUG = True
 
 ALLOWED_HOSTS = []
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 
 # Application definition
@@ -58,7 +59,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-
 CORS_ORIGIN_WHITELIST = [
     'http://localhost:3000',
 ]
@@ -86,18 +86,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'postgr': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
         'PASSWORD': os.environ.get('DB_PASSWORD'),
         'HOST': os.environ.get('DB_HOST'),
         'PORT': 5432
+    },
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
@@ -122,9 +125,8 @@ AUTH_PASSWORD_VALIDATORS = [
 AUTH_USER_MODEL = 'jwt_auth.User'
 
 AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
-    )
-
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
@@ -138,7 +140,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/

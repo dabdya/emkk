@@ -1,3 +1,5 @@
+from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.exceptions import NotFound
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
@@ -6,7 +8,6 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import Http404
-
 
 from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
@@ -19,7 +20,8 @@ class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
     authentication_classes = [SessionAuthentication, ]
-    permission_classes = [IsAuthenticated, ]
+
+    # permission_classes = [IsAuthenticated, ]
 
     def list(self, request, *args, **kwargs):
         print(request.user)
@@ -64,7 +66,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
             raise Http404
 
 
-class DocumentList(generics.ListCreateAPIView):
+class DocumentList(generics.ListCreateAPIView):  # by trip_id
     serializer_class = DocumentSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
@@ -77,22 +79,29 @@ class DocumentList(generics.ListCreateAPIView):
         return queryset.filter(trip_id=trip_id)
 
     def list(self, request, *args, **kwargs):
-        serializer = self.get_serializer(self.get_queryset(), many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        trip_id = kwargs['pk']
+        try:
+            trip = Trip.objects.get(pk=trip_id)
+        except ObjectDoesNotExist:
+            return NotFound(detail='No such trip')
+        docs = Document.objects.filter(trip_id=trip.pk)
+        docs_ids = list(map(lambda d: d.id, docs))
+        return Response(docs_ids)
 
-    def create(self, request, *args, **kwargs):
-        trip_id = request.data['trip']
 
-        if not Trip.objects.filter(pk=trip_id).exists():
-            return Response(status=status.HTTP_404_NOT_FOUND,
-                            data={'error': 'related trip not found'})
-
-        file = request.FILES['file']
-        document = Document(
-            trip_id=trip_id, content=file.read(), content_type=file.content_type)
-
-        document.save()
-        return Response(status=status.HTTP_201_CREATED)
+# def create(self, request, *args, **kwargs):
+#     trip_id = request.data['trip']
+#
+#     if not Trip.objects.filter(pk=trip_id).exists():
+#         return Response(status=status.HTTP_404_NOT_FOUND,
+#                         data={'error': 'related trip not found'})
+#
+#     file = request.FILES['file']
+#     document = Document(
+#         trip_id=trip_id, content=file.read(), content_type=file.content_type)
+#
+#     document.save()
+#     return Response(status=status.HTTP_201_CREATED)
 
 
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -122,7 +131,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
     def get_object(self):
         try:
-            return Document.objects.get(pk=self.kwargs['pk'])
+            return Document.objects.get(pk=self.kwargs['doc_id'])
         except Trip.DoesNotExist as error:
             raise Http404
 

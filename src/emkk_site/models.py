@@ -55,8 +55,7 @@ class Review(models.Model):
 class Document(models.Model):
     """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    content = models.BinaryField()
-    content_type = models.CharField(max_length=50, null=True)
+    file = models.FileField(upload_to='%Y/%m/%d/')
 
 
 # class UserExperience(models.Model):

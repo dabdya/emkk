@@ -3,33 +3,27 @@ from .models import Document, Trip, Review
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    file = serializers.FileField(write_only=True)
-
     class Meta:
         model = Document
-        exclude = ['content_type', 'content', ]
-        # fields = '__all__'
-        # extra_kwargs = {
-        #     'content-type': {'read_only': True},
-        #     'content': {'read_only': True},
-        # }
+        fields = '__all__'
 
 
 class DocumentDetailSerializer(serializers.ModelSerializer):
-    file = serializers.FileField()
+    # file = serializers.FileField()
 
     class Meta:
         model = Document
-        fields = ['id', 'file', 'trip', 'content_type', 'content']
-        extra_kwargs = {
-            'content_type': {'read_only': True},
-            'trip': {'read_only': True}
-        }
+        fields = '__all__'
+        # fields = ['id', 'file', 'trip', 'content_type', 'content']
+        # extra_kwargs = {
+        #     'content_type': {'read_only': True},
+        #     'trip': {'read_only': True}
+        # }
 
-    def update(self, instance, validated_data):
-        file = validated_data['file']
-        instance.content_type = file.content_type
-        instance.content = file.read()
+    # def update(self, instance, validated_data):
+    #     file = validated_data['file']
+    #     instance.content_type = file.content_type
+    #     instance.content = file.read()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -47,6 +41,7 @@ class DynamicTripSerializer(serializers.ModelSerializer):
         if excluded_fields:
             for field in excluded_fields:
                 self.fields.pop(field)
+
 
 # Можно было бы добиться такого же результата, если просто указать что status read only?
 
