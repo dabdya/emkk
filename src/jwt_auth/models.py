@@ -60,7 +60,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=6, choices=GENDER, default='m')
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email']
+    REQUIRED_FIELDS = ['email', 'first_name', 'second_name']
 
     objects = UserManager()
 
@@ -69,12 +69,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def token(self):
+        """На каждый вход генерируется новый токен с сроком годности сутки"""
         return self._generate_jwt_token()
 
     def _generate_jwt_token(self):
         dt = timezone.now() + timedelta(days=1)
         token = jwt.encode({
-            'id': self.id,
+            'id': self.pk,
             'exp': int(dt.strftime('%s'))
         }, settings.SECRET_KEY, algorithm='HS256')
 
