@@ -10,7 +10,7 @@ import jwt
 
 class UserManager(BaseUserManager):
 
-    def create_user(self, username, email, first_name, second_name, password):
+    def create_user(self, username, email, first_name, last_name, password):
         if not username:
             raise TypeError('Users must have a username')
 
@@ -18,14 +18,14 @@ class UserManager(BaseUserManager):
             raise TypeError('Users must have an email address')
 
         user = self.model(username=username, email=self.normalize_email(email),
-                          first_name=first_name, second_name=second_name)
+                          first_name=first_name, last_name=last_name)
         user.set_password(password)
         user.save()
         return user
 
-    def create_superuser(self, username, email, first_name, second_name, password):
+    def create_superuser(self, username, email, first_name, last_name, password):
         user = self.create_user(
-            username, email, first_name, second_name, password)
+            username, email, first_name, last_name, password)
         user.is_superuser = True
         user.is_staff = True
         user.save()
@@ -43,7 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
 
     first_name = models.CharField(max_length=255)
-    second_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -60,12 +60,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         max_length=6, choices=GENDER, default='m')
 
     USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'second_name']
+    EMAIL_FIELD = 'email'
+
+    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
 
     objects = UserManager()
 
     def get_full_name(self):
-        return f'{self.first_name} {self.second_name}'
+        return f'{self.first_name} {self.last_name}'
 
     @property
     def token(self):

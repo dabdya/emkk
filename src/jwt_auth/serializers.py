@@ -56,7 +56,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'password', 'token', 'email', 'username',
-            'first_name', 'second_name', 'gender'
+            'first_name', 'last_name', 'gender'
         ]
 
     def create(self, validated_data):
@@ -71,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'password', 'token', 'email', 'username',
-            'first_name', 'second_name', 'gender'
+            'first_name', 'last_name', 'gender'
         ]
         read_only_fields = ('token', )
 

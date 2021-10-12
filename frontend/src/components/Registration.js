@@ -11,7 +11,7 @@ export default function Register () {
             password: "",
             password2: "",
             first_name: "",
-            second_name: ""
+            last_name: ""
         }
     });
 
@@ -44,11 +44,11 @@ export default function Register () {
                     email: register.email,
                     password: register.password,
                     first_name: register.first_name,
-                    second_name: register.second_name
+                    last_name: register.last_name
                 }
             }, config).then(res => {
                 if (res.data) {
-                    alert('Registration complete!')
+                    alert('Registration complete!');
                     window.location.href = "http://localhost:3000"
                 } else {
                     alert("There is already a user with this email")
@@ -61,7 +61,7 @@ export default function Register () {
 
     return (
         <div className="form">
-            <h2>Register user:</h2>
+            <h1>Registration:</h1>
             <form onSubmit={submitChackin}>
                 <p>Name: <input
                     type="username"
@@ -85,11 +85,11 @@ export default function Register () {
                     value={register.first_name}
                     onChange={changeInputRegister}
                 /></p>
-                <p>Second name: <input
-                    type="second_name"
-                    id="second_name"
-                    name="second_name"
-                    value={register.second_name}
+                <p>Last name: <input
+                    type="last_name"
+                    id="last_name"
+                    name="last_name"
+                    value={register.last_name}
                     onChange={changeInputRegister}
                 /></p>
                 <p>Password: <input

@@ -1,85 +1,65 @@
-import React from "react";
-import { Trips }  from "./Trips.js";
-import Login from "./Login.js";
-import Registration from "./Registration.js";
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Switch, Route, NavLink } from 'react-router-dom';
+import axios from 'axios';
 
-import {
-	BrowserRouter as Router,
-	Switch,
-	Route,
-	Link
-} from "react-router-dom";
+import Login from './Login';
+import Dashboard from './Dashboard';
+import Home from './Home';
+import Registration from "./Registration";
 
+import PrivateRoute from '../utils/PrivateRoute';
+import PublicRoute from '../utils/PublicRoute';
+import { getToken, removeUserSession, setUserSession } from '../utils/Common';
 
-export default function App() {
-	return (
-		<Router>
-			<div>
-				<nav>
-					<ul>
-						<li>
-							<Link to="/trips">Trips</Link>
-						</li>
-						<li>
-							<Link to="/login">Login</Link>
-						</li>
-						<li>
-							<Link to="/registration">Registration</Link>
-						</li>
-					</ul>
-				</nav>
+function App() {
+  const [authLoading, setAuthLoading] = useState(true);
 
-				<Switch>
-					<Route path="/trips">
-						<Trips />
-					</Route>
+  useEffect(() => {
+    const token = getToken();
+    if (!token) {
+      return;
+    }
 
-					<Route path="/login">
-						<Login />
-					</Route>
+    let config = {
+      headers: {
+        Authorization: 'Token ' + token //the token is a variable which holds the token
+        }
+    };
+    axios.get(`http://localhost:8000/auth/user`, config).then(response => {
+      setUserSession(response.data.user.token, response.data.user.username);
+      setAuthLoading(false);
+    }).catch(error => {
+      removeUserSession();
+      setAuthLoading(false);
+    });
+  }, []);
 
-					<Route path="/registration">
-						<Registration />
-					</Route>
-				</Switch>
-			</div>
-		</Router>
-	);
+  if (authLoading && getToken()) {
+    return <div className="content">Checking Authentication...</div>
+  }
+
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <div>
+          <div className="header">
+            <NavLink exact activeClassName="active" to="/">Home</NavLink>
+            <NavLink activeClassName="active" to="/login">Login</NavLink><small>(Access without token)</small>
+            <NavLink activeClassName="active" to="/signup">Registration</NavLink><small>(Access without token)</small>
+            <NavLink activeClassName="active" to="/dashboard">Dashboard</NavLink><small>(Access with token only)</small>
+          </div>
+          <div className="content">
+            <Switch>
+              <Route exact path="/" component={Home} />
+              <PublicRoute path="/login" component={Login} />
+              <PublicRoute path="/signup" component={Registration} />
+              <PrivateRoute path="/dashboard" component={Dashboard} />
+            </Switch>
+          </div>
+        </div>
+      </BrowserRouter>
+    </div>
+  );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// import React from 'react';
-
-// class App extends React.Component {
-
-// 	constructor(props) {
-// 		super(props);
-// 		this.state = {};
-// 	}
-
-// 	async componentDidMount() {
-// 		const gg = await fetch("http://localhost:8000/api/trips");
-// 		let json = await gg.json();
-// 		console.log(json);
-// 		this.setState({j: 'Посмотри в консоль, там пришел джейсончик, пока не знаю как его отрендерить :('});
-// 		}
-
-// 	render() {
-// 		return <h2>{ this.state.j}</h2>;
-// 	}
-// }
-
-// export default App;
+export default App;

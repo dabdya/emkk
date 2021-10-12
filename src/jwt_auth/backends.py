@@ -12,8 +12,6 @@ class JWTAuthentication(authentication.BaseAuthentication):
            в виде [Token 1q2w3e4r5tzaxscdvfbg]"""
         request.user = None
         auth_header = authentication.get_authorization_header(request).split()
-        print(request.headers)
-        print(auth_header)
         auth_header_prefix = self.authentication_header_prefix.lower()
 
         if not auth_header:

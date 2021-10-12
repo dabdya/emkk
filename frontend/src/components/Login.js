@@ -1,69 +1,55 @@
-import React, { useState } from 'react'
+import React, { useState } from 'react';
 import axios from 'axios';
+import { setUserSession } from '../utils/Common';
 
-// Здесь предварительно проверять нет ли jwt в куках, если нет, то логиниться, иначе считаем что ок
-export default function Login () {
-    const [register, setRegister] = useState(() => {
-        return {
-            username: "",
-            password: "",
-        }
+function Login(props) {
+  const [loading, setLoading] = useState(false);
+  const username = useFormInput('');
+  const password = useFormInput('');
+  const [error, setError] = useState(null);
+
+  // handle button click of login form
+  const handleLogin = () => {
+    setError(null);
+    setLoading(true);
+    axios.post('http://localhost:8000/auth/users/login', { user: {username: username.value, password: password.value }}).then(response => {
+      setLoading(false);
+      setUserSession(response.data.user.token, response.data.user.username);
+      props.history.push('/dashboard');
+    }).catch(error => {
+      setLoading(false);
+      if (error.response.status === 401) setError(error.response.data.message);
+      else setError("Something went wrong. Please try again later.");
     });
+  }
 
-    const changeInputRegister = event => {
-        event.persist();
-        setRegister(prev => {
-            return {
-                ...prev,
-                [event.target.name]: event.target.value,
-            }
-        })
-    };
-
-    const submitChackin = event => {
-        event.preventDefault();
-		const config = {
-			"Access-Control-Allow-Origin": "*",
-			"Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-		};
-		axios.post("http://localhost:8000/auth/users/login", {
-			user: {
-				username: register.username,
-				password: register.password
-			}
-		}, config).then(res => {
-			if (res.data) {
-				alert('Login complete!');
-				window.location.href = "http://localhost:3000"
-			} else {
-				alert('Login failed! Perhaps password or username contains error');
-				alert("There is already a user with this email")
-			}
-		}).catch(() => {
-			alert("An error occurred on the server")
-		})
-    };
-
-    return (
-        <div className="form">
-            <h2>Login user:</h2>
-            <form onSubmit={submitChackin}>
-                <p>Name: <input
-                    type="username"
-                    id="username"
-                    name="username"
-                    value={register.username}
-                    onChange={changeInputRegister}
-                /></p>
-                <p>Password: <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={register.password}
-                    onChange={changeInputRegister}
-                    /></p>
-                <input type="submit"/>
-            </form>
-        </div>
-    )
+  return (
+    <div>
+      <h1>Login</h1><br /><br />
+      <div>
+        Username<br />
+        <input type="text" {...username} autoComplete="new-password" />
+      </div>
+      <div style={{ marginTop: 10 }}>
+        Password<br />
+        <input type="password" {...password} autoComplete="new-password" />
+      </div>
+      {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
+      <input type="button" value={loading ? 'Loading...' : 'Login'} onClick={handleLogin} disabled={loading} /><br />
+    </div>
+  );
 }
+
+const useFormInput = initialValue => {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = e => {
+    setValue(e.target.value);
+  };
+  return {
+    value,
+    onChange: handleChange
+  }
+};
+
+export default Login;
