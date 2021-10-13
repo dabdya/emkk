@@ -5,10 +5,10 @@ from src.jwt_auth.models import User
 class TripStatus(models.TextChoices):
     ROUTE_COMPLETED = 'route_completed'
     ON_ROUTE = 'on_route'
-    CREATED = 'created'
+    TAKE_PAPERS = 'take_papers'
     ON_REVIEW = 'on_review'
     AT_ISSUER = 'at_issuer'
-    ON_REWORK = 'in_rework'
+    ON_REWORK = 'on_rework'
     ACCEPTED = 'accepted'
     REJECTED = 'rejected'
 
