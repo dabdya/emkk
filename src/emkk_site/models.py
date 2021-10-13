@@ -31,7 +31,7 @@ class Trip(models.Model):
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
-    difficulty_category = models.IntegerField()
+    difficulty_category = models.IntegerField(min_value=1, max_value=6)
     district = models.CharField(max_length=100)
     participants_count = models.IntegerField()
     start_date = models.DateField()
@@ -65,8 +65,14 @@ class Document(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     file = models.FileField(upload_to='%Y/%m/%d/')
 
-# class UserExperience(models.Model):
-#     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     kind = models.CharField(choices=TripKind.choices, max_length=30)
-#     difficulty_category = models.IntegerField()
+
+class UserExperience(models.Model):
+    """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    kind = models.CharField(choices=TripKind.choices, max_length=30)
+    difficulty_category = models.IntegerField(min_value=1, max_value=6)
+
+
+class TripsOnReviewByUser(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
