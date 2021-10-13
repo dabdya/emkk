@@ -24,7 +24,7 @@ class TripKind(models.TextChoices):
 class Trip(models.Model):
     """Заявка. Подается руководителем группы"""
     status = models.CharField(
-        choices=TripStatus.choices, default=TripStatus.CREATED, max_length=30)
+        choices=TripStatus.choices, default=TripStatus.ON_REVIEW, max_length=30)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
