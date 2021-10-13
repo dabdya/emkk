@@ -1,8 +1,55 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
+import { setUserSession } from '../utils/Common';
 
-export class Login extends React.Component {
+function Login(props) {
+  const [loading, setLoading] = useState(false);
+  const username = useFormInput('');
+  const password = useFormInput('');
+  const [error, setError] = useState(null);
 
-	render() {
-		return <h2>{"Форма логина"}</h2>;
-	}
+  // handle button click of login form
+  const handleLogin = () => {
+    setError(null);
+    setLoading(true);
+    axios.post('http://localhost:8000/auth/users/login', { user: {username: username.value, password: password.value }}).then(response => {
+      setLoading(false);
+      setUserSession(response.data.user.token, response.data.user.username);
+      props.history.push('/dashboard');
+    }).catch(error => {
+      setLoading(false);
+      if (error.response.status === 401) setError(error.response.data.message);
+      else setError("Something went wrong. Please try again later.");
+    });
+  }
+
+  return (
+    <div>
+      <h1>Login</h1><br /><br />
+      <div>
+        Username<br />
+        <input type="text" {...username} autoComplete="new-password" />
+      </div>
+      <div style={{ marginTop: 10 }}>
+        Password<br />
+        <input type="password" {...password} autoComplete="new-password" />
+      </div>
+      {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
+      <input type="button" value={loading ? 'Loading...' : 'Login'} onClick={handleLogin} disabled={loading} /><br />
+    </div>
+  );
 }
+
+const useFormInput = initialValue => {
+  const [value, setValue] = useState(initialValue);
+
+  const handleChange = e => {
+    setValue(e.target.value);
+  };
+  return {
+    value,
+    onChange: handleChange
+  }
+};
+
+export default Login;

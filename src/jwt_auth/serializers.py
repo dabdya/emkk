@@ -26,7 +26,6 @@ class LoginSerializer(serializers.Serializer):
             )
 
         user = authenticate(username=username, password=password)
-        print(password)
         if not user:
             raise serializers.ValidationError(
                 "A user with this username and password was not found"
@@ -57,7 +56,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'password', 'token', 'email', 'username',
-            'first_name', 'second_name', 'gender'
+            'first_name', 'last_name', 'gender'
         ]
 
     def create(self, validated_data):
@@ -72,7 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'password', 'token', 'email', 'username',
-            'first_name', 'second_name', 'gender'
+            'first_name', 'last_name', 'gender'
         ]
         read_only_fields = ('token', )
 

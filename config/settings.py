@@ -59,10 +59,16 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
-]
-CORS_ORIGIN_REGEX_WHITELIST = [
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:3000',
+# ]
+# CORS_ORIGIN_REGEX_WHITELIST = [
+#     'http://localhost:3000',
+# ]
+
+# CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
 
@@ -102,6 +108,11 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'src.jwt_auth.backends.JWTAuthentication',
+    ),
 }
 
 # Password validation
