@@ -13,7 +13,7 @@ from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer)
 
-from .models import Document, Trip, Review
+from .models import Document, Trip, Review, TripStatus
 
 
 class TripList(generics.ListCreateAPIView):
@@ -54,6 +54,9 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         trip = self.get_object()
         serializer = self.serializer_class(trip, data=request.data)
+        if trip.status != TripStatus.ON_REWORK:
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                            data=f"Trip can be changed only in ON_REWORK status, but was in {trip.status} status")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
@@ -144,8 +147,21 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ReviewList(generics.ListCreateAPIView):
+    """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
+        Если их стало больше необходимого кол-ва - исключение 4**
+        Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набролось достаточное кол-во"""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def create(self, request, *args, **kwargs):
+        trip_id = kwargs["pk"]
+        trip = Trip.objects.get(pk=trip_id)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            trip.try_change_status_from_review_to_at_issuer()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
