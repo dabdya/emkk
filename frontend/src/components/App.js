@@ -10,31 +10,37 @@ import Registration from "./Registration";
 import PrivateRoute from '../utils/PrivateRoute';
 import PublicRoute from '../utils/PublicRoute';
 import { getToken, removeUserSession, setUserSession } from '../utils/Common';
-import { Trips } from './Trips';
 
 export default class App extends React.Component {
 
+	constructor(props){
+		super(props)
+
+		this.state = {token: null};
+	}
 	authLoading = null;
 
 	componentDidMount(){
-		const token = getToken();
-		if (!token) {
+		this.setState({token: getToken()})
+		//const token = getToken();
+		if (!this.state.token) {
 	  		return;
 		}
 		let config = {
 			headers: {
-			  Authorization: 'Token ' + token //the token is a variable which holds the token
+			  Authorization: 'Token ' + this.state.token //the token is a variable which holds the token
 			  }
 		  };
 
 		axios.get(`http://localhost:8000/auth/user`, config).then(response => {
 			setUserSession(response.data.user.token, response.data.user.username);
 			this.setState({authLoading:true});
-		  }).catch(error => {
+			}).catch(error => {
 			removeUserSession();
 			this.setState({authLoading:false});
-		  });
+		});
 	}
+
 	render(){
 		if (this.authLoading && getToken()) {
 			return <div className="content">Checking Authentication...</div>
@@ -45,14 +51,16 @@ export default class App extends React.Component {
 					<div>
 					  <div className="header">
 						<NavLink exact activeClassName="active" to="/">Home</NavLink>
-						<NavLink activeClassName="active" to="/login">Login</NavLink><small>(Access without token)</small>
-						<NavLink activeClassName="active" to="/signup">Registration</NavLink><small>(Access without token)</small>
+						{!this.state.token && <>
+							<NavLink activeClassName="active" to="/login">Login</NavLink><small>(Access without token)</small>
+							<NavLink activeClassName="active" to="/signup">Registration</NavLink><small>(Access without token)</small>
+						</>
+						}
 						<NavLink activeClassName="active" to="/dashboard">Dashboard</NavLink><small>(Access with token only)</small>
 					  </div>
 					  <div className="content">
 						<Switch>
 						  <Route exact path="/" component={Home} />
-						  <Route exact path="/trips" component={Trips} />
 						  <PublicRoute path="/login" component={Login} />
 						  <PublicRoute path="/signup" component={Registration} />
 						  <PrivateRoute path="/dashboard" component={Dashboard} />

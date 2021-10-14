@@ -9,15 +9,16 @@ export default class Login extends React.Component {
 
 		this.state = {login: '', password: ''};
 		this.onSubmit = this.onSubmit.bind(this);
-  }
+	}
 
 	onSubmit(e) {
+		e.preventDefault();
 		axios.post('http://localhost:8000/auth/users/login', { user: {username: this.state.login, password: this.state.password }})
 		.then(response => {
 			setUserSession(response.data.user.token, response.data.user.username);
-			this.props.history.push('/dashboard');
+			this.props.history.push('/dashboard'); // не убирает кнопки login и registration после входа. пофиксить.
 		});
-		e.preventDefault();
+		
 	}
 
 	render() {
