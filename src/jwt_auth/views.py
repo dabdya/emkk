@@ -6,10 +6,25 @@ from rest_framework import status
 
 from .renderers import JSONRenderer
 from src.jwt_auth.serializers import (
-    RegistrationSerializer, LoginSerializer, UserSerializer
+    RegistrationSerializer, LoginSerializer, UserSerializer,
+    RefreshTokenSerializer
 )
 
 from src.jwt_auth.renderers import UserJSONRenderer
+
+
+class RefreshTokenView(APIView):
+
+    permission_classes = [AllowAny, ]
+    serializer_class = RefreshTokenSerializer
+    renderer_classes = [UserJSONRenderer, ]
+
+    def post(self, request):
+        user = request.data.get('user', {})
+        serializer = self.serializer_class(data=user)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):

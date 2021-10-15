@@ -20,6 +20,7 @@ class UserManager(BaseUserManager):
         user = self.model(username=username, email=self.normalize_email(email),
                           first_name=first_name, last_name=last_name)
         user.set_password(password)
+        user.set_refresh_token()
         user.save()
         return user
 
@@ -69,10 +70,15 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
 
+    refresh_token = models.CharField(max_length=1024)
+
     @property
     def access_token(self):
         """Токен доступа - короткоживущий, многоразовый"""
         return self._generate_jwt_token(timedelta(minutes=5))
+
+    def set_refresh_token(self):
+        self.refresh_token = self._generate_jwt_token(timedelta(days=10))
 
     def _generate_jwt_token(self, timedelta_):
         dt = timezone.now() + timedelta_

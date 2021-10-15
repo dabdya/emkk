@@ -38,9 +38,12 @@ class JWTAuthentication(authentication.BaseAuthentication):
 
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        except Exception as error:
-            msg = f"Authentication error. Unable to decode token. {error}."
-            raise exceptions.AuthenticationFailed(msg)
+
+        except jwt.ExpiredSignatureError as expired_signature_error:
+            raise exceptions.AuthenticationFailed(expired_signature_error)
+
+        except jwt.InvalidSignatureError as invalid_signature_error:
+            raise exceptions.AuthenticationFailed(invalid_signature_error)
 
         try:
             user = User.objects.get(username=payload['username'])

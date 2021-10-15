@@ -2,14 +2,17 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 
 from .models import User
+from config.settings import SECRET_KEY
+import jwt
 
 
 class LoginSerializer(serializers.Serializer):
-    """Сериалщиция для аутентификации пользователя"""
+    """Сериализация для аутентификации пользователя"""
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
-    access_token = serializers.CharField(max_length=255, read_only=True)
+    access_token = serializers.CharField(max_length=1024, read_only=True)
+    refresh_token = serializers.CharField(max_length=1024, read_only=True)
 
     def validate(self, data):
         username = data.get('username', None)
@@ -36,27 +39,27 @@ class LoginSerializer(serializers.Serializer):
                 "This user has been deactivated"
             )
 
-        """Должен возвращать словарь проверенных данных, т.е. данных, которые
-           передаеются затем в методы create или update"""
-
+        user.set_refresh_token()
         return {
             'username': username,
             'email': user.email,
-            'access_token': user.access_token
+            'access_token': user.access_token,
+            'refresh_token': user.refresh_token
         }
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
-    """Сериализация регитсрации пользователя и создания новаого"""
+    """Сериализация регистрации пользователя и создания новаого"""
 
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
-    access_token = serializers.CharField(max_length=255, read_only=True)
+    access_token = serializers.CharField(max_length=1024, read_only=True)
+    refresh_token = serializers.CharField(max_length=1024, read_only=True)
 
     class Meta:
         model = User
         fields = [
             'password', 'email', 'username', 'first_name', 'last_name', 'gender',
-            'access_token',
+            'access_token', 'refresh_token',
         ]
 
     def create(self, validated_data):
@@ -86,3 +89,28 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class RefreshTokenSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField(max_length=1024, write_only=True)
+    access_token = serializers.CharField(max_length=1024, read_only=True)
+
+    def validate(self, data):
+        refresh_token = data.get('refresh_token', None)
+        if not refresh_token:
+            raise serializers.ValidationError("""Refresh token was not provided""")
+
+        try:
+            payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
+            user = User.objects.get(username=payload['username'])
+            return {
+                'username': user.username,
+                'access_token': user.access_token
+            }
+
+        except jwt.ExpiredSignatureError as expired_signature_error:
+            """В случае если и сам refresh токен истек, тогда придется перелогиниться"""
+            raise serializers.ValidationError(expired_signature_error)
+
+        except jwt.InvalidSignatureError as invalid_signature_error:
+            serializers.ValidationError(invalid_signature_error)
