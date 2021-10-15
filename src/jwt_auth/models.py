@@ -38,6 +38,13 @@ class AutoDateTimeField(models.DateTimeField):
         return timezone.now()
 
 
+class UserRole(models.TextChoices):
+    REVIEWER = 'reviewer'
+    ISSUER = 'issuer'
+    SECRETARY = 'secretary'
+    EMKK_MEMBER = 'emkk_member'
+
+
 class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=255, unique=True)
@@ -51,6 +58,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     updated_at = AutoDateTimeField(default=timezone.now)
+
+    role = models.CharField(choices=UserRole.choices, max_length=30)
 
     GENDER = (
         ('m', 'male'),
