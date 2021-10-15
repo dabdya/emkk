@@ -13,7 +13,30 @@ from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer)
 
-from .models import Document, Trip, Review, TripStatus
+from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
+
+from src.jwt_auth.models import UserRole
+from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
+
+
+class TripsForReview(generics.ListAPIView):
+    queryset = Trip.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        all_trips = Trip.objects.all()
+        trips_available_for_review = []
+        for trip in all_trips:
+            try:
+                on_review_now = len(TripsOnReviewByUser.objects.get(trip=trip))
+            except TripsOnReviewByUser.DoesNotExist as error:
+                on_review_now = 0
+            review_count = len(Review.objects.filter(trip=trip))
+            needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
+            if on_review_now + review_count < needed_reviews_count:
+                trips_available_for_review.append(trip)
+
+        serializer = TripSerializer(trips_available_for_review, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TripList(generics.ListCreateAPIView):
@@ -24,7 +47,6 @@ class TripList(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated, ]
 
     def list(self, request, *args, **kwargs):
-        print(request.user)
         queryset = self.get_queryset()
         serializer = TripSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -158,6 +180,9 @@ class ReviewList(generics.ListCreateAPIView):
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            # reviewer = serializer.validated_data['reviewer']
+            # if reviewer.role == UserRole.ISSUER:
+            #     pass
             serializer.save()
             trip.try_change_status_from_review_to_at_issuer()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
