@@ -27,7 +27,7 @@ class TripsForReview(generics.ListAPIView):
         trips_available_for_review = []
         for trip in all_trips:
             try:
-                on_review_now = len(TripsOnReviewByUser.objects.get(trip=trip))
+                on_review_now = len(TripsOnReviewByUser.objects.filter(trip=trip))
             except TripsOnReviewByUser.DoesNotExist as error:
                 on_review_now = 0
             review_count = len(Review.objects.filter(trip=trip))
