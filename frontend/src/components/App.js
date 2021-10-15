@@ -10,6 +10,7 @@ import Registration from "./Registration";
 import PrivateRoute from '../utils/PrivateRoute';
 import PublicRoute from '../utils/PublicRoute';
 import { getToken, removeUserSession, setUserSession } from '../utils/Common';
+import ApplicationForm from './ApplicationForm';
 
 export default class App extends React.Component {
 
@@ -61,6 +62,7 @@ export default class App extends React.Component {
 					  <div className="content">
 						<Switch>
 						  <Route exact path="/" component={Home} />
+						  <Route exact path="/app" component={ApplicationForm} />
 						  <PublicRoute path="/login" component={Login} />
 						  <PublicRoute path="/signup" component={Registration} />
 						  <PrivateRoute path="/dashboard" component={Dashboard} />
