@@ -23,13 +23,10 @@ class TripsForReview(generics.ListAPIView):
     queryset = Trip.objects.all()
 
     def list(self, request, *args, **kwargs):
-        all_trips = Trip.objects.all()
+        all_trips = self.get_queryset()
         trips_available_for_review = []
         for trip in all_trips:
-            try:
-                on_review_now = len(TripsOnReviewByUser.objects.filter(trip=trip))
-            except TripsOnReviewByUser.DoesNotExist as error:
-                on_review_now = 0
+            on_review_now = len(TripsOnReviewByUser.objects.filter(trip=trip))
             review_count = len(Review.objects.filter(trip=trip))
             needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
             if on_review_now + review_count < needed_reviews_count:
@@ -181,8 +178,10 @@ class ReviewList(generics.ListCreateAPIView):
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             # reviewer = serializer.validated_data['reviewer']
-            # if reviewer.role == UserRole.ISSUER:
-            #     pass
+            # result = serializer.validated_data['result']
+            # if reviewer.role == UserRole.ISSUER and trip.status == TripStatus.AT_ISSUER:
+            #     trip.status = result
+            #     trip.save()
             serializer.save()
             trip.try_change_status_from_review_to_at_issuer()
             return Response(serializer.data, status=status.HTTP_201_CREATED)

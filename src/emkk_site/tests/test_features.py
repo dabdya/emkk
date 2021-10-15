@@ -8,15 +8,8 @@ from collections import defaultdict
 import random
 
 
-class TripsForReviewTest(TestCase):
-    """Tests check available trips for reviewers.
-    Create temporary database, after remove"""
-
-    def setUp(self):
-        self.iters = 100
-        self.client = Client()
-        self.leader = self.create_leader()
-        self.generate_trips(self.iters)
+class BaseTest:
+    """Helpful functions for testing features"""
 
     # noinspection PyMethodMayBeStatic
     def create_leader(self):
@@ -27,7 +20,8 @@ class TripsForReviewTest(TestCase):
         leader.save()
         return leader
 
-    def generate_trips(self, count):
+    # noinspection PyMethodMayBeStatic
+    def generate_trips(self, leader, count):
         """Generate and save {count} trips with difference difficulty"""
         for i in range(count):
             difficulty = random.randint(1, 6)
@@ -36,8 +30,19 @@ class TripsForReviewTest(TestCase):
                 difficulty_category=difficulty, district="Russia",
                 participants_count=12, start_date='2021-10-08',
                 end_date='2021-10-28', coordinator_info="Info",
-                insurance_info="Info", leader=self.leader)
+                insurance_info="Info", leader=leader)
             trip.save()
+
+
+class TripsForReviewTest(TestCase, BaseTest):
+    """Tests check available trips for reviewers.
+    Create temporary database, after remove"""
+
+    def setUp(self):
+        self.iters = 100
+        self.client = Client()
+        self.leader = self.create_leader()
+        self.generate_trips(self.leader, self.iters)
 
     def test_trips_with_needed_reviews_count_should_filtered(self):
 
@@ -56,8 +61,8 @@ class TripsForReviewTest(TestCase):
             review.save()
 
             actual_reviews[trip.id] += 1
-            reviewers_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-            if actual_reviews[trip.id] == reviewers_count:
+            needed_reviewers_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
+            if actual_reviews[trip.id] == needed_reviewers_count:
                 should_filtered += 1
 
         """Filter trips with needed_reviews <= actual_reviews + reviews_in_work"""
@@ -65,10 +70,37 @@ class TripsForReviewTest(TestCase):
             trip = random.choices(trips)[0]
 
             TripsOnReviewByUser(user=self.leader, trip=trip).save()
-            reviewers_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
+            needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
             actual_reviews[trip.id] += 1
-            if actual_reviews[trip.id] == reviewers_count:
+            if actual_reviews[trip.id] == needed_reviews_count:
                 should_filtered += 1
 
         trips = self.client.get('/api/trips/for-review').data
         self.assertEqual(len(trips), self.iters - should_filtered)
+
+
+class ReviewCreateTest(TestCase, BaseTest):
+
+    def setUp(self):
+        trips_count = 1
+        self.client = Client()
+        self.leader = self.create_leader()
+        self.generate_trips(self.leader, trips_count)
+
+    # noinspection PyMethodMayBeStatic
+    def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
+
+        trip = Trip.objects.first()
+
+        needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
+
+        for _ in range(needed_reviews_count):
+            self.client.post(f'/api/trips/{trip.id}/reviews', {
+                "reviewer": self.leader.id,
+                "trip": trip.id,
+                "result": TripStatus.ON_REVIEW,
+                "result_comment": "GOOD"
+            })
+
+        trip_status = Trip.objects.get(pk=1).status
+        self.assertEqual(trip_status, TripStatus.AT_ISSUER)
