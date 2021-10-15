@@ -4,7 +4,11 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from .renderers import JSONRenderer
+from rest_framework.parsers import JSONParser
+
+from drf_yasg.utils import swagger_auto_schema
+from src.jwt_auth.schemas import refresh_token_schema
+
 from src.jwt_auth.serializers import (
     RegistrationSerializer, LoginSerializer, UserSerializer,
     RefreshTokenSerializer
@@ -14,11 +18,12 @@ from src.jwt_auth.renderers import UserJSONRenderer
 
 
 class RefreshTokenView(APIView):
-
     permission_classes = [AllowAny, ]
     serializer_class = RefreshTokenSerializer
+    parser_classes = [JSONParser, ]
     renderer_classes = [UserJSONRenderer, ]
 
+    @swagger_auto_schema(**refresh_token_schema)
     def post(self, request):
         user = request.data.get('user', {})
         serializer = self.serializer_class(data=user)
@@ -50,7 +55,6 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 
 class RegistrationAPIView(APIView):
-
     permission_classes = [AllowAny, ]
     serializer_class = RegistrationSerializer
     renderer_classes = [UserJSONRenderer, ]

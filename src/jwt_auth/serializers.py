@@ -104,7 +104,6 @@ class RefreshTokenSerializer(serializers.Serializer):
             payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=["HS256"])
             user = User.objects.get(username=payload['username'])
             return {
-                'username': user.username,
                 'access_token': user.access_token
             }
 
@@ -113,4 +112,4 @@ class RefreshTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError(expired_signature_error)
 
         except jwt.InvalidSignatureError as invalid_signature_error:
-            serializers.ValidationError(invalid_signature_error)
+            raise serializers.ValidationError(invalid_signature_error)
