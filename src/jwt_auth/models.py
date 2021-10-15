@@ -70,23 +70,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.first_name} {self.last_name}'
 
     @property
-    def token(self):
-        """На каждый вход генерируется новый токен с сроком годности сутки"""
-        return self._generate_jwt_token()
+    def access_token(self):
+        """Токен доступа - короткоживущий, многоразовый"""
+        return self._generate_jwt_token(timedelta(minutes=5))
 
-    def _generate_jwt_token(self):
-        dt = timezone.now() + timedelta(days=1)
+    def _generate_jwt_token(self, timedelta_):
+        dt = timezone.now() + timedelta_
         token = jwt.encode({
-            'id': self.pk,
-            'exp': int(dt.strftime('%s'))
+            'username': self.username,
+            'exp': dt.timestamp()
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
 
     def __str__(self):
         return self.username
-
-
-class RefreshToken(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    value = models.CharField(max_length=1024)

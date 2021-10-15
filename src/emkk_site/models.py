@@ -31,7 +31,7 @@ class Trip(models.Model):
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
-    difficulty_category = models.IntegerField(min_value=1, max_value=6)
+    difficulty_category = models.IntegerField()
     district = models.CharField(max_length=100)
     participants_count = models.IntegerField()
     start_date = models.DateField()
@@ -70,7 +70,7 @@ class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(min_value=1, max_value=6)
+    difficulty_category = models.IntegerField()
 
 
 class TripsOnReviewByUser(models.Model):

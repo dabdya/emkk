@@ -9,7 +9,7 @@ class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=255)
     email = serializers.CharField(max_length=255, read_only=True)
     password = serializers.CharField(max_length=128, write_only=True)
-    token = serializers.CharField(max_length=255, read_only=True)
+    access_token = serializers.CharField(max_length=255, read_only=True)
 
     def validate(self, data):
         username = data.get('username', None)
@@ -42,7 +42,7 @@ class LoginSerializer(serializers.Serializer):
         return {
             'username': username,
             'email': user.email,
-            'token': user.token
+            'access_token': user.access_token
         }
 
 
@@ -50,13 +50,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
     """Сериализация регитсрации пользователя и создания новаого"""
 
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
-    token = serializers.CharField(max_length=255, read_only=True)
+    access_token = serializers.CharField(max_length=255, read_only=True)
 
     class Meta:
         model = User
         fields = [
-            'password', 'token', 'email', 'username',
-            'first_name', 'last_name', 'gender'
+            'password', 'email', 'username', 'first_name', 'last_name', 'gender',
+            'access_token',
         ]
 
     def create(self, validated_data):
@@ -70,10 +70,10 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'password', 'token', 'email', 'username',
+            'password', 'access_token', 'email', 'username',
             'first_name', 'last_name', 'gender'
         ]
-        read_only_fields = ('token', )
+        read_only_fields = ('access_token', )
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
