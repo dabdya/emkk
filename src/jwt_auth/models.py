@@ -59,7 +59,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     updated_at = AutoDateTimeField(default=timezone.now)
 
-    role = models.CharField(choices=UserRole.choices, max_length=30)
+    role = models.CharField(choices=UserRole.choices, max_length=30,
+                            default=UserRole.EMKK_MEMBER)
 
     GENDER = (
         ('m', 'male'),

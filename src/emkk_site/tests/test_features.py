@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 
 from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
 from src.emkk_site.models import Trip, Review, TripKind, TripStatus, TripsOnReviewByUser
-from src.jwt_auth.models import User
+from src.jwt_auth.models import User, UserRole
 
 from collections import defaultdict
 import random
@@ -82,25 +82,55 @@ class TripsForReviewTest(TestCase, BaseTest):
 class ReviewCreateTest(TestCase, BaseTest):
 
     def setUp(self):
-        trips_count = 1
         self.client = Client()
         self.leader = self.create_leader()
-        self.generate_trips(self.leader, trips_count)
+
+    def create_post_review(self, trip_id, status):
+        self.client.post(f'/api/trips/{trip_id}/reviews', {
+            "reviewer": self.leader.id,
+            "trip": trip_id,
+            "result": status,
+            "result_comment": "GOOD"
+        })
 
     # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
 
+        self.generate_trips(self.leader, 1)
         trip = Trip.objects.first()
 
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
 
         for _ in range(needed_reviews_count):
-            self.client.post(f'/api/trips/{trip.id}/reviews', {
-                "reviewer": self.leader.id,
-                "trip": trip.id,
-                "result": TripStatus.ON_REVIEW,
-                "result_comment": "GOOD"
-            })
+            self.create_post_review(trip.id, TripStatus.ON_REVIEW)
 
         trip = self.client.get(f'/api/trips/{trip.id}').data
         self.assertEqual(trip.get('status'), TripStatus.AT_ISSUER)
+
+    def test_trip_status_established_to_issuer_result_if_review_come_from_issuer(self):
+
+        self.generate_trips(self.leader, 1)
+        trip = Trip.objects.first()
+        self.leader.role = UserRole.ISSUER
+        self.leader.save()
+
+        trip.status = TripStatus.AT_ISSUER
+        trip.save()
+
+        issuer_result = TripStatus.ACCEPTED
+
+        self.create_post_review(trip.id, issuer_result)
+
+        trip = self.client.get(f'/api/trips/{trip.id}').data
+        self.assertEqual(trip.get('status'), issuer_result)
+
+    def test_trip_status_no_change_to_issuer_result_if_trip_on_review(self):
+
+        self.generate_trips(self.leader, 1)
+        trip = Trip.objects.first()
+        self.leader.role = UserRole.ISSUER
+        self.leader.save()
+
+        self.create_post_review(trip.id, TripStatus.ACCEPTED)
+        trip = self.client.get(f'/api/trips/{trip.id}').data
+        self.assertNotEqual(trip.get('status'), TripStatus.ACCEPTED)

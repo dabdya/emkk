@@ -16,6 +16,7 @@ from .serializers import (
 from .services import get_trips_available_for_reviews
 
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
+from ..jwt_auth.models import UserRole
 
 
 class TripsForReview(generics.ListAPIView):
@@ -168,11 +169,11 @@ class ReviewList(generics.ListCreateAPIView):
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            # reviewer = serializer.validated_data['reviewer']
-            # result = serializer.validated_data['result']
-            # if reviewer.role == UserRole.ISSUER and trip.status == TripStatus.AT_ISSUER:
-            #     trip.status = result
-            #     trip.save()
+            reviewer = serializer.validated_data['reviewer']
+            result = serializer.validated_data['result']
+            if reviewer.role == UserRole.ISSUER and trip.status == TripStatus.AT_ISSUER:
+                trip.status = result
+                trip.save()
             serializer.save()
             trip.try_change_status_from_review_to_at_issuer()  # перенести из модели в сервисы
             return Response(serializer.data, status=status.HTTP_201_CREATED)
