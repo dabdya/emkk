@@ -102,5 +102,5 @@ class ReviewCreateTest(TestCase, BaseTest):
                 "result_comment": "GOOD"
             })
 
-        trip_status = Trip.objects.get(pk=1).status
-        self.assertEqual(trip_status, TripStatus.AT_ISSUER)
+        trip = self.client.get(f'/api/trips/{trip.id}').data
+        self.assertEqual(trip.get('status'), TripStatus.AT_ISSUER)

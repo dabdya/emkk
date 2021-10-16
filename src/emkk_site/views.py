@@ -13,25 +13,16 @@ from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer)
 
-from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
+from .services import get_trips_available_for_reviews
 
-from src.jwt_auth.models import UserRole
-from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
+from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
 
 
 class TripsForReview(generics.ListAPIView):
     queryset = Trip.objects.all()
 
     def list(self, request, *args, **kwargs):
-        all_trips = self.get_queryset()
-        trips_available_for_review = []
-        for trip in all_trips:
-            on_review_now = len(TripsOnReviewByUser.objects.filter(trip=trip))
-            review_count = len(Review.objects.filter(trip=trip))
-            needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-            if on_review_now + review_count < needed_reviews_count:
-                trips_available_for_review.append(trip)
-
+        trips_available_for_review = get_trips_available_for_reviews()
         serializer = TripSerializer(trips_available_for_review, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
@@ -183,7 +174,7 @@ class ReviewList(generics.ListCreateAPIView):
             #     trip.status = result
             #     trip.save()
             serializer.save()
-            trip.try_change_status_from_review_to_at_issuer()
+            trip.try_change_status_from_review_to_at_issuer()  # перенести из модели в сервисы
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
