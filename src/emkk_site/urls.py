@@ -3,7 +3,7 @@ from django.urls import path, re_path
 from .views import (
     DocumentList, DocumentDetail,
     ReviewList, ReviewDetail,
-    TripList, TripDetail, take_trip_on_review, change_trip_status)
+    TripList, TripDetail, take_trip_on_review, change_trip_status, TripsForReview)
 
 urlpatterns = [
     path('trips', TripList.as_view()),
