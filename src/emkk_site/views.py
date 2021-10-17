@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
 from rest_framework.authentication import SessionAuthentication
@@ -13,7 +14,8 @@ from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer)
 
-from .models import Document, Trip, Review, TripStatus
+from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
+from ..jwt_auth.models import User
 
 
 class TripList(generics.ListCreateAPIView):
@@ -135,7 +137,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     def get_object(self):
         try:
             return Document.objects.get(pk=self.kwargs['doc_id'])
-        except Trip.DoesNotExist as error:
+        except Trip.DoesNotExist as error:  ##TODO Заменить Trip на Document
             raise Http404
 
     # def retrieve(self, request, *args, **kwargs):
@@ -149,7 +151,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 class ReviewList(generics.ListCreateAPIView):
     """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
         Если их стало больше необходимого кол-ва - исключение 4**
-        Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набролось достаточное кол-во"""
+        Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набралось достаточное кол-во"""
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -158,8 +160,9 @@ class ReviewList(generics.ListCreateAPIView):
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            review = serializer.save()
             trip.try_change_status_from_review_to_at_issuer()
+            TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -167,3 +170,39 @@ class ReviewList(generics.ListCreateAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])  # TODO проверить что пользователь - рецензент. Если заявка не нуждается в ревью?
+def take_trip_on_review(request, *args, **kwargs):
+    trip_id = kwargs['trip_id']
+    try:
+        trip = Trip.objects.get(pk=trip_id)
+    except Trip.DoesNotExist:
+        raise Http404(f"No trip by id: {trip_id}")
+    in_work_record = TripsOnReviewByUser(user=request.user, trip=trip)
+    in_work_record.save()
+    return Response(status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+# @permission_classes([IsAuthenticated])
+def change_trip_status(request, *args, **kwargs):
+    trip_id = kwargs['trip_id']
+    try:
+        trip = Trip.objects.get(pk=trip_id)
+    except Trip.DoesNotExist:
+        raise Http404(f"No trip by id: {trip_id}")
+    new_status_str = request.query_params["new_status"]
+    status_by_name = {
+        "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,
+        "ON_ROUTE": TripStatus.ON_ROUTE,
+        "TAKE_PAPERS": TripStatus.TAKE_PAPERS,
+        "ALARM": TripStatus.ALARM
+    }
+    if new_status_str in status_by_name:
+        trip.status = status_by_name[new_status_str]
+        trip.save()
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST,
+                    data=f"Status can be changed to {list(status_by_name.keys())}. But {new_status_str} found")

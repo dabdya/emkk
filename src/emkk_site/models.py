@@ -1,3 +1,4 @@
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
@@ -13,6 +14,7 @@ class TripStatus(models.TextChoices):
     ON_REWORK = 'on_rework'
     ACCEPTED = 'accepted'
     REJECTED = 'rejected'
+    ALARM = 'alarm'
 
 
 class TripKind(models.TextChoices):
@@ -31,7 +33,7 @@ class Trip(models.Model):
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
-    difficulty_category = models.IntegerField(min_value=1, max_value=6)
+    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
     district = models.CharField(max_length=100)
     participants_count = models.IntegerField()
     start_date = models.DateField()
@@ -70,7 +72,7 @@ class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(min_value=1, max_value=6)
+    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
 
 
 class TripsOnReviewByUser(models.Model):
