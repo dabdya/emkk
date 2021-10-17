@@ -20,6 +20,7 @@ class UserManager(BaseUserManager):
         user = self.model(username=username, email=self.normalize_email(email),
                           first_name=first_name, last_name=last_name)
         user.set_password(password)
+        user.set_refresh_token()
         user.save()
         return user
 
@@ -37,6 +38,13 @@ class AutoDateTimeField(models.DateTimeField):
         return timezone.now()
 
 
+class UserRole(models.TextChoices):
+    REVIEWER = 'reviewer'
+    ISSUER = 'issuer'
+    SECRETARY = 'secretary'
+    EMKK_MEMBER = 'emkk_member'
+
+
 class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=255, unique=True)
@@ -50,6 +58,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     updated_at = AutoDateTimeField(default=timezone.now)
+
+    role = models.CharField(choices=UserRole.choices, max_length=30,
+                            default=UserRole.EMKK_MEMBER)
 
     GENDER = (
         ('m', 'male'),
@@ -69,16 +80,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         return f'{self.first_name} {self.last_name}'
 
-    @property
-    def token(self):
-        """На каждый вход генерируется новый токен с сроком годности сутки"""
-        return self._generate_jwt_token()
+    refresh_token = models.CharField(max_length=1024)
 
-    def _generate_jwt_token(self):
-        dt = timezone.now() + timedelta(days=1)
+    @property
+    def access_token(self):
+        """Токен доступа - короткоживущий, многоразовый"""
+        return self._generate_jwt_token(timedelta(minutes=5))
+
+    def set_refresh_token(self):
+        self.refresh_token = self._generate_jwt_token(timedelta(days=10))
+
+    def _generate_jwt_token(self, timedelta_):
+        dt = timezone.now() + timedelta_
         token = jwt.encode({
-            'id': self.pk,
-            'exp': int(dt.strftime('%s'))
+            'username': self.username,
+            'exp': dt.timestamp()
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token

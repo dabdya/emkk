@@ -51,6 +51,7 @@ class Trip(models.Model):
         needed_reviews_count = get_reviewers_count_by_difficulty(self.difficulty_category)
         if self.status == TripStatus.ON_REVIEW and existing_reviews_count >= needed_reviews_count:
             self.status = TripStatus.AT_ISSUER
+            self.save()
 
 
 class Review(models.Model):

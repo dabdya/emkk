@@ -16,6 +16,7 @@ urlpatterns = [
     path('trips/<int:pk>/reviews', ReviewList.as_view()),
     path('trips/<int:pk>/reviews/<int:rev_id>', ReviewDetail.as_view()),
 
+    path('trips/for-review', TripsForReview.as_view())
 ]
 """
 trips GET - get all trips

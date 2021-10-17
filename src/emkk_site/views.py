@@ -14,8 +14,19 @@ from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer)
 
+from .services import get_trips_available_for_reviews
+
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
-from ..jwt_auth.models import User
+from ..jwt_auth.models import UserRole
+
+
+class TripsForReview(generics.ListAPIView):
+    queryset = Trip.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        trips_available_for_review = get_trips_available_for_reviews()
+        serializer = TripSerializer(trips_available_for_review, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TripList(generics.ListCreateAPIView):
@@ -26,7 +37,6 @@ class TripList(generics.ListCreateAPIView):
     # permission_classes = [IsAuthenticated, ]
 
     def list(self, request, *args, **kwargs):
-        print(request.user)
         queryset = self.get_queryset()
         serializer = TripSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -160,8 +170,13 @@ class ReviewList(generics.ListCreateAPIView):
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
+            reviewer = serializer.validated_data['reviewer']
+            result = serializer.validated_data['result']
+            if reviewer.role == UserRole.ISSUER and trip.status == TripStatus.AT_ISSUER:
+                trip.status = result
+                trip.save()
             review = serializer.save()
-            trip.try_change_status_from_review_to_at_issuer()
+            trip.try_change_status_from_review_to_at_issuer()  # перенести из модели в сервисы
             TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
