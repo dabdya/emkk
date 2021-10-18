@@ -35,7 +35,7 @@ class TripsForReview(APIView):
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
-    authentication_classes = [SessionAuthentication, ]
+    # authentication_classes = [SessionAuthentication, ]
 
     permission_classes = [IsAuthenticated, ]
 
