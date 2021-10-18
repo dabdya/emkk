@@ -12,11 +12,11 @@ from django.http import Http404
 
 from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
-    DocumentDetailSerializer)
+    DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
 from .services import get_trips_available_for_reviews
 
-from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
+from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
 from ..jwt_auth.models import UserRole
 
 
@@ -185,6 +185,11 @@ class ReviewList(generics.ListCreateAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+
+class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ReviewFromIssuer.objects.all()
+    serializer_class = ReviewFromIssuerSerializer
 
 
 @api_view(['POST'])
