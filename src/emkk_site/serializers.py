@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Document, Trip, Review
+from .models import Document, Trip, Review, ReviewFromIssuer
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -29,6 +29,12 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
+        fields = '__all__'
+
+
+class ReviewFromIssuerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewFromIssuer
         fields = '__all__'
 
 
