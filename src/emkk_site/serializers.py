@@ -1,4 +1,7 @@
+import jwt
+from django.conf import settings
 from rest_framework import serializers
+from src.jwt_auth.models import User
 from .models import Document, Trip, Review, ReviewFromIssuer
 
 
@@ -55,4 +58,11 @@ class DynamicTripSerializer(serializers.ModelSerializer):
 class TripSerializer(DynamicTripSerializer):
     class Meta:
         model = Trip
-        fields = '__all__'
+        exclude = ['leader', ]
+
+    def create(self, validated_data):
+        token = self.context['token']
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
+        user = User.objects.get(username=payload['username'])
+        validated_data['leader'] = user
+        return super(TripSerializer, self).create(validated_data)
