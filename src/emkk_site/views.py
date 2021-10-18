@@ -20,7 +20,7 @@ from .serializers import (
 from .services import get_trips_available_for_reviews
 
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
-from ..jwt_auth.models import UserRole, User
+from ..jwt_auth.models import User
 
 
 class TripsForReview(APIView):
