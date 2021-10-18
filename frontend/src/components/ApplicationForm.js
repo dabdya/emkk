@@ -1,6 +1,7 @@
 import axios from 'axios';
 import React from 'react';
 import validator from 'validator';
+import { getToken } from '../utils/Common';
 import { KINDOFTOURISM } from '../utils/Constants';
 
 export default class ApplicationForm extends React.Component {
@@ -10,7 +11,6 @@ export default class ApplicationForm extends React.Component {
 		this.state = {
 			mail: "IVAN@IVANOV.RU",
 			groupName: "FIITURFU",
-			leaderId: 1,
 			generalArea: "IZHEVSK",
 			localArea: "EKB",
 			routeStartDate: new Date(),
@@ -27,6 +27,7 @@ export default class ApplicationForm extends React.Component {
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onRouteBookFileChange = this.onRouteBookFileChange.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
+		this.renderInput = this.renderInput.bind(this);
 
 	}
 
@@ -37,25 +38,30 @@ export default class ApplicationForm extends React.Component {
 	onSubmit(event) {
 		event.preventDefault();
 
-		const { groupName, generalArea, routeStartDate, routeEndDate, leaderId,
+		const { groupName, generalArea, localArea, routeStartDate, routeEndDate,
 			insuranceInfo, coordinatorInfo, kindTourism, routeDifficulty, numberParticipants } = this.state;
 
 		const formTrip = new FormData()
 		formTrip.append("kind", KINDOFTOURISM[kindTourism]);
 		formTrip.append("group_name", groupName);
 		formTrip.append("difficulty_category", routeDifficulty);
-		formTrip.append("district", generalArea);
+		formTrip.append("general_area", generalArea);
+		formTrip.append("local_area", localArea);
 		formTrip.append("start_date", routeStartDate);
 		formTrip.append("end_date", routeEndDate);
 		formTrip.append("coordinator_info", coordinatorInfo);
 		formTrip.append("insurance_info", insuranceInfo);
-		formTrip.append("leader", leaderId);
 		formTrip.append("participants_count", numberParticipants);
 
+		let config = {
+			headers: {
+				Authorization: 'Token ' + getToken()
+			}
+		};
 
 		axios.post("http://localhost:8000/api/trips",
 			formTrip
-		).then(respForm => {
+		,config).then(respForm => {
 			const form = new FormData()
 			form.append("file", this.state.routeBook);
 			form.append("trip", parseInt(respForm.data.id))
@@ -67,7 +73,7 @@ export default class ApplicationForm extends React.Component {
 
 	changeInputRegister(event) {
 		event.persist();
-		debugger;
+
 		this.setState(prev => {
 			return {
 				...prev,
@@ -77,103 +83,45 @@ export default class ApplicationForm extends React.Component {
 		})
 	};
 
+	renderInput(text, type, id, name, value, onChange){
+		return (
+			<p>{text}: <input
+						type={type}
+						id={id}
+						name={name}
+						value={value}
+						onChange={onChange}
+						required
+					/>
+					</p>
+		);
+	}
+
 	render() {
 		return (
 			<div>
 				<br />Форма подачи заявки
 				<form onSubmit={this.onSubmit}>
-					<p>Email: <input
-						type="email"
-						id="email"
-						name="mail"
-						value={this.state.mail}
-						onChange={this.changeInputRegister}
-
-					/>
-					</p>
+					{this.renderInput("Email","email","email","mail", this.state.mail, this.changeInputRegister)}
 					<p>Вид спорта:
 						<select value={this.state.kindTourism}
 							onChange={this.changeInputRegister}
-							name="kindTourism">
+							name="kindTourism"
+							required>
 							<option value="Лыжи">Лыжи</option>
 							<option value="Лыжи">Лыжи</option>
 							<option value="Лыжи">Лыжи</option>
 							<option value="Лыжи">Лыжи</option>
 						</select>
 					</p>
-					<p>Название группы: <input
-						type="text"
-						id="groupName"
-						name="groupName"
-						value={this.state.groupName}
-						onChange={this.changeInputRegister}
-						formNoValidate
-					/>
-					</p>
-					<p>Сложность: <input
-						type="number"
-						id="routeDifficulty"
-						name="routeDifficulty"
-						value={this.state.routeDifficulty}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>ФИО руководителя группы<input
-						type="text"
-						id="leaderId"
-						name="leaderId"
-						value={this.state.leaderId}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>Координатор: <input
-						type="text"
-						id="coordinatorInfo"
-						name="coordinatorInfo"
-						value={this.state.coordinatorInfo}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>insuranceInfo: <input
-						type="text"
-						id="insuranceInfo"
-						name="insuranceInfo"
-						value={this.state.insuranceInfo}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>Общий район<input // комбо-бокс. общий район из справочника выбрать 
-						type="text"
-						id="generalArea"
-						name="generalArea"
-						value={this.state.generalArea}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>Район <input
-						type="text"
-						id="localArea"
-						name="localArea"
-						value={this.state.localArea}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>Дата начала маршрута <input
-						type="date"
-						id="routeStartDate"
-						name="routeStartDate"
-						value={this.state.routeStartDate}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
-					<p>Дата выхода с маршрута <input
-						type="date"
-						id="routeEndDate"
-						name="routeEndDate"
-						value={this.state.routeEndDate}
-						onChange={this.changeInputRegister}
-					/>
-					</p>
+					{this.renderInput("Название группы","text","groupName","groupName", this.state.groupName, this.changeInputRegister)}
+					{this.renderInput("Сложность","number","routeDifficulty","routeDifficulty", this.state.routeDifficulty, this.changeInputRegister)}
+					{this.renderInput("Координатор","text","coordinatorInfo","coordinatorInfo", this.state.coordinatorInfo, this.changeInputRegister)}
+					{this.renderInput("insuranceInfo","text","insuranceInfo","insuranceInfo", this.state.insuranceInfo, this.changeInputRegister)}
+					{this.renderInput("Общий район","text","generalArea","generalArea", this.state.generalArea, this.changeInputRegister)}
+					{this.renderInput("Район","text","localArea","localArea", this.state.localArea, this.changeInputRegister)}
+					{this.renderInput("Дата начала маршрута","date","routeStartDate","routeStartDate", this.state.routeStartDate, this.changeInputRegister)}
+					{this.renderInput("Дата выхода с маршрута","date","routeEndDate","routeEndDate", this.state.routeEndDate, this.changeInputRegister)}
 					<input type="file" name="routeBook" onChange={this.onRouteBookFileChange} />
 
 					<input type="submit" />

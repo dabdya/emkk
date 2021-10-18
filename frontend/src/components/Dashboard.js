@@ -30,7 +30,6 @@ export default class Dashboard extends React.Component {
 						error
 					});
 				})
-		console.log(this.state.trips);
 	}
 
 
