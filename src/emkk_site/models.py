@@ -63,6 +63,10 @@ class Review(models.Model):
     result_comment = models.TextField()
 
 
+class ReviewFromIssuer(Review):
+    """Рецензия от выпускающего"""
+
+
 class Document(models.Model):
     """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
