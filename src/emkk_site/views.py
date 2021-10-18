@@ -1,3 +1,5 @@
+import jwt
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
@@ -7,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
+from rest_framework.views import APIView
 from rest_framework import status
 from django.http import Http404
 
@@ -17,10 +20,10 @@ from .serializers import (
 from .services import get_trips_available_for_reviews
 
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
-from ..jwt_auth.models import UserRole
+from ..jwt_auth.models import UserRole, User
 
 
-class TripsForReview(generics.ListAPIView):
+class TripsForReview(APIView):
     queryset = Trip.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -34,7 +37,12 @@ class TripList(generics.ListCreateAPIView):
     serializer_class = TripSerializer
     authentication_classes = [SessionAuthentication, ]
 
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
+
+    def get_serializer_context(self):
+        return {
+            'token': self.request.headers["Authorization"]
+        }
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
