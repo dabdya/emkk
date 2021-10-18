@@ -1,55 +1,40 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
 import { setUserSession } from '../utils/Common';
 
-function Login(props) {
-  const [loading, setLoading] = useState(false);
-  const username = useFormInput('');
-  const password = useFormInput('');
-  const [error, setError] = useState(null);
+export default class Login extends React.Component {
 
-  // handle button click of login form
-  const handleLogin = () => {
-    setError(null);
-    setLoading(true);
-    axios.post('http://localhost:8000/auth/users/login', { user: {username: username.value, password: password.value }}).then(response => {
-      setLoading(false);
-      setUserSession(response.data.user.token, response.data.user.username);
-      props.history.push('/dashboard');
-    }).catch(error => {
-      setLoading(false);
-      if (error.response.status === 401) setError(error.response.data.message);
-      else setError("Something went wrong. Please try again later.");
-    });
-  }
+	constructor(props) {
+		super(props);
 
-  return (
-    <div>
-      <h1>Login</h1><br /><br />
-      <div>
-        Username<br />
-        <input type="text" {...username} autoComplete="new-password" />
-      </div>
-      <div style={{ marginTop: 10 }}>
-        Password<br />
-        <input type="password" {...password} autoComplete="new-password" />
-      </div>
-      {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br />
-      <input type="button" value={loading ? 'Loading...' : 'Login'} onClick={handleLogin} disabled={loading} /><br />
-    </div>
-  );
-}
+		this.state = {login: '', password: ''};
+		this.onSubmit = this.onSubmit.bind(this);
+	}
 
-const useFormInput = initialValue => {
-  const [value, setValue] = useState(initialValue);
+	onSubmit(e) {
+		e.preventDefault();
+		axios.post('http://localhost:8000/auth/users/login', { user: {username: this.state.login, password: this.state.password }})
+		.then(response => {
+			setUserSession(response.data.user.token, response.data.user.username);
+			this.props.history.push('/dashboard'); // не убирает кнопки login и registration после входа. пофиксить.
+		});
+		
+	}
 
-  const handleChange = e => {
-    setValue(e.target.value);
-  };
-  return {
-    value,
-    onChange: handleChange
-  }
-};
-
-export default Login;
+	render() {
+		return (
+			<form onSubmit={this.onSubmit}>
+				<div>
+				Username<br/>
+				<input type="text" name="login" value={this.state.login} onChange={(e) => this.setState({login: e.target.value})}/>
+				</div>
+				<div style={{ marginTop: 10 }}>
+				Password<br />
+				<input type="password" name="password" value={this.state.password} onChange={ (e) => this.setState({password: e.target.value})} />
+				</div>
+				{/* {error && <><small style={{ color: 'red' }}>{error}</small><br /></>}<br /> */}
+				<input type="submit" value={'Login'} /><br />
+			</form>
+		);
+	}
+}	

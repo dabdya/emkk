@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['testserver', 'localhost']
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
@@ -96,7 +96,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default1': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
@@ -104,7 +104,7 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': 5432
     },
-    'sqlite': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
@@ -142,7 +142,7 @@ AUTHENTICATION_BACKENDS = (
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = 'en-En'
 
 TIME_ZONE = 'UTC'
 
