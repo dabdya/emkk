@@ -3,17 +3,21 @@ from django.urls import path, re_path
 from .views import (
     DocumentList, DocumentDetail,
     ReviewList, ReviewDetail,
-    TripList, TripDetail)
+    TripList, TripDetail, take_trip_on_review, change_trip_status, TripsForReview,
+    ReviewFromIssuerDetail)
 
 urlpatterns = [
     path('trips', TripList.as_view()),
     path('trips/<int:pk>', TripDetail.as_view()),
+    path('trips/<int:trip_id>/take-on-review', take_trip_on_review),
+    path('trips/<int:trip_id>/change-status', change_trip_status),
     path('trips/<int:pk>/documents', DocumentList.as_view()),
     path('trips/<int:pk>/documents/<int:doc_id>', DocumentDetail.as_view()),
 
     path('trips/<int:pk>/reviews', ReviewList.as_view()),
     path('trips/<int:pk>/reviews/<int:rev_id>', ReviewDetail.as_view()),
-
+    path('trips/<int:pk>/reviews-from-issuer', ReviewFromIssuerDetail.as_view()),
+    path('trips/for-review', TripsForReview.as_view())
 ]
 """
 trips GET - get all trips
