@@ -8,22 +8,22 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework import generics
 from rest_framework.views import APIView
+from rest_framework import generics, mixins
 from rest_framework import status
 from django.http import Http404
 
 from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
-    DocumentDetailSerializer)
+    DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
 from .services import get_trips_available_for_reviews
 
-from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser
 from ..jwt_auth.models import User
+from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
 
 
-class TripsForReview(APIView):
+class TripsForReview(generics.ListAPIView):
     queryset = Trip.objects.all()
 
     def list(self, request, *args, **kwargs):
@@ -35,7 +35,6 @@ class TripsForReview(APIView):
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
-    authentication_classes = [SessionAuthentication, ]
 
     permission_classes = [IsAuthenticated, ]
 
@@ -170,8 +169,10 @@ class ReviewList(generics.ListCreateAPIView):
     """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
         Если их стало больше необходимого кол-ва - исключение 4**
         Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набралось достаточное кол-во"""
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(trip_id=self.kwargs["pk"])
 
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
@@ -180,7 +181,7 @@ class ReviewList(generics.ListCreateAPIView):
         if serializer.is_valid():
             reviewer = serializer.validated_data['reviewer']
             result = serializer.validated_data['result']
-            if reviewer.role == UserRole.ISSUER and trip.status == TripStatus.AT_ISSUER:
+            if reviewer.ISSUER and trip.status == TripStatus.AT_ISSUER:
                 trip.status = result
                 trip.save()
             review = serializer.save()
@@ -193,6 +194,11 @@ class ReviewList(generics.ListCreateAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+
+class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView, mixins.CreateModelMixin):
+    queryset = ReviewFromIssuer.objects.all()
+    serializer_class = ReviewFromIssuerSerializer
 
 
 @api_view(['POST'])

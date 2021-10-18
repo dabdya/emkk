@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 
 from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
 from src.emkk_site.models import Trip, Review, TripKind, TripStatus, TripsOnReviewByUser
-from src.jwt_auth.models import User, UserRole
+from src.jwt_auth.models import User
 
 from collections import defaultdict
 import random
@@ -27,7 +27,8 @@ class BaseTest:
             difficulty = random.randint(1, 6)
             trip = Trip(
                 kind=TripKind.CYCLING, group_name="TestGroup",
-                difficulty_category=difficulty, district="Russia",
+                difficulty_category=difficulty,
+                global_region="Russia", local_region="City",
                 participants_count=12, start_date='2021-10-08',
                 end_date='2021-10-28', coordinator_info="Info",
                 insurance_info="Info", leader=leader)
@@ -111,7 +112,7 @@ class ReviewCreateTest(TestCase, BaseTest):
 
         self.generate_trips(self.leader, 1)
         trip = Trip.objects.first()
-        self.leader.role = UserRole.ISSUER
+        self.leader.ISSUER = True
         self.leader.save()
 
         trip.status = TripStatus.AT_ISSUER
@@ -128,7 +129,7 @@ class ReviewCreateTest(TestCase, BaseTest):
 
         self.generate_trips(self.leader, 1)
         trip = Trip.objects.first()
-        self.leader.role = UserRole.ISSUER
+        self.leader.ISSUER = True
         self.leader.save()
 
         self.create_post_review(trip.id, TripStatus.ACCEPTED)
