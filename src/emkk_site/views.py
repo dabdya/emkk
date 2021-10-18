@@ -6,7 +6,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
-from rest_framework import generics
+from rest_framework import generics, mixins
 from rest_framework import status
 from django.http import Http404
 
@@ -162,8 +162,10 @@ class ReviewList(generics.ListCreateAPIView):
     """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
         Если их стало больше необходимого кол-ва - исключение 4**
         Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набралось достаточное кол-во"""
-    queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        return Review.objects.filter(trip_id=self.kwargs["pk"])
 
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
@@ -187,7 +189,7 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewSerializer
 
 
-class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView):
+class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView, mixins.CreateModelMixin):
     queryset = ReviewFromIssuer.objects.all()
     serializer_class = ReviewFromIssuerSerializer
 
