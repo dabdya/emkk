@@ -59,10 +59,3 @@ class TripSerializer(DynamicTripSerializer):
     class Meta:
         model = Trip
         exclude = ['leader', ]
-
-    def create(self, validated_data):
-        token = self.context['token']
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-        user = User.objects.get(username=payload['username'])
-        validated_data['leader'] = user
-        return super(TripSerializer, self).create(validated_data)

@@ -45,8 +45,8 @@ export default class ApplicationForm extends React.Component {
 		formTrip.append("kind", KINDOFTOURISM[kindTourism]);
 		formTrip.append("group_name", groupName);
 		formTrip.append("difficulty_category", routeDifficulty);
-		formTrip.append("general_area", generalArea);
-		formTrip.append("local_area", localArea);
+		formTrip.append("global_region", generalArea);
+		formTrip.append("local_region", localArea);
 		formTrip.append("start_date", routeStartDate);
 		formTrip.append("end_date", routeEndDate);
 		formTrip.append("coordinator_info", coordinatorInfo);

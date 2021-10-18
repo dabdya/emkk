@@ -1,5 +1,6 @@
+import axios from 'axios';
 import React from 'react';
-import { getUser, removeUserSession } from '../utils/Common';
+import { getToken, getUser, removeUserSession } from '../utils/Common';
 
 
 export default class Dashboard extends React.Component {
@@ -16,12 +17,16 @@ export default class Dashboard extends React.Component {
 	}
 
 	async componentDidMount() {
-		await fetch("http://localhost:8000/api/trips")
-			.then(res => res.json())
+		let config = {
+			headers: {
+				Authorization: 'Token ' + getToken() //the token is a variable which holds the token
+			}
+		};
+		await axios.get("http://localhost:8000/api/trips",config)
 			.then(
 				(result) => {
 					this.setState({
-						trips: result
+						trips: result.data
 					});
 				},
 				(error) => {

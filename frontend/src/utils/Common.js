@@ -5,16 +5,16 @@ const getUser = () => {
 }
 
 const getToken = () => {
-	return localStorage.getItem('token');
+	return localStorage.getItem('access_token');
 }
 
 const removeUserSession = () => {
-	localStorage.removeItem('token');
+	localStorage.removeItem('access_token');
 	localStorage.removeItem('user');
 }
 
 const setUserSession = (token, user) => {
-	localStorage.setItem('token', token);
+	localStorage.setItem('access_token', token);
 	localStorage.setItem('user', JSON.stringify(user));
 }
 

@@ -51,7 +51,17 @@ class TripList(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, excluded_fields=["status"])
         if serializer.is_valid():
+            token = request.headers['Authorization']
+            try:
+                payload = jwt.decode(token.split(" ")[1], settings.SECRET_KEY, algorithms=["HS256"])
+            except jwt.ExpiredSignatureError as expired_signature_error:
+                return Response(expired_signature_error, status=status.HTTP_400_BAD_REQUEST)
+            except jwt.InvalidSignatureError as invalid_signature_error:
+                return Response(invalid_signature_error, status=status.HTTP_400_BAD_REQUEST)
+            user = User.objects.get(username=payload['username'])
+            serializer.validated_data['leader'] = user
             serializer.save()
+            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
