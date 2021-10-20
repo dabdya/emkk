@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React from 'react';
-import validator from 'validator';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM } from '../utils/Constants';
 

@@ -4,7 +4,6 @@ import { setUserSession } from '../utils/Common';
 import OkIcon from '@skbkontur/react-icons/Ok';
 import WarningSign from '@skbkontur/react-icons/Warning'
 import { Button, Center, Input, Gapped, Link } from '@skbkontur/react-ui';
-import validator from 'validator';
 
 export default class Login extends React.Component {
 
@@ -34,7 +33,7 @@ export default class Login extends React.Component {
 					<Center style={{ height: '91vh' }}>
 						<form onSubmit={this.onSubmit}>
 							<div>
-								<label for="login">Логин</label><br/>
+								<label htmlFor="login">Логин</label><br/>
 								<Input style={{ width: '240px' }} required type="text" name="login" value={this.state.login} onChange={(e) => this.setState({ login: e.target.value })} />
 							</div>
 							<div style={{ marginTop: 15 }}>

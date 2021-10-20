@@ -1,8 +1,7 @@
-import React, { useState } from 'react'
+import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
 
-// Здесь после успешной регистрации отадется jwt пользователя, нужно его сохранить в куки
 export default class Registration extends React.Component {
 
     constructor(props){
