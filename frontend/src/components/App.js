@@ -34,9 +34,7 @@ export default class App extends React.Component {
 		};
 		debugger;
 		axios.get(`http://localhost:8000/auth/user`, config).then(response => {
-			debugger;
-			console.log(response);
-			setUserSession(response.data.user.token, response.data.user.username);
+			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 			this.setState({ authLoading: true });
 		}).catch(error => {
 			removeUserSession();

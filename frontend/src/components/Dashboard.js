@@ -1,6 +1,6 @@
-import axios from 'axios';
 import React from 'react';
 import { getToken, getUser, removeUserSession } from '../utils/Common';
+import myaxios from '../utils/requests';
 
 
 export default class Dashboard extends React.Component {
@@ -22,7 +22,8 @@ export default class Dashboard extends React.Component {
 				Authorization: 'Token ' + getToken() //the token is a variable which holds the token
 			}
 		};
-		await axios.get("http://localhost:8000/api/trips",config)
+		const myaxioss = new myaxios(config);
+		await myaxioss.get("http://localhost:8000/api/trips")
 			.then(
 				(result) => {
 					this.setState({
