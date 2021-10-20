@@ -6,7 +6,7 @@ export const KINDOFTOURISM = {
 	"Вода": "water",
 }
 // Общий район
-const GLOBALAREA = [	
+export const GLOBALAREA = [	
 	"Алтай",
 	"Альпы",
 	"Арктическое побережье нескольких морей СМП РФ (Чукотка, Якутия)",
