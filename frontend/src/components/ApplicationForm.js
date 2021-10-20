@@ -121,7 +121,7 @@ export default class ApplicationForm extends React.Component {
 					{this.renderInput("Район","text","localArea","localArea", this.state.localArea, this.changeInputRegister)}
 					{this.renderInput("Дата начала маршрута","date","routeStartDate","routeStartDate", this.state.routeStartDate, this.changeInputRegister)}
 					{this.renderInput("Дата выхода с маршрута","date","routeEndDate","routeEndDate", this.state.routeEndDate, this.changeInputRegister)}
-					<input type="file" name="routeBook" onChange={this.onRouteBookFileChange} />
+					<input type="file" name="routeBook" onChange={this.onRouteBookFileChange} multiple />
 
 					<input type="submit" />
 				</form>

@@ -37,7 +37,7 @@ export default class Login extends React.Component {
 								<Input style={{ width: '240px' }} required type="text" name="login" value={this.state.login} onChange={(e) => this.setState({ login: e.target.value })} />
 							</div>
 							<div style={{ marginTop: 15 }}>
-								<label for="password">Пароль</label><br/>
+								<label htmlFor="password">Пароль</label><br/>
 								<Gapped vertical gap={5}>
 									<Input style={{ width: '240px' }} required type="password" name="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} />
 									{this.state.error && <><small style={{ color: 'red' }}><WarningSign />{this.state.error}</small><br /></>}<br />
