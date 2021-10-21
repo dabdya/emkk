@@ -1,13 +1,14 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route, NavLink } from 'react-router-dom';
 import axios from 'axios';
-
 import Login from './Login';
 import Dashboard from './Dashboard';
 import Home from './Home';
 import Registration from "./Registration";
+import { Router } from 'react-router-dom';
 import ApplicationForm from './ApplicationForm';
-
+import Requests from '../utils/requests';
+import NotFound from './NotFound';
 import PrivateRoute from '../utils/PrivateRoute';
 import PublicRoute from '../utils/PublicRoute';
 import { getToken, removeUserSession, setUserSession } from '../utils/Common';
@@ -21,7 +22,7 @@ export default class App extends React.Component {
 	}
 	authLoading = null;
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.setState({ token: getToken() })
 		//const token = getToken();
 		if (!this.state.token) {
@@ -32,8 +33,7 @@ export default class App extends React.Component {
 				Authorization: 'Token ' + this.state.token //the token is a variable which holds the token
 			}
 		};
-		debugger;
-		axios.get(`http://localhost:8000/auth/user`, config).then(response => {
+		await axios.get(`http://localhost:8000/auth/user`, config).then(response => {
 			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 			this.setState({ authLoading: true });
 		}).catch(error => {
@@ -67,6 +67,7 @@ export default class App extends React.Component {
 									<PublicRoute path="/signup" component={Registration} />
 									<PrivateRoute path="/dashboard" component={Dashboard} />
 									<PrivateRoute path="/form" component={ApplicationForm} />
+									<Route path="*" component={NotFound} />
 								</Switch>
 							</div>
 						</div>
