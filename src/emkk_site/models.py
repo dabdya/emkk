@@ -17,6 +17,12 @@ class TripStatus(models.TextChoices):
     ALARM = 'alarm'
 
 
+class ReviewResult(models.TextChoices):
+    ON_REWORK = 'on_rework'
+    ACCEPTED = 'accepted'
+    REJECTED = 'rejected'
+
+
 class TripKind(models.TextChoices):
     PEDESTRIAN = 'pedestrian'
     CYCLING = 'cycling'
@@ -59,8 +65,7 @@ class Review(models.Model):
     """Рецензия. Выдается работниоком МКК на конкретную заявку"""
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    result = models.CharField(
-        choices=TripStatus.choices, max_length=30, default=TripStatus.ON_REVIEW)
+    result = models.CharField(choices=ReviewResult.choices, max_length=30)
     result_comment = models.TextField()
 
 
