@@ -165,11 +165,17 @@ class ReviewList(generics.ListCreateAPIView):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
+            reviewer = serializer.validated_data['reviewer']
+            if not TripsOnReviewByUser.objects.filter(trip=trip, user=reviewer).count():
+                return Response("error", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
             review = serializer.save()
             try_change_status_from_review_to_at_issuer(trip)
             TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -200,7 +206,7 @@ class ReviewFromIssuerDetail(
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  # TODO проверить что пользователь - рецензент. Если заявка не нуждается в ревью?
+@permission_classes([IsReviewer | IsIssuer, ])
 def take_trip_on_review(request, *args, **kwargs):
     trip_id = kwargs['trip_id']
     try:

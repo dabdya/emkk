@@ -12,9 +12,9 @@ class BaseTest:
     """Helpful functions for testing features"""
 
     # noinspection PyMethodMayBeStatic
-    def create_leader(self):
+    def create_leader(self, username="admin_test", email="admin-test@gmail.com"):
         leader = User(
-            username="admin_test", email="admin-test@gmail.com",
+            username=username, email=email,
             first_name="Admin", last_name="Admin")
         leader.set_password("adminpassword")
         leader.save()
@@ -86,14 +86,18 @@ class ReviewCreateTest(TestCase, BaseTest):
         self.client = Client()
         self.leader = self.create_leader()
 
-    def create_post_review(self, url, trip_id, status):
-        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
+    def create_post_review(self, url, trip_id, status, reviewer_id=None, token=None):
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token if not token else token}', }
         return self.client.post(url, data={
-            "reviewer": self.leader.id,
+            "reviewer": self.leader.id if not reviewer_id else reviewer_id,
             "trip": trip_id,
             "result": status,
             "result_comment": "GOOD"
         }, **headers)
+
+    # noinspection PyMethodMayBeStatic
+    def take_trip_in_work(self, user, trip):
+        TripsOnReviewByUser(trip=trip, user=user).save()
 
     # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
@@ -106,6 +110,7 @@ class ReviewCreateTest(TestCase, BaseTest):
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
 
         for _ in range(needed_reviews_count):
+            self.take_trip_in_work(self.leader, trip)
             self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
 
         trip = self.client.get(f'/api/trips/{trip.id}').data
@@ -138,6 +143,55 @@ class ReviewCreateTest(TestCase, BaseTest):
         self.create_post_review(f'/api/trips/{trip.id}/reviews-from-issuer', trip.id, ReviewResult.ACCEPTED)
         trip = self.client.get(f'/api/trips/{trip.id}').data
         self.assertNotEqual(trip.get('status'), ReviewResult.ACCEPTED)
+
+    def test_reviewer_cant_create_review_if_trip_not_in_work(self):
+
+        self.generate_trips(self.leader, 1)
+        trip = Trip.objects.first()
+        self.leader.REVIEWER = True
+        self.leader.save()
+
+        """Trip not in work"""
+        self.assertEqual(TripsOnReviewByUser.objects.filter(trip=trip).count(), 0)
+
+        """Try create review. Expected fail"""
+        self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
+        self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
+
+    def test_take_trip_on_review_should_work(self):
+
+        self.generate_trips(self.leader, 1)
+        trip = Trip.objects.first()
+        self.leader.REVIEWER = True
+        self.leader.save()
+
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
+        self.client.post(f'/api/trips/{trip.id}/take-on-review', **headers)
+        self.assertEqual(TripsOnReviewByUser.objects.filter(user=self.leader, trip=trip).count(), 1)
+
+    def test_reviewer_cant_create_review_if_trip_in_work_but_not_belong_him(self):
+
+        self.generate_trips(self.leader, 1)
+        trip = Trip.objects.first()
+        self.leader.REVIEWER = True
+        self.leader.save()
+
+        reviewer_which_take_in_work = self.create_leader(username="other", email="other@gmail.com")
+        reviewer_which_take_in_work.REVIEWER = True
+        reviewer_which_take_in_work.save()
+
+        """Other reviewer take review in work, but not create review"""
+        self.create_post_review(
+            f'/api/trips/{trip.id}/take-on-review', trip.id,
+            ReviewResult.ACCEPTED, reviewer_id=reviewer_which_take_in_work.id,
+            token=reviewer_which_take_in_work.access_token)
+
+        self.assertEqual(TripsOnReviewByUser.objects.filter(user=reviewer_which_take_in_work, trip=trip).count(), 1)
+
+        """Leader which dint take review in work try create review on trip. 
+           But trip in table TripsOnReviewByUser. Expected fail."""
+        self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
+        self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
 
 
 class TripCreateTest(TestCase, BaseTest):
