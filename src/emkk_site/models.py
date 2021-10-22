@@ -1,7 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
 from src.jwt_auth.models import User
 
 
@@ -52,13 +51,6 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.group_name
-
-    def try_change_status_from_review_to_at_issuer(self):
-        existing_reviews_count = len(Review.objects.filter(trip=self))
-        needed_reviews_count = get_reviewers_count_by_difficulty(self.difficulty_category)
-        if self.status == TripStatus.ON_REVIEW and existing_reviews_count >= needed_reviews_count:
-            self.status = TripStatus.AT_ISSUER
-            self.save()
 
 
 class Review(models.Model):

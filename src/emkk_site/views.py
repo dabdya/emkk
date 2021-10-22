@@ -6,18 +6,20 @@ from rest_framework.exceptions import NotFound
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from src.jwt_auth.permissions import IsReviewer, IsIssuer
 from rest_framework.parsers import BaseParser, MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, mixins
 from rest_framework import status
 from django.http import Http404
+from django.views import View
 
 from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
-from .services import get_trips_available_for_reviews
+from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
 
 from ..jwt_auth.models import User
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
@@ -112,21 +114,6 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         return Response(docs_ids)
 
 
-# def create(self, request, *args, **kwargs):
-#     trip_id = request.data['trip']
-#
-#     if not Trip.objects.filter(pk=trip_id).exists():
-#         return Response(status=status.HTTP_404_NOT_FOUND,
-#                         data={'error': 'related trip not found'})
-#
-#     file = request.FILES['file']
-#     document = Document(
-#         trip_id=trip_id, content=file.read(), content_type=file.content_type)
-#
-#     document.save()
-#     return Response(status=status.HTTP_201_CREATED)
-
-
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentDetailSerializer
@@ -167,10 +154,9 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ReviewList(generics.ListCreateAPIView):
-    """Работа с рецензиями по заявке с идентификатором pk.
-       Этот эндпоинт доступен тольько для рецензентов."""
+    """Эндпоинт доступен только для рецензентов"""
     serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsReviewer, ]
 
     def get_queryset(self):
         return Review.objects.filter(trip_id=self.kwargs["pk"])
@@ -180,13 +166,8 @@ class ReviewList(generics.ListCreateAPIView):
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
-            reviewer = serializer.validated_data['reviewer']
-            result = serializer.validated_data['result']
-            if reviewer.ISSUER and trip.status == TripStatus.AT_ISSUER:
-                trip.status = result
-                trip.save()
             review = serializer.save()
-            trip.try_change_status_from_review_to_at_issuer()  # перенести из модели в сервисы
+            try_change_status_from_review_to_at_issuer(trip)
             TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -197,9 +178,25 @@ class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ReviewSerializer
 
 
-class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView, mixins.CreateModelMixin):
+class ReviewFromIssuerDetail(
+    generics.CreateAPIView, generics.UpdateAPIView, generics.RetrieveAPIView):
+    """Эндпоинт доступен только для выпускающих"""
     queryset = ReviewFromIssuer.objects.all()
     serializer_class = ReviewFromIssuerSerializer
+    permission_classes = [IsIssuer, ]
+
+    def create(self, request, *args, **kwargs):
+        trip_id = kwargs["pk"]
+        trip = Trip.objects.get(pk=trip_id)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            result = serializer.validated_data['result']
+            if trip.status == TripStatus.AT_ISSUER:
+                trip.status = result
+                trip.save()
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

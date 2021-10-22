@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 
-from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
+from src.emkk_site.services import get_reviewers_count_by_difficulty
 from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, TripsOnReviewByUser
 from src.jwt_auth.models import User
 
@@ -86,9 +86,9 @@ class ReviewCreateTest(TestCase, BaseTest):
         self.client = Client()
         self.leader = self.create_leader()
 
-    def create_post_review(self, trip_id, status):
+    def create_post_review(self, url, trip_id, status):
         headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
-        return self.client.post(f'/api/trips/{trip_id}/reviews', data={
+        return self.client.post(url, data={
             "reviewer": self.leader.id,
             "trip": trip_id,
             "result": status,
@@ -97,6 +97,8 @@ class ReviewCreateTest(TestCase, BaseTest):
 
     # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
+        self.leader.REVIEWER = True
+        self.leader.save()
 
         self.generate_trips(self.leader, 1)
         trip = Trip.objects.first()
@@ -104,7 +106,7 @@ class ReviewCreateTest(TestCase, BaseTest):
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
 
         for _ in range(needed_reviews_count):
-            self.create_post_review(trip.id, ReviewResult.ACCEPTED)
+            self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
 
         trip = self.client.get(f'/api/trips/{trip.id}').data
         self.assertEqual(trip.get('status'), TripStatus.AT_ISSUER)
@@ -121,7 +123,7 @@ class ReviewCreateTest(TestCase, BaseTest):
 
         issuer_result = ReviewResult.ACCEPTED
 
-        self.create_post_review(trip.id, issuer_result)
+        self.create_post_review(f'/api/trips/{trip.id}/reviews-from-issuer', trip.id, issuer_result)
 
         trip = self.client.get(f'/api/trips/{trip.id}').data
         self.assertEqual(trip.get('status'), issuer_result)
@@ -133,7 +135,7 @@ class ReviewCreateTest(TestCase, BaseTest):
         self.leader.ISSUER = True
         self.leader.save()
 
-        self.create_post_review(trip.id, ReviewResult.ACCEPTED)
+        self.create_post_review(f'/api/trips/{trip.id}/reviews-from-issuer', trip.id, ReviewResult.ACCEPTED)
         trip = self.client.get(f'/api/trips/{trip.id}').data
         self.assertNotEqual(trip.get('status'), ReviewResult.ACCEPTED)
 
