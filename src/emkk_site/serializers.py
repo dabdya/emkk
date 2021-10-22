@@ -59,6 +59,7 @@ class TripSerializer(DynamicTripSerializer):
     class Meta:
         model = Trip
         exclude = ['leader', ]
+        read_only_fields = ['created_at', ]
 
     def create(self, validated_data):
         token = self.context['token']

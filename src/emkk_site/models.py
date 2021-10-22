@@ -1,5 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 from src.jwt_auth.models import User
 
@@ -38,7 +39,9 @@ class Trip(models.Model):
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
-    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
+    difficulty_category = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(6)])
+
     global_region = models.CharField(max_length=100)
     local_region = models.CharField(max_length=100)
     participants_count = models.IntegerField()
@@ -46,8 +49,10 @@ class Trip(models.Model):
     end_date = models.DateField()
     coordinator_info = models.TextField()
     insurance_info = models.TextField()
-    start_apply = models.TextField(null=True)
-    end_apply = models.TextField(null=True)
+    actual_start_date = models.TextField(null=True)
+    actual_end_date = models.TextField(null=True)
+
+    created_at = models.DateTimeField(editable=False, default=timezone.now)
 
     def __str__(self):
         return self.group_name
@@ -75,7 +80,8 @@ class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
+    difficulty_category = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(6)])
 
 
 class TripsOnReviewByUser(models.Model):
