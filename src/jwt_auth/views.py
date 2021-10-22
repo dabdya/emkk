@@ -21,12 +21,10 @@ class RefreshTokenView(APIView):
     permission_classes = [AllowAny, ]
     serializer_class = RefreshTokenSerializer
     parser_classes = [JSONParser, ]
-    renderer_classes = [UserJSONRenderer, ]
 
     @swagger_auto_schema(**refresh_token_schema)
     def post(self, request):
-        user = request.data.get('user', {})
-        serializer = self.serializer_class(data=user)
+        serializer = self.serializer_class(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_200_OK)

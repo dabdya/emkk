@@ -1,27 +1,21 @@
-import jwt
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.permissions import IsAuthenticated
 from src.jwt_auth.permissions import IsReviewer, IsIssuer
-from rest_framework.parsers import BaseParser, MultiPartParser
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, mixins
 from rest_framework import status
 from django.http import Http404
-from django.views import View
 
 from .serializers import (
     DocumentSerializer, TripSerializer, ReviewSerializer,
     DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
 from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
-
-from ..jwt_auth.models import User
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
 
 
@@ -144,13 +138,6 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
             return Document.objects.get(pk=self.kwargs['doc_id'])
         except Trip.DoesNotExist as error:  ##TODO Заменить Trip на Document
             raise Http404
-
-    # def retrieve(self, request, *args, **kwargs):
-    #     document = Document.objects.get(pk=kwargs['pk'])
-    #     response = HttpResponse(
-    #         document.content, content_type=document.content_type)
-    #     response['Content-Disposition'] = 'attachment'
-    #     return response
 
 
 class ReviewList(generics.ListCreateAPIView):
