@@ -39,9 +39,9 @@ class TripList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def get_serializer_context(self):
-        return {
-            'token': self.request.headers["Authorization"]
-        }
+        context = super(TripList, self).get_serializer_context()
+        context.update({"token": self.request.headers["Authorization"]})
+        return context
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
@@ -49,19 +49,10 @@ class TripList(generics.ListCreateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, excluded_fields=["status"])
+        serializer = self.serializer_class(
+            data=request.data, excluded_fields=["status"], context=self.get_serializer_context())
         if serializer.is_valid():
-            token = request.headers['Authorization']
-            try:
-                payload = jwt.decode(token.split(" ")[1], settings.SECRET_KEY, algorithms=["HS256"])
-            except jwt.ExpiredSignatureError as expired_signature_error:
-                return Response(expired_signature_error, status=status.HTTP_400_BAD_REQUEST)
-            except jwt.InvalidSignatureError as invalid_signature_error:
-                return Response(invalid_signature_error, status=status.HTTP_400_BAD_REQUEST)
-            user = User.objects.get(username=payload['username'])
-            serializer.validated_data['leader'] = user
             serializer.save()
-            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -176,10 +167,10 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class ReviewList(generics.ListCreateAPIView):
-    """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
-        Если их стало больше необходимого кол-ва - исключение 4**
-        Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набралось достаточное кол-во"""
+    """Работа с рецензиями по заявке с идентификатором pk.
+       Этот эндпоинт доступен тольько для рецензентов."""
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         return Review.objects.filter(trip_id=self.kwargs["pk"])

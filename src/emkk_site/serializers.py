@@ -59,3 +59,12 @@ class TripSerializer(DynamicTripSerializer):
     class Meta:
         model = Trip
         exclude = ['leader', ]
+
+    def create(self, validated_data):
+        token = self.context['token']
+        """Посколько доступ на эндпоинт только авторизованным, то токен уже проверен
+           и ошибки при декодировании не будет."""
+        payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=["HS256"])
+        user = User.objects.get(username=payload['username'])
+        validated_data['leader'] = user
+        return super(TripSerializer, self).create(validated_data)

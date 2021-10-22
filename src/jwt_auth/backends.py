@@ -38,7 +38,6 @@ class JWTAuthentication(authentication.BaseAuthentication):
 
         try:
             payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-
         except jwt.ExpiredSignatureError as expired_signature_error:
             raise exceptions.AuthenticationFailed(expired_signature_error)
 
