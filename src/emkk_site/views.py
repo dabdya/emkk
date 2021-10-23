@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.permissions import IsAuthenticated
-from src.jwt_auth.permissions import IsReviewer, IsIssuer
+from src.jwt_auth.permissions import IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -12,8 +12,8 @@ from rest_framework import status
 from django.http import Http404
 
 from .serializers import (
-    DocumentSerializer, TripSerializer, ReviewSerializer,
-    DocumentDetailSerializer, ReviewFromIssuerSerializer)
+    DocumentSerializer, TripSerializer, TripForAnonymousSerializer,
+    ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
 from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
@@ -30,23 +30,26 @@ class TripsForReview(generics.ListAPIView):
 
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
-
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     def get_serializer_context(self):
         context = super(TripList, self).get_serializer_context()
         context.update({"token": self.request.headers["Authorization"]})
         return context
 
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return TripSerializer
+        return TripForAnonymousSerializer
+
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = TripSerializer(queryset, many=True)
+        serializer = self.get_serializer_class()(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, excluded_fields=["status"], context=self.get_serializer_context())
+        serializer = self.get_serializer_class()(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -56,6 +59,9 @@ class TripList(generics.ListCreateAPIView):
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
+
+    # сделать пермишен для владельца заявки и работников МКК, остальным нет
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
@@ -90,6 +96,8 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
+    permission_classes = [IsAuthenticated, ]
+
     def get_queryset(self):
         queryset = Document.objects.all()
         trip_id = self.request.query_params.get('trip_id')
@@ -113,6 +121,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentDetailSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
     parser_classes = [MultiPartParser, ]
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
@@ -169,6 +178,7 @@ class ReviewList(generics.ListCreateAPIView):
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
 
 
 class ReviewFromIssuerDetail(
