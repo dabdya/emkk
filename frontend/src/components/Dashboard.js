@@ -51,7 +51,7 @@ export default class Dashboard extends React.Component {
 			<div>
 				Welcome {this.user}!<br /><br />
 				Здесь находится информация только для авторизованных пользователей <br /> <br />
-				<input type="button" onClick={this.handleLogout} value="Logout" />
+				<button onClick={this.handleLogout} value="Logout" />
 				<ul>
 					<li> {"Создан"} {"Район"} {"Вид туризма"} {"Сложность"} {"Статус"} {"Обновлён"} </li>
 					{this.state.trips.map(trip => (
