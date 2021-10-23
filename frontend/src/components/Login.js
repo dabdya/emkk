@@ -4,7 +4,6 @@ import { setUserSession } from '../utils/Common';
 import OkIcon from '@skbkontur/react-icons/Ok';
 import WarningSign from '@skbkontur/react-icons/Warning'
 import { Button, Center, Input, Gapped, Link } from '@skbkontur/react-ui';
-import logo from './logo.png';
 
 export default class Login extends React.Component {
 
@@ -39,12 +38,12 @@ export default class Login extends React.Component {
 							<form onSubmit={this.onSubmit}>
 								<div style={{ marginTop: 40 }}>
 									<label htmlFor="login">Логин</label><br/> 
-									<input className="login" required type="text" name="login" value={this.state.login} onChange={(e) => this.setState({ login: e.target.value })}></input>
+									<input className="inputField" required type="text" name="login" value={this.state.login} onChange={(e) => this.setState({ login: e.target.value })}></input>
 								</div>	
 								<div style={{ marginTop: 20 }}>
 									<label htmlFor="password">Пароль</label><br/>
 									<Gapped vertical gap={5}>
-										<input className="password" required type="password" name="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })}></input>
+										<input className="inputField" required type="password" name="password" value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })}></input>
 										{this.state.error && <><small style={{ color: 'red'}}><WarningSign />{this.state.error}</small><br /></>}<br />
 										<Button style={{ position: 'relative', top: '-30px' }} use='link'>Забыли пароль?</Button>
 									</Gapped>

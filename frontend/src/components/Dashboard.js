@@ -46,21 +46,41 @@ export default class Dashboard extends React.Component {
 		this.props.history.push('/login');
 	};
 
+	renderTable() {
+
+	}
+
 	render() {
 		return (
-			<div>
-				Welcome {this.user}!<br /><br />
-				Здесь находится информация только для авторизованных пользователей <br /> <br />
-				<button onClick={this.handleLogout} value="Logout" />
-				<ul>
-					<li> {"Создан"} {"Район"} {"Вид туризма"} {"Сложность"} {"Статус"} {"Обновлён"} </li>
-					{this.state.trips.map(trip => (
-						<li key={trip.id}>
-							{"Дата создания"} {trip.district} {trip.kind} {trip.difficulty_category} {trip.status} {"Дата обновления"}
-						</li>
-					))}
-				</ul>
-			</div>
+			<div className="table">
+					<button onClick={this.handleLogout} value="Logout" />
+					<table className="table">
+						<thead>
+							<tr>
+								<th>ФИО Руководителя</th>
+								<th>Общий район</th>
+								<th>Вид туризма</th>
+								<th>Сложность</th>
+								<th>Статус</th>
+								<th>Дата начала</th>
+								<th>Дата конца</th>
+							</tr>
+						</thead>
+						<tbody>
+							{this.state.trips.map(trip => (
+								<tr key={trip.id}>
+									<td>{trip.coordinator_info}</td>
+									<td>{trip.global_region}</td>
+									<td>{trip.kind}</td>
+									<td>{trip.difficulty_category}</td>
+									<td>{trip.status}</td>
+									<td>{trip.start_date}</td>
+									<td>{trip.end_date}</td>
+								</tr>
+							))}
+						</tbody>
+					</table>
+				</div>
 		);
 	}
 }

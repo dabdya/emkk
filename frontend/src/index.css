@@ -42,15 +42,13 @@ code {
   color: #2c7613;
 }
 
-.password,
-.login{
+.inputField {
   border: none;
   background: transparent;
   border-bottom: 1px solid;
   width: 280px;
 }
-.login:focus,
-.password:focus {
+.inputField:focus {
   outline: none;
 }
 
