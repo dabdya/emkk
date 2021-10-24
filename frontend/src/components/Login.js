@@ -3,6 +3,7 @@ import axios from 'axios';
 import { setUserSession } from '../utils/Common';
 import OkIcon from '@skbkontur/react-icons/Ok';
 import WarningSign from '@skbkontur/react-icons/Warning'
+import { Redirect } from 'react-router-dom';
 import { Button, Center, Input, Gapped, Link } from '@skbkontur/react-ui';
 
 export default class Login extends React.Component {
@@ -19,7 +20,8 @@ export default class Login extends React.Component {
 		axios.post('http://localhost:8000/auth/users/login', { user: { username: this.state.login, password: this.state.password } })
 			.then(response => {
 				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
-				this.props.history.push('/dashboard'); // не убирает кнопки login и registration после входа. пофиксить.
+				
+				this.props.history.push('/'); // не убирает кнопки login и registration после входа. пофиксить.
 			}).catch(err => {
 				if (err.response.data.user) this.setState({ error: `Неправильный логин или пароль` });
 			});

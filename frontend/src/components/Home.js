@@ -7,21 +7,25 @@ import NotFound from './NotFound';
 export default class Home extends React.Component {
 	constructor(props) {
 		super(props);
+		
 	}
+
+
 
 	render() {
 		return (
 			<div className="Home">
-				<button onClick={() => { removeUserSession(); }} value="Logout" />
 				<BrowserRouter>
 					<div>
 						<div className="header">
-							<NavLink exact activeClassName="active" to="/home/dashboard">Табло походов</NavLink>
-							<NavLink activeClassName="active" to="/home/review">Мои заявки</NavLink>
+							<NavLink exact activeClassName="active" to="/">Табло походов</NavLink>
+							<NavLink activeClassName="active" to="/review">Мои заявки</NavLink>
 						</div>
 						<div className="content">
 							<Switch>
-								<Route exact path="/home/dashboard" component={Dashboard} />
+								<Route exact path="/">
+									<Dashboard isLogin={this.props.isLogin} />
+									</Route>
 								<Route path="*" component={NotFound} />
 							</Switch>
 						</div>
