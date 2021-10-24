@@ -17,7 +17,7 @@ const removeUserSession = () => {
 	localStorage.removeItem('refresh_token');
 	localStorage.removeItem('user');
 }
-const setToken = (accessToken) =>{
+const setToken = (accessToken) => {
 	localStorage.setItem('access_token', accessToken);
 }
 
@@ -28,4 +28,4 @@ const setUserSession = (accessToken, refreshToken, user) => {
 	localStorage.setItem('user', JSON.stringify(user));
 }
 
-export {getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken};
+export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken };

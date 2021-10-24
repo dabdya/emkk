@@ -53,10 +53,10 @@ export default class App extends React.Component {
 							<div className="header">
 								<NavLink exact activeClassName="active" to="/">Home</NavLink>
 								{!this.state.token &&
-								<>
-								<NavLink activeClassName="active" to="/login">Login</NavLink>
-								<NavLink activeClassName="active" to="/signup">Registration</NavLink>
-								</> }
+									<>
+										<NavLink activeClassName="active" to="/login">Login</NavLink>
+										<NavLink activeClassName="active" to="/signup">Registration</NavLink>
+									</>}
 								<NavLink activeClassName="active" to="/form">Form</NavLink>
 								{this.state.token && <button onClick={() => { removeUserSession(); }} value="Logout">Выйти</button>}
 
@@ -65,7 +65,7 @@ export default class App extends React.Component {
 								<Switch>
 									<Route exact path="/">
 										<Home isLogin={this.state.token} />
-										</Route>
+									</Route>
 									<Route path="/login" component={Login} />
 									<Route path="/signup" component={Registration} />
 									<PrivateRoute path="/form" component={ApplicationForm} />
