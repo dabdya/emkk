@@ -19,6 +19,7 @@ from src.jwt_auth.renderers import UserJSONRenderer
 
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes = []
     serializer_class = RefreshTokenSerializer
     parser_classes = [JSONParser, ]
 

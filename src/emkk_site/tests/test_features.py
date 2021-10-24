@@ -113,7 +113,8 @@ class ReviewCreateTest(TestCase, BaseTest):
             self.take_trip_in_work(self.leader, trip)
             self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
 
-        trip = self.client.get(f'/api/trips/{trip.id}').data
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
+        trip = self.client.get(f'/api/trips/{trip.id}', **headers).data
         self.assertEqual(trip.get('status'), TripStatus.AT_ISSUER)
 
     def test_trip_status_established_to_issuer_result_if_review_come_from_issuer(self):
@@ -130,7 +131,8 @@ class ReviewCreateTest(TestCase, BaseTest):
 
         self.create_post_review(f'/api/trips/{trip.id}/reviews-from-issuer', trip.id, issuer_result)
 
-        trip = self.client.get(f'/api/trips/{trip.id}').data
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
+        trip = self.client.get(f'/api/trips/{trip.id}', **headers).data
         self.assertEqual(trip.get('status'), issuer_result)
 
     def test_trip_status_no_change_to_issuer_result_if_trip_on_review(self):
@@ -200,11 +202,7 @@ class TripCreateTest(TestCase, BaseTest):
         self.client = Client()
         self.leader = self.create_leader()
 
-    def test_trip_create_take_leader_from_authorization(self):
-        """Send post without leaders, server should take leader from auth header"""
-        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
-
-        response = self.client.post(f'/api/trips', {
+        self.trip = {
             'kind': TripKind.CYCLING,
             'difficulty_category': 1,
             'group_name': 'TestGroup',
@@ -215,8 +213,24 @@ class TripCreateTest(TestCase, BaseTest):
             'end_date': '2021-10-28',
             'coordinator_info': 'Info',
             'insurance_info': 'Info'
-        }, **headers)
+        }
+
+    def test_trip_create_take_leader_from_authorization(self):
+        """Send post without leaders, server should take leader from auth header"""
+        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
+
+        response = self.client.post(f'/api/trips', self.trip, **headers)
 
         trip_id = response.data['id']
         trip = Trip.objects.get(pk=trip_id)
         self.assertEqual(trip.leader, self.leader)
+
+    def test_trip_get_restricted_list_if_not_authorized(self):
+        self.generate_trips(self.leader, 1)
+        response = self.client.get('/api/trips')
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data[0].get('insurance_info', False))
+
+    def test_cant_create_trip_if_not_authorized(self):
+        response = self.client.post(f'/api/trips', self.trip)
+        self.assertEqual(response.status_code, 403)

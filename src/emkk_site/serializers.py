@@ -41,25 +41,11 @@ class ReviewFromIssuerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class DynamicTripSerializer(serializers.ModelSerializer):
-
-    def __init__(self, *args, **kwargs):
-        excluded_fields = kwargs.pop('excluded_fields', None)
-        super(DynamicTripSerializer, self).__init__(*args, **kwargs)
-
-        if excluded_fields:
-            for field in excluded_fields:
-                self.fields.pop(field)
-
-
-# Можно было бы добиться такого же результата, если просто указать что status read only?
-
-
-class TripSerializer(DynamicTripSerializer):
+class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
-        exclude = ['leader', ]
-        read_only_fields = ['created_at', ]
+        fields = '__all__'
+        read_only_fields = ['created_at', 'status', 'leader', ]
 
     def create(self, validated_data):
         token = self.context['token']
@@ -69,3 +55,13 @@ class TripSerializer(DynamicTripSerializer):
         user = User.objects.get(username=payload['username'])
         validated_data['leader'] = user
         return super(TripSerializer, self).create(validated_data)
+
+
+class TripForAnonymousSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Trip
+        exclude = [
+            'insurance_info', 'coordinator_info', 'participants_count',
+            'actual_start_date', 'actual_end_date',
+        ]
+
