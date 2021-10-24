@@ -5,7 +5,7 @@ export const KINDOFTOURISM = {
 	"Горы": "mountain",
 	"Вода": "water",
 }
-// Общий район
+
 export const GLOBALAREA = [
 	"Алтай",
 	"Альпы",

@@ -5,7 +5,6 @@ import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
 import { Button, Center, Input, Gapped, Link, ScrollContainer, Tooltip, ComboBox } from '@skbkontur/react-ui';
 
-const delay = time => args => new Promise(resolve => setTimeout(resolve, time, args));
 export default class ApplicationForm extends React.Component {
 
 	constructor(props) {
@@ -80,7 +79,7 @@ export default class ApplicationForm extends React.Component {
 				form.append("file", this.state.routeBook);
 				form.append("trip", parseInt(respForm.data.id))
 				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
-					form
+					form, config
 				)
 			})
 	}
@@ -197,11 +196,10 @@ export default class ApplicationForm extends React.Component {
 										<option value="Лыжи">Лыжи</option>
 									</select>
 								</p>
-								<ComboBox getItems={getItems} value={{ value: this.state.generalArea, label: this.state.generalArea }} onValueChange={this.changeComboBox} />
 								{this.renderInput("Сложность", "number", "routeDifficulty", "routeDifficulty", "routeDifficulty", this.state.routeDifficulty, this.changeInputRegister)}
 								{this.renderInput("Координатор", "text", "inputField", "coordinatorInfo", "coordinatorInfo", this.state.coordinatorInfo, this.changeInputRegister)}
 								{this.renderInput("Информация о страховой компании", "text", "inputField", "insuranceInfo", "insuranceInfo", this.state.insuranceInfo, this.changeInputRegister)}
-								{this.renderInput("Общий район", "text", "generalArea", "generalArea", "generalArea", this.state.generalArea, this.changeInputRegister)} {/*справочник по общим районам*/}
+								<ComboBox getItems={getItems} value={{ value: this.state.generalArea, label: this.state.generalArea }} onValueChange={this.changeComboBox} />								
 								{this.renderInput("Район", "text", "localArea", "localArea", "localArea", this.state.localArea, this.changeInputRegister)}
 								{this.renderInput("Дата начала маршрута", "date", "routeStartDate", "routeStartDate", "routeStartDate", this.state.routeStartDate, this.changeInputRegister)}
 								{this.renderInput("Дата выхода с маршрута", "date", "routeEndDate", "routeEndDate", "routeEndDate", this.state.routeEndDate, this.changeInputRegister)}
