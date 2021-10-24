@@ -26,9 +26,9 @@ SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4
 DEBUG = True
 
 ALLOWED_HOSTS = ['testserver', 'localhost']
+
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
-
 
 # Application definition
 
@@ -59,15 +59,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-# CORS_ORIGIN_WHITELIST = [
-#     'http://localhost:3000',
-# ]
-# CORS_ORIGIN_REGEX_WHITELIST = [
-#     'http://localhost:3000',
-# ]
-
-# CORS_ORIGIN_ALLOW_ALL = True
-
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:3000',
 ]
@@ -96,7 +87,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'default1': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ.get('DB_NAME'),
         'USER': os.environ.get('DB_USER'),
@@ -104,11 +95,12 @@ DATABASES = {
         'HOST': os.environ.get('DB_HOST'),
         'PORT': 5432
     },
-    'default1': {
+    'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'src.jwt_auth.backends.JWTAuthentication',

@@ -1,12 +1,10 @@
-import jwt
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer
-from rest_framework.authentication import SessionAuthentication
-from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
-from rest_framework.parsers import BaseParser, MultiPartParser
+from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+from rest_framework.permissions import IsAuthenticated
+from src.jwt_auth.permissions import IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly
+from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import generics, mixins
@@ -14,12 +12,10 @@ from rest_framework import status
 from django.http import Http404
 
 from .serializers import (
-    DocumentSerializer, TripSerializer, ReviewSerializer,
-    DocumentDetailSerializer, ReviewFromIssuerSerializer)
+    DocumentSerializer, TripSerializer, TripForAnonymousSerializer,
+    ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer)
 
-from .services import get_trips_available_for_reviews
-
-from ..jwt_auth.models import User
+from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
 from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
 
 
@@ -34,34 +30,28 @@ class TripsForReview(generics.ListAPIView):
 
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
-
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     def get_serializer_context(self):
-        return {
-            'token': self.request.headers["Authorization"]
-        }
+        context = super(TripList, self).get_serializer_context()
+        context.update({"token": self.request.headers["Authorization"]})
+        return context
+
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return TripSerializer
+        return TripForAnonymousSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = TripSerializer(queryset, many=True)
+        serializer = self.get_serializer_class()(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data, excluded_fields=["status"])
+        serializer = self.get_serializer_class()(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
-            token = request.headers['Authorization']
-            try:
-                payload = jwt.decode(token.split(" ")[1], settings.SECRET_KEY, algorithms=["HS256"])
-            except jwt.ExpiredSignatureError as expired_signature_error:
-                return Response(expired_signature_error, status=status.HTTP_400_BAD_REQUEST)
-            except jwt.InvalidSignatureError as invalid_signature_error:
-                return Response(invalid_signature_error, status=status.HTTP_400_BAD_REQUEST)
-            user = User.objects.get(username=payload['username'])
-            serializer.validated_data['leader'] = user
             serializer.save()
-            
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -69,6 +59,9 @@ class TripList(generics.ListCreateAPIView):
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
+
+    # сделать пермишен для владельца заявки и работников МКК, остальным нет
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
@@ -103,6 +96,8 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
+    permission_classes = [IsAuthenticated, ]
+
     def get_queryset(self):
         queryset = Document.objects.all()
         trip_id = self.request.query_params.get('trip_id')
@@ -121,26 +116,12 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         return Response(docs_ids)
 
 
-# def create(self, request, *args, **kwargs):
-#     trip_id = request.data['trip']
-#
-#     if not Trip.objects.filter(pk=trip_id).exists():
-#         return Response(status=status.HTTP_404_NOT_FOUND,
-#                         data={'error': 'related trip not found'})
-#
-#     file = request.FILES['file']
-#     document = Document(
-#         trip_id=trip_id, content=file.read(), content_type=file.content_type)
-#
-#     document.save()
-#     return Response(status=status.HTTP_201_CREATED)
-
-
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Document.objects.all()
     serializer_class = DocumentDetailSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
     parser_classes = [MultiPartParser, ]
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
@@ -167,19 +148,11 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
         except Trip.DoesNotExist as error:  ##TODO Заменить Trip на Document
             raise Http404
 
-    # def retrieve(self, request, *args, **kwargs):
-    #     document = Document.objects.get(pk=kwargs['pk'])
-    #     response = HttpResponse(
-    #         document.content, content_type=document.content_type)
-    #     response['Content-Disposition'] = 'attachment'
-    #     return response
-
 
 class ReviewList(generics.ListCreateAPIView):
-    """При получении ревью на заявку, вычислить кол-во ревью, привязанных к этой заявке.
-        Если их стало больше необходимого кол-ва - исключение 4**
-        Создаем. После создание вызов обработчика, который поменяет статус заявки, если их набралось достаточное кол-во"""
+    """Эндпоинт доступен только для рецензентов"""
     serializer_class = ReviewSerializer
+    permission_classes = [IsReviewer, ]
 
     def get_queryset(self):
         return Review.objects.filter(trip_id=self.kwargs["pk"])
@@ -188,31 +161,49 @@ class ReviewList(generics.ListCreateAPIView):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
             reviewer = serializer.validated_data['reviewer']
-            result = serializer.validated_data['result']
-            if reviewer.ISSUER and trip.status == TripStatus.AT_ISSUER:
-                trip.status = result
-                trip.save()
+            if not TripsOnReviewByUser.objects.filter(trip=trip, user=reviewer).count():
+                return Response("error", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
             review = serializer.save()
-            trip.try_change_status_from_review_to_at_issuer()  # перенести из модели в сервисы
+            try_change_status_from_review_to_at_issuer(trip)
             TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
 
 
-class ReviewFromIssuerDetail(generics.RetrieveUpdateDestroyAPIView, mixins.CreateModelMixin):
+class ReviewFromIssuerDetail(
+    generics.CreateAPIView, generics.UpdateAPIView, generics.RetrieveAPIView):
+    """Эндпоинт доступен только для выпускающих"""
     queryset = ReviewFromIssuer.objects.all()
     serializer_class = ReviewFromIssuerSerializer
+    permission_classes = [IsIssuer, ]
+
+    def create(self, request, *args, **kwargs):
+        trip_id = kwargs["pk"]
+        trip = Trip.objects.get(pk=trip_id)
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            result = serializer.validated_data['result']
+            if trip.status == TripStatus.AT_ISSUER:
+                trip.status = result
+                trip.save()
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
-# @permission_classes([IsAuthenticated])  # TODO проверить что пользователь - рецензент. Если заявка не нуждается в ревью?
+@permission_classes([IsReviewer | IsIssuer, ])
 def take_trip_on_review(request, *args, **kwargs):
     trip_id = kwargs['trip_id']
     try:

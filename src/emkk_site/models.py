@@ -1,7 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
-from src.emkk_site.utils.reviewers_count_by_difficulty import get_reviewers_count_by_difficulty
 from src.jwt_auth.models import User
 
 
@@ -15,6 +15,12 @@ class TripStatus(models.TextChoices):
     ACCEPTED = 'accepted'
     REJECTED = 'rejected'
     ALARM = 'alarm'
+
+
+class ReviewResult(models.TextChoices):
+    ON_REWORK = 'on_rework'
+    ACCEPTED = 'accepted'
+    REJECTED = 'rejected'
 
 
 class TripKind(models.TextChoices):
@@ -33,7 +39,9 @@ class Trip(models.Model):
 
     leader = models.ForeignKey(User, on_delete=models.CASCADE)
     group_name = models.CharField(max_length=100)
-    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
+    difficulty_category = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(6)])
+
     global_region = models.CharField(max_length=100)
     local_region = models.CharField(max_length=100)
     participants_count = models.IntegerField()
@@ -41,26 +49,20 @@ class Trip(models.Model):
     end_date = models.DateField()
     coordinator_info = models.TextField()
     insurance_info = models.TextField()
-    start_apply = models.TextField(null=True)
-    end_apply = models.TextField(null=True)
+    actual_start_date = models.TextField(null=True)
+    actual_end_date = models.TextField(null=True)
+
+    created_at = models.DateTimeField(editable=False, default=timezone.now)
 
     def __str__(self):
         return self.group_name
-
-    def try_change_status_from_review_to_at_issuer(self):
-        existing_reviews_count = len(Review.objects.filter(trip=self))
-        needed_reviews_count = get_reviewers_count_by_difficulty(self.difficulty_category)
-        if self.status == TripStatus.ON_REVIEW and existing_reviews_count >= needed_reviews_count:
-            self.status = TripStatus.AT_ISSUER
-            self.save()
 
 
 class Review(models.Model):
     """Рецензия. Выдается работниоком МКК на конкретную заявку"""
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    result = models.CharField(
-        choices=TripStatus.choices, max_length=30, default=TripStatus.ON_REVIEW)
+    result = models.CharField(choices=ReviewResult.choices, max_length=30)
     result_comment = models.TextField()
 
 
@@ -78,7 +80,8 @@ class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(6)])
+    difficulty_category = models.IntegerField(
+        validators=[MinValueValidator(1), MaxValueValidator(6)])
 
 
 class TripsOnReviewByUser(models.Model):
