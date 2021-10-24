@@ -1,7 +1,7 @@
-import axios from 'axios';
 import React from 'react';
 import { getToken, getUser, removeUserSession } from '../utils/Common';
-
+import Requests from '../utils/requests';
+import axios from 'axios'
 
 export default class Dashboard extends React.Component {
 
@@ -22,7 +22,8 @@ export default class Dashboard extends React.Component {
 				Authorization: 'Token ' + getToken() //the token is a variable which holds the token
 			}
 		};
-		await axios.get("http://localhost:8000/api/trips",config)
+		const request = new Requests();
+		await request.get("http://localhost:8000/api/trips", config)
 			.then(
 				(result) => {
 					this.setState({
@@ -45,20 +46,39 @@ export default class Dashboard extends React.Component {
 		this.props.history.push('/login');
 	};
 
+	renderTable() {
+
+	}
+
 	render() {
 		return (
-			<div>
-				Welcome {this.user}!<br /><br />
-				Здесь находится информация только для авторизованных пользователей <br /> <br />
-				<input type="button" onClick={this.handleLogout} value="Logout" />
-				<ul>
-					<li> {"Создан"} {"Район"} {"Вид туризма"} {"Сложность"} {"Статус"} {"Обновлён"} </li>
-					{this.state.trips.map(trip => (
-						<li key={trip.id}>
-							{"Дата создания"} {trip.district} {trip.kind} {trip.difficulty_category} {trip.status} {"Дата обновления"}
-						</li>
-					))}
-				</ul>
+			<div className="table">
+				<table className="table">
+					<thead>
+						<tr>
+							<th>ФИО Руководителя</th>
+							<th>Общий район</th>
+							<th>Вид туризма</th>
+							<th>Сложность</th>
+							<th>Статус</th>
+							<th>Дата начала</th>
+							<th>Дата конца</th>
+						</tr>
+					</thead>
+					<tbody>
+						{this.state.trips.map(trip => (
+							<tr key={trip.id}>
+								<td>{trip.coordinator_info}</td>
+								<td>{trip.global_region}</td>
+								<td>{trip.kind}</td>
+								<td>{trip.difficulty_category}</td>
+								<td>{trip.status}</td>
+								<td>{trip.start_date}</td>
+								<td>{trip.end_date}</td>
+							</tr>
+						))}
+					</tbody>
+				</table>
 			</div>
 		);
 	}
