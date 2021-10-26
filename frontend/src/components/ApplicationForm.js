@@ -4,6 +4,7 @@ import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
 import { Button, Center, Input, Gapped, Link, ScrollContainer, Tooltip, ComboBox } from '@skbkontur/react-ui';
+import Requests from '../utils/requests';
 
 export default class ApplicationForm extends React.Component {
 
@@ -51,7 +52,7 @@ export default class ApplicationForm extends React.Component {
 		this.setState({ [event.target.name]: event.target.files[0] })
 	}
 
-	onSubmit(event) {
+	async onSubmit(event) {
 		event.preventDefault();
 
 		const { groupName, generalArea, localArea, routeStartDate, routeEndDate,
@@ -74,8 +75,8 @@ export default class ApplicationForm extends React.Component {
 				Authorization: 'Token ' + getToken()
 			}
 		};
-
-		axios.post("http://localhost:8000/api/trips",
+		const request = new Requests();
+		await request.post("http://localhost:8000/api/trips",
 			formTrip
 			, config).then(respForm => {
 				let form = new FormData()
