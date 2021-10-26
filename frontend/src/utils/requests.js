@@ -9,7 +9,7 @@ export default class Requests {
 		return this.wrappedAxios.get(url, config)
 			.catch(async error => {
 				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post("http://localhost:8000/auth/users/refresh", {refresh_token: getRefreshToken()  })
+					return await this.wrappedAxios.post("http://localhost:8000/auth/users/refresh", { refresh_token: getRefreshToken() })
 						.then(async resp => {
 							setToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
@@ -20,15 +20,15 @@ export default class Requests {
 			});
 	}
 
-	async post(url, config = { headers: {} }) {
-		return this.wrappedAxios.post(url, config)
+	async post(url, data, config = { headers: {} }) {
+		return this.wrappedAxios.post(url, data, config)
 			.catch(async error => {
 				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post("http://localhost:8000/auth/users/refresh", { refresh_token: getRefreshToken()  })
+					return await this.wrappedAxios.post("http://localhost:8000/auth/users/refresh", { refresh_token: getRefreshToken() })
 						.then(resp => {
 							setToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
-							return this.wrappedAxios.post(url, config);
+							return this.wrappedAxios.post(url, data, config);
 						})
 				}
 			});
