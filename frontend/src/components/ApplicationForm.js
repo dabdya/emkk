@@ -29,7 +29,10 @@ export default class ApplicationForm extends React.Component {
 			insuranceInfo: "INFO"
 
 		};
-		this.hiddenFileInput = React.createRef(null);
+		this.hiddenFileInputRoute = React.createRef(null);
+		this.hiddenFileInputCartographic = React.createRef(null);
+		this.hiddenFileInputParticipants = React.createRef(null);
+		this.hiddenFileInputInsurance = React.createRef(null);
 		this.handleClick = this.handleClick.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.onFileChange = this.onFileChange.bind(this);
@@ -75,12 +78,32 @@ export default class ApplicationForm extends React.Component {
 		axios.post("http://localhost:8000/api/trips",
 			formTrip
 			, config).then(respForm => {
-				const form = new FormData()
+				let form = new FormData()
 				form.append("file", this.state.routeBook);
 				form.append("trip", parseInt(respForm.data.id))
 				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
 					form, config
+				);
+				form = new FormData()
+				form.append("file", this.state.cartographicMaterial);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				);
+				form = new FormData()
+				form.append("file", this.state.participantsReferences);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
 				)
+				form = new FormData()
+				form.append("file", this.state.insurancePolicyScans);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				)
+
+
 			})
 	}
 
@@ -124,6 +147,8 @@ export default class ApplicationForm extends React.Component {
 			</div>
 		)
 	}
+
+
 	ToolTipForCartographic() {
 		return (
 			<div style={{ width: 430, fontSize: 16, fontFamily: 'Segoe UI' }}>
@@ -132,6 +157,7 @@ export default class ApplicationForm extends React.Component {
 			</div>
 		)
 	};
+
 	ToolTipForReferences() {
 		return (
 			<div style={{ width: 300, fontSize: 16, fontFamily: 'Segoe UI' }}>
@@ -139,6 +165,7 @@ export default class ApplicationForm extends React.Component {
 			</div>
 		)
 	};
+
 	ToolTipForInsuranceScans() {
 		return (
 			<div style={{ width: 430, fontSize: 16, fontFamily: 'Segoe UI' }}>
@@ -147,17 +174,17 @@ export default class ApplicationForm extends React.Component {
 		)
 	};
 
-	renderFileUpload(fileName, id, toolTipMethod) {
+	renderFileUpload(fileName, name, ref, toolTipMethod) {
 		return (
 			<div style={{ marginTop: "5px" }}>
-				<label htmlFor={id}>{fileName}</label><br />
+				<label >{fileName}</label><br />
 				<Gapped>
-					<Button style={{ width: "170px" }} onClick={this.handleClick}>Загрузить</Button>
+					<Button style={{ width: "170px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>
 					<Tooltip render={toolTipMethod} pos="right top">
 						<HelpDotIcon />
 					</Tooltip>
 				</Gapped>
-				<input type="file" style={{ display: "none" }} id={id} name={id} ref={this.hiddenFileInput} onChange={this.onFileChange} />
+				<input type="file" style={{ display: "none" }} name={name} ref={ref} onChange={this.onFileChange} />
 			</div>
 		)
 	}
@@ -170,10 +197,10 @@ export default class ApplicationForm extends React.Component {
 	};
 
 	render() {
-		const getItems = q =>
+		const getItems = query =>
 			Promise.resolve(
 				GLOBALAREA.map(item => { return { value: item, label: item } })
-					.filter(item => item.value.startsWith(q))
+					.filter(item => item.value.startsWith(query))
 			);
 		return (
 			<div>
@@ -199,7 +226,7 @@ export default class ApplicationForm extends React.Component {
 								{this.renderInput("Сложность", "number", "routeDifficulty", "routeDifficulty", "routeDifficulty", this.state.routeDifficulty, this.changeInputRegister)}
 								{this.renderInput("Координатор", "text", "inputField", "coordinatorInfo", "coordinatorInfo", this.state.coordinatorInfo, this.changeInputRegister)}
 								{this.renderInput("Информация о страховой компании", "text", "inputField", "insuranceInfo", "insuranceInfo", this.state.insuranceInfo, this.changeInputRegister)}
-								<ComboBox getItems={getItems} value={{ value: this.state.generalArea, label: this.state.generalArea }} onValueChange={this.changeComboBox} />								
+								<ComboBox getItems={getItems} value={{ value: this.state.generalArea, label: this.state.generalArea }} onValueChange={this.changeComboBox} />
 								{this.renderInput("Район", "text", "localArea", "localArea", "localArea", this.state.localArea, this.changeInputRegister)}
 								{this.renderInput("Дата начала маршрута", "date", "routeStartDate", "routeStartDate", "routeStartDate", this.state.routeStartDate, this.changeInputRegister)}
 								{this.renderInput("Дата выхода с маршрута", "date", "routeEndDate", "routeEndDate", "routeEndDate", this.state.routeEndDate, this.changeInputRegister)}
@@ -209,10 +236,10 @@ export default class ApplicationForm extends React.Component {
 							</form>
 						</div>
 						<div>
-							{this.renderFileUpload("Маршрутная книжка", "routeBook", this.ToolTipForRouteBook)}
-							{this.renderFileUpload("Картографический материал", "cartographicMaterial", this.ToolTipForCartographic)}
-							{this.renderFileUpload("Справки участников", "participantsReferences", this.ToolTipForReferences)}
-							{this.renderFileUpload("Сканы страховых полисов", "insurancePolicyScans", this.ToolTipForInsuranceScans)}
+							{this.renderFileUpload("Маршрутная книжка", "routeBook", this.hiddenFileInputRoute, this.ToolTipForRouteBook)}
+							{this.renderFileUpload("Картографический материал", "cartographicMaterial", this.hiddenFileInputCartographic, this.ToolTipForCartographic)}
+							{this.renderFileUpload("Справки участников", "participantsReferences", this.hiddenFileInputParticipants, this.ToolTipForReferences)}
+							{this.renderFileUpload("Сканы страховых полисов", "insurancePolicyScans", this.hiddenFileInputInsurance, this.ToolTipForInsuranceScans)}
 						</div>
 					</Center>
 				</ScrollContainer>
