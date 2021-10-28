@@ -1,4 +1,4 @@
-from .models import Trip, TripStatus, Review, TripsOnReviewByUser
+from .models import Trip, TripStatus, Review, WorkRegister
 
 
 def get_reviewers_count_by_difficulty(difficulty):
@@ -23,7 +23,7 @@ def get_trips_available_for_reviews():
 
     for trip in trips:
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-        in_work_reviews = len(TripsOnReviewByUser.objects.filter(trip=trip))
+        in_work_reviews = len(WorkRegister.objects.filter(trip=trip))
         actual_reviews = len(Review.objects.filter(trip=trip))
 
         if in_work_reviews + actual_reviews < needed_reviews_count:

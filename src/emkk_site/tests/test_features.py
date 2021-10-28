@@ -2,51 +2,7 @@ from django.test import TestCase, Client
 
 from src.emkk_site.tests.base import BaseTest
 from src.emkk_site.services import get_reviewers_count_by_difficulty
-from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, TripsOnReviewByUser
-
-from collections import defaultdict
-import random
-
-
-class TripsForReviewTest(TestCase, BaseTest):
-    """Tests check available trips for reviewers"""
-
-    def setUp(self):
-        self.trips_count = 100
-        self.client = Client()
-        self.leader = self.create_leader()
-        self.generate_trips(self.leader, self.trips_count)
-
-    def test_trips_with_needed_reviews_count_should_filtered(self):
-
-        trips = Trip.objects.all()
-
-        """Create reviews for random trips"""
-        for i in range(self.trips_count):
-            trip = random.choices(trips)[0]
-
-            review = Review(
-                reviewer=self.leader, trip=trip,
-                result=ReviewResult.ACCEPTED, result_comment="GOOD")
-            review.save()
-
-        """Take random trips in work"""
-        for i in range(self.trips_count):
-            trip = random.choices(trips)[0]
-            TripsOnReviewByUser(user=self.leader, trip=trip).save()
-
-        should_filtered = 0
-
-        for trip in trips:
-            needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-            in_work_reviews = len(TripsOnReviewByUser.objects.filter(trip=trip))
-            actual_reviews = len(Review.objects.filter(trip=trip))
-
-            if actual_reviews + in_work_reviews >= needed_reviews_count:
-                should_filtered += 1
-
-        trips_for_review = len(self.client.get('/api/trips/for-review').data)
-        self.assertEqual(trips_for_review, self.trips_count - should_filtered)
+from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, WorkRegister
 
 
 class ReviewCreateTest(TestCase, BaseTest):
@@ -66,7 +22,7 @@ class ReviewCreateTest(TestCase, BaseTest):
 
     # noinspection PyMethodMayBeStatic
     def take_trip_in_work(self, user, trip):
-        TripsOnReviewByUser(trip=trip, user=user).save()
+        WorkRegister(trip=trip, user=user).save()
 
     # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
@@ -123,22 +79,11 @@ class ReviewCreateTest(TestCase, BaseTest):
         self.leader.save()
 
         """Trip not in work"""
-        self.assertEqual(TripsOnReviewByUser.objects.filter(trip=trip).count(), 0)
+        self.assertEqual(WorkRegister.objects.filter(trip=trip).count(), 0)
 
         """Try create review. Expected fail"""
         self.create_post_review(f'/api/trips/{trip.id}/reviews', trip.id, ReviewResult.ACCEPTED)
         self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
-
-    def test_take_trip_on_review_should_work(self):
-
-        self.generate_trips(self.leader, 1)
-        trip = Trip.objects.first()
-        self.leader.REVIEWER = True
-        self.leader.save()
-
-        headers = {'HTTP_AUTHORIZATION': f'Token {self.leader.access_token}', }
-        self.client.post(f'/api/trips/{trip.id}/take-on-review', **headers)
-        self.assertEqual(TripsOnReviewByUser.objects.filter(user=self.leader, trip=trip).count(), 1)
 
     def test_reviewer_cant_create_review_if_trip_in_work_but_not_belong_him(self):
 
@@ -153,11 +98,11 @@ class ReviewCreateTest(TestCase, BaseTest):
 
         """Other reviewer take review in work, but not create review"""
         self.create_post_review(
-            f'/api/trips/{trip.id}/take-on-review', trip.id,
+            f'/api/trips/work', trip.id,
             ReviewResult.ACCEPTED, reviewer_id=reviewer_which_take_in_work.id,
             token=reviewer_which_take_in_work.access_token)
 
-        self.assertEqual(TripsOnReviewByUser.objects.filter(user=reviewer_which_take_in_work, trip=trip).count(), 1)
+        self.assertEqual(WorkRegister.objects.filter(user=reviewer_which_take_in_work, trip=trip).count(), 1)
 
         """Leader which dint take review in work try create review on trip. 
            But trip in table TripsOnReviewByUser. Expected fail."""

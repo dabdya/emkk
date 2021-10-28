@@ -1,8 +1,5 @@
-import jwt
-from django.conf import settings
 from rest_framework import serializers
-from src.jwt_auth.models import User
-from .models import Document, Trip, Review, ReviewFromIssuer
+from .models import Document, Trip, Review, ReviewFromIssuer, WorkRegister
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -12,21 +9,9 @@ class DocumentSerializer(serializers.ModelSerializer):
 
 
 class DocumentDetailSerializer(serializers.ModelSerializer):
-    # file = serializers.FileField()
-
     class Meta:
         model = Document
         fields = '__all__'
-        # fields = ['id', 'file', 'trip', 'content_type', 'content']
-        # extra_kwargs = {
-        #     'content_type': {'read_only': True},
-        #     'trip': {'read_only': True}
-        # }
-
-    # def update(self, instance, validated_data):
-    #     file = validated_data['file']
-    #     instance.content_type = file.content_type
-    #     instance.content = file.read()
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -41,6 +26,18 @@ class ReviewFromIssuerSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class WorkRegisterSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkRegister
+        fields = '__all__'
+        read_only_fields = ['user', ]
+
+    def create(self, validated_data):
+        user = self.context['user']
+        validated_data['user'] = user
+        return super(WorkRegisterSerializer, self).create(validated_data)
+
+
 class TripSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
@@ -48,11 +45,7 @@ class TripSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'status', 'leader', ]
 
     def create(self, validated_data):
-        token = self.context['token']
-        """Посколько доступ на эндпоинт только авторизованным, то токен уже проверен
-           и ошибки при декодировании не будет."""
-        payload = jwt.decode(token.split()[1], settings.SECRET_KEY, algorithms=["HS256"])
-        user = User.objects.get(username=payload['username'])
+        user = self.context['user']
         validated_data['leader'] = user
         return super(TripSerializer, self).create(validated_data)
 

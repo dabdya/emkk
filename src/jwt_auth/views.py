@@ -55,6 +55,7 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
 class RegistrationAPIView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes = []
     serializer_class = RegistrationSerializer
     renderer_classes = [UserJSONRenderer, ]
 
@@ -69,6 +70,7 @@ class RegistrationAPIView(APIView):
 
 class LoginAPIView(APIView):
     permission_classes = [AllowAny, ]
+    authentication_classes = []
     renderer_classes = [UserJSONRenderer, ]
     serializer_class = LoginSerializer
 
