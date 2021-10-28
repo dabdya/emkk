@@ -89,5 +89,7 @@ class UserExperience(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class WorkRegister(models.Model):
+    class Meta:
+        unique_together = (('trip', 'user'),)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

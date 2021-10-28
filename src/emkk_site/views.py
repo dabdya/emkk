@@ -167,21 +167,24 @@ class ReviewList(generics.ListCreateAPIView):
     def get_queryset(self):
         return Review.objects.filter(trip_id=self.kwargs["pk"])
 
+    def get_serializer_context(self):
+        context = super(ReviewList, self).get_serializer_context()
+        context.update({"reviewer": self.request.user})
+        return context
+
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context=self.get_serializer_context())
 
         if serializer.is_valid():
-            reviewer = serializer.validated_data['reviewer']
+            reviewer = request.user
             if not WorkRegister.objects.filter(trip=trip, user=reviewer).count():
                 return Response("error", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
             review = serializer.save()
             try_change_status_from_review_to_at_issuer(trip)
             WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -198,10 +201,16 @@ class ReviewFromIssuerDetail(
     serializer_class = ReviewFromIssuerSerializer
     permission_classes = [IsIssuer, ]
 
+    def get_serializer_context(self):
+        context = super(ReviewFromIssuerDetail, self).get_serializer_context()
+        context.update({"reviewer": self.request.user})
+        return context
+
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             serializer.save()
             result = serializer.validated_data['result']

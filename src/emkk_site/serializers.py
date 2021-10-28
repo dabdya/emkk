@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import Document, Trip, Review, ReviewFromIssuer, WorkRegister
 
+from django.db import IntegrityError
+
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,12 +20,24 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = '__all__'
+        read_only_fields = ['reviewer', ]
+
+    def create(self, validated_data):
+        reviewer = self.context['reviewer']
+        validated_data['reviewer'] = reviewer
+        return super(ReviewSerializer, self).create(validated_data)
 
 
 class ReviewFromIssuerSerializer(serializers.ModelSerializer):
     class Meta:
         model = ReviewFromIssuer
         fields = '__all__'
+        read_only_fields = ['reviewer', ]
+
+    def create(self, validated_data):
+        reviewer = self.context['reviewer']
+        validated_data['reviewer'] = reviewer
+        return super(ReviewFromIssuerSerializer, self).create(validated_data)
 
 
 class WorkRegisterSerializer(serializers.ModelSerializer):
@@ -31,6 +45,12 @@ class WorkRegisterSerializer(serializers.ModelSerializer):
         model = WorkRegister
         fields = '__all__'
         read_only_fields = ['user', ]
+
+    def validate(self, attrs):
+        user = self.context['user']
+        if WorkRegister.objects.filter(user=user, trip=attrs['trip']):
+            raise serializers.ValidationError("pair user and trip already exists")
+        return attrs
 
     def create(self, validated_data):
         user = self.context['user']
