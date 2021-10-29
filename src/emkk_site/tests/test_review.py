@@ -103,3 +103,23 @@ class ReviewTest(TestCase):
             f'/api/trips/{trip.id}/reviews',
             data=self.get_review_data(trip.id), user=reviewer_which_not_take)
         self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
+
+    def test_reviewer_can_create_only_one_review_for_one_trip(self):
+
+        trip = self.env.trips[0]
+
+        """Reviewer try create several reviews for one trip. Expected fail"""
+        for _ in range(2):
+
+            """Reviewer take trip in work"""
+            self.env.client_post(
+                f'/api/trips/work',
+                data=self.get_review_data(trip.id), user=self.env.user)
+
+            """Create review"""
+            self.env.client_post(
+                f'/api/trips/{trip.id}/reviews',
+                data=self.get_review_data(trip.id), user=self.env.user)
+
+        reviews_count = Review.objects.filter(reviewer=self.env.user, trip=trip).count()
+        self.assertEqual(reviews_count, 1)
