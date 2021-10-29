@@ -15,7 +15,7 @@ from .serializers import (
     ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer,
     WorkRegisterSerializer)
 
-from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
+from .services import get_trips_available_for_work, try_change_status_from_review_to_at_issuer
 from .models import Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer
 
 
@@ -35,7 +35,7 @@ class WorkRegisterView(generics.ListCreateAPIView):
             data=self.request.data, context=self.get_serializer_context())
 
     def get_queryset(self):
-        return get_trips_available_for_reviews(self.request.user)
+        return get_trips_available_for_work(self.request.user)
 
     def create(self, request, *args, **kwargs):
 
@@ -241,19 +241,6 @@ class ReviewFromIssuerDetail(
                 trip.save()
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# @api_view(['POST'])
-# @permission_classes([IsReviewer | IsIssuer, ])
-# def take_trip_on_review(request, *args, **kwargs):
-#     trip_id = kwargs['trip_id']
-#     try:
-#         trip = Trip.objects.get(pk=trip_id)
-#     except Trip.DoesNotExist:
-#         raise Http404(f"No trip by id: {trip_id}")
-#     in_work_record = WorkRegister(user=request.user, trip=trip)
-#     in_work_record.save()
-#     return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

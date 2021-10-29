@@ -17,7 +17,15 @@ def try_change_status_from_review_to_at_issuer(trip):
         trip.save()
 
 
-def get_trips_available_for_reviews(user):
+def get_trips_available_for_work(user):
+
+    if user.ISSUER:
+        return _get_trips_available_for_issuers(user)
+    elif user.REVIEWER:
+        return _get_trips_available_for_reviewers(user)
+
+
+def _get_trips_available_for_reviewers(user):
     trips = Trip.objects.all()
     trips_available_for_review = []
 
@@ -32,3 +40,16 @@ def get_trips_available_for_reviews(user):
             trips_available_for_review.append(trip)
 
     return trips_available_for_review
+
+
+def _get_trips_available_for_issuers(user):
+    trips = Trip.objects.filter(status=TripStatus.AT_ISSUER)
+    trips_for_issuer = []
+
+    for trip in trips:
+        issues_count_for_trip = Review.objects.filter(trip=trip, reviewer=user).count()
+        if issues_count_for_trip == 0:
+            trips_for_issuer.append(trip)
+
+    return trips_for_issuer
+
