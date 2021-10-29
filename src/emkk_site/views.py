@@ -233,13 +233,27 @@ class ReviewFromIssuerDetail(
         trip = Trip.objects.get(pk=trip_id)
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
+
         if serializer.is_valid():
-            serializer.save()
+            issuer = request.user
+
+            if not WorkRegister.objects.filter(trip=trip, user=issuer).count():
+                return Response(
+                    "Reviewer should take trip on work before create review",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+            if Review.objects.filter(trip=trip, reviewer=issuer):
+                return Response(
+                    "Reviewer can't create several reviewers for one trip",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+            review = serializer.save()
             result = serializer.validated_data['result']
             if trip.status == TripStatus.AT_ISSUER:
                 trip.status = result
                 trip.save()
-
+            WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

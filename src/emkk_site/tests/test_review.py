@@ -48,6 +48,7 @@ class ReviewTest(TestCase):
         review_data = self.get_review_data(trip.id)
         review_data['result'] = issuer_result
 
+        self.env.client_post(f'/api/trips/work', data={'trip': trip.id}, user=issuer)
         self.env.client_post(
             f'/api/trips/{trip.id}/reviews-from-issuer', data=review_data, user=issuer)
 

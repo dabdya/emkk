@@ -46,11 +46,11 @@ class TestEnvironment:
             email = username + "@mail.com"
             first_name = "User"
             last_name = "Cool"
+            password = str(uuid4())
             user = User(
                 username=username, email=email,
-                first_name=first_name, last_name=last_name)
-            password = str(uuid4())
-            user.set_password(password)
+                first_name=first_name, last_name=last_name,
+                password=password)
             yield user
 
     def create_reviewers(self, count):
