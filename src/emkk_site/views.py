@@ -35,7 +35,20 @@ class WorkRegisterView(generics.ListCreateAPIView):
             data=self.request.data, context=self.get_serializer_context())
 
     def get_queryset(self):
-        return get_trips_available_for_reviews()
+        return get_trips_available_for_reviews(self.request.user)
+
+    def create(self, request, *args, **kwargs):
+
+        trip = self.request.data.get('trip', None)
+        if not trip:
+            return Response('Trip required', status=status.HTTP_400_BAD_REQUEST)
+
+        if Review.objects.filter(reviewer=self.request.user, trip=trip):
+            return Response(
+                'Review already exist for this trip. Cant take trip in work again',
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        return super(WorkRegisterView, self).create(request, *args, **kwargs)
 
 
 class TripList(generics.ListCreateAPIView):

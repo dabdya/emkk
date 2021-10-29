@@ -18,20 +18,21 @@ class WorkRegisterTest(TestCase):
 
     def test_trips_with_needed_reviews_count_should_filtered(self):
 
+        reviewers = self.env.create_reviewers(self.trips_count)
         """Create reviews for random trips"""
         for i in range(self.trips_count):
             trip = random.choices(self.env.trips)[0]
 
             review = Review(
-                reviewer=self.env.user, trip=trip,
+                reviewer=reviewers[i], trip=trip,
                 result=ReviewResult.ACCEPTED, result_comment="GOOD")
             review.save()
 
         """Take random trips in work"""
         for i in range(self.trips_count):
             trip = random.choices(self.env.trips)[0]
-            if not WorkRegister.objects.filter(user=self.env.user, trip=trip):
-                WorkRegister(user=self.env.user, trip=trip).save()
+            if not WorkRegister.objects.filter(user=reviewers[i], trip=trip):
+                WorkRegister(user=reviewers[i], trip=trip).save()
 
         should_filtered = 0
 
@@ -44,6 +45,20 @@ class WorkRegisterTest(TestCase):
 
         trips_for_review = len(self.env.client_get(f'/api/trips/work').data)
         self.assertEqual(trips_for_review, self.trips_count - should_filtered)
+
+    def test_reviewer_cant_take_trip_in_work_if_his_review_for_this_trip_already_exist(self):
+
+        trip = self.env.trips[0]
+        review = Review(
+            reviewer=self.env.user, trip=trip,
+            result=ReviewResult.ACCEPTED, result_comment="GOOD")
+        review.save()
+
+        r = self.env.client_post(f'/api/trips/work', data={'trip': trip.id}, user=self.env.user)
+        self.assertEqual(r.status_code, 422)
+
+        in_work_count = WorkRegister.objects.filter(user=self.env.user, trip=trip).count()
+        self.assertEqual(in_work_count, 0)
 
     def test_take_trip_in_work_should_work(self):
         trip = self.env.trips[0]

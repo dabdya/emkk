@@ -17,7 +17,7 @@ def try_change_status_from_review_to_at_issuer(trip):
         trip.save()
 
 
-def get_trips_available_for_reviews():
+def get_trips_available_for_reviews(user):
     trips = Trip.objects.all()
     trips_available_for_review = []
 
@@ -26,7 +26,9 @@ def get_trips_available_for_reviews():
         in_work_reviews = len(WorkRegister.objects.filter(trip=trip))
         actual_reviews = len(Review.objects.filter(trip=trip))
 
-        if in_work_reviews + actual_reviews < needed_reviews_count:
+        reviews_count_for_trip = Review.objects.filter(trip=trip, reviewer=user).count()
+
+        if in_work_reviews + actual_reviews < needed_reviews_count and reviews_count_for_trip == 0:
             trips_available_for_review.append(trip)
 
     return trips_available_for_review
