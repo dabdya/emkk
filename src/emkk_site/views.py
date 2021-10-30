@@ -211,7 +211,7 @@ class ReviewView(generics.ListCreateAPIView):
             review = serializer.save()
             if user.REVIEWER:
                 try_change_status_from_review_to_at_issuer(trip)
-            elif user.ISSUER:
+            if user.ISSUER:
                 result = serializer.validated_data['result']
                 try_change_trip_status_to_issuer_result(trip, result)
 
