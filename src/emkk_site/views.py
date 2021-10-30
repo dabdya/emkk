@@ -15,7 +15,11 @@ from .serializers import (
     ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer,
     WorkRegisterSerializer)
 
-from .services import get_trips_available_for_work, try_change_status_from_review_to_at_issuer
+from .services import (
+    get_trips_available_for_work,
+    try_change_status_from_review_to_at_issuer,
+    try_change_trip_status_to_issuer_result, )
+
 from .models import Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer
 
 
@@ -172,59 +176,18 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
             raise Http404
 
 
-class ReviewList(generics.ListCreateAPIView):
-    """Эндпоинт доступен только для рецензентов"""
-    serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer, ]
+class ReviewView(generics.ListCreateAPIView):
+    """Basic class for IssuerReview and ReviewerReview"""
+
+    def __init__(self, model_class):
+        super(ReviewView, self).__init__()
+        self.model_class = model_class
 
     def get_queryset(self):
-        return Review.objects.filter(trip_id=self.kwargs["pk"])
+        return self.model_class.objects.filter(trip_id=self.kwargs["pk"])
 
     def get_serializer_context(self):
-        context = super(ReviewList, self).get_serializer_context()
-        context.update({"reviewer": self.request.user})
-        return context
-
-    def create(self, request, *args, **kwargs):
-        trip_id = kwargs["pk"]
-        trip = Trip.objects.get(pk=trip_id)
-        serializer = self.serializer_class(data=request.data, context=self.get_serializer_context())
-
-        if serializer.is_valid():
-            reviewer = request.user
-
-            if not WorkRegister.objects.filter(trip=trip, user=reviewer).count():
-                return Response(
-                    "Reviewer should take trip on work before create review",
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            if Review.objects.filter(trip=trip, reviewer=reviewer):
-                return Response(
-                    "Reviewer can't create several reviewers for one trip",
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            review = serializer.save()
-            try_change_status_from_review_to_at_issuer(trip)
-            WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, ]
-
-
-class ReviewFromIssuerDetail(
-    generics.CreateAPIView, generics.UpdateAPIView, generics.RetrieveAPIView):
-    """Эндпоинт доступен только для выпускающих"""
-    queryset = ReviewFromIssuer.objects.all()
-    serializer_class = ReviewFromIssuerSerializer
-    permission_classes = [IsIssuer, ]
-
-    def get_serializer_context(self):
-        context = super(ReviewFromIssuerDetail, self).get_serializer_context()
+        context = super(ReviewView, self).get_serializer_context()
         context.update({"reviewer": self.request.user})
         return context
 
@@ -234,27 +197,65 @@ class ReviewFromIssuerDetail(
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
 
-        if serializer.is_valid():
-            issuer = request.user
+        context_class = kwargs.get("context_class", None)
 
-            if not WorkRegister.objects.filter(trip=trip, user=issuer).count():
+        if serializer.is_valid():
+            user = request.user
+
+            if not WorkRegister.objects.filter(trip=trip, user=user).count():
                 return Response(
                     "Reviewer should take trip on work before create review",
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-            if Review.objects.filter(trip=trip, reviewer=issuer):
+            if Review.objects.filter(trip=trip, reviewer=user):
                 return Response(
                     "Reviewer can't create several reviewers for one trip",
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-            review = serializer.save()
-            result = serializer.validated_data['result']
-            if trip.status == TripStatus.AT_ISSUER:
-                trip.status = result
-                trip.save()
-            WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
+            serializer.save()
+
+            if isinstance(context_class, ReviewerView):
+                try_change_status_from_review_to_at_issuer(trip)
+            elif isinstance(context_class, IssuerView):
+                result = serializer.validated_data["result"]
+                try_change_trip_status_to_issuer_result(trip, result)
+
+            WorkRegister.objects.filter(trip=trip, user=user).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReviewerView(ReviewView):
+    """Endpoint for creating reviews by reviewers"""
+    def __init__(self):
+        super(ReviewerView, self).__init__(Review)
+
+    serializer_class = ReviewSerializer
+    permission_classes = [IsReviewer, ]
+
+    def create(self, request, *args, **kwargs):
+        kwargs.update({"context_class": self})
+        return super(ReviewerView, self).create(request, *args, **kwargs)
+
+
+class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
+
+
+class IssuerView(ReviewView):
+    """Endpoint for creating reviews by issuers"""
+    def __init__(self):
+        super(IssuerView, self).__init__(ReviewFromIssuer)
+
+    serializer_class = ReviewFromIssuerSerializer
+    permission_classes = [IsIssuer, ]
+
+    def create(self, request, *args, **kwargs):
+        kwargs.update({"context_class": self})
+        return super(IssuerView, self).create(request, *args, **kwargs)
 
 
 @api_view(['POST'])
