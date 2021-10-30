@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from .models import Document, Trip, Review, ReviewFromIssuer, WorkRegister
 
-from django.db import IntegrityError
-
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -28,16 +26,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         return super(ReviewSerializer, self).create(validated_data)
 
 
-class ReviewFromIssuerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ReviewFromIssuer
-        fields = '__all__'
-        read_only_fields = ['reviewer', ]
-
-    def create(self, validated_data):
-        reviewer = self.context['reviewer']
-        validated_data['reviewer'] = reviewer
-        return super(ReviewFromIssuerSerializer, self).create(validated_data)
+class ReviewFromIssuerSerializer(ReviewSerializer):
+    ReviewSerializer.Meta.model = ReviewFromIssuer
 
 
 class WorkRegisterSerializer(serializers.ModelSerializer):
