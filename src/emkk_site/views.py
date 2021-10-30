@@ -3,50 +3,76 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import NotFound
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.permissions import IsAuthenticated
-from src.jwt_auth.permissions import IsReviewer, IsIssuer
+from src.jwt_auth.permissions import IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
-from rest_framework.views import APIView
-from rest_framework import generics, mixins
+from rest_framework import generics
 from rest_framework import status
 from django.http import Http404
 
 from .serializers import (
-    DocumentSerializer, TripSerializer, ReviewSerializer,
-    DocumentDetailSerializer, ReviewFromIssuerSerializer)
+    DocumentSerializer, TripSerializer, TripForAnonymousSerializer,
+    ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer,
+    WorkRegisterSerializer)
 
-from .services import get_trips_available_for_reviews, try_change_status_from_review_to_at_issuer
-from .models import Document, Trip, Review, TripStatus, TripsOnReviewByUser, ReviewFromIssuer
+from .services import get_trips_available_for_work, try_change_status_from_review_to_at_issuer
+from .models import Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer
 
 
-class TripsForReview(generics.ListAPIView):
-    queryset = Trip.objects.all()
+class WorkRegisterView(generics.ListCreateAPIView):
+    permission_classes = [IsReviewer | IsIssuer, ]
 
-    def list(self, request, *args, **kwargs):
-        trips_available_for_review = get_trips_available_for_reviews()
-        serializer = TripSerializer(trips_available_for_review, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_serializer_context(self):
+        context = super(WorkRegisterView, self).get_serializer_context()
+        context.update({"user": self.request.user})
+        return context
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method == 'GET':
+            return TripSerializer(self.get_queryset(), many=True)
+
+        return WorkRegisterSerializer(
+            data=self.request.data, context=self.get_serializer_context())
+
+    def get_queryset(self):
+        return get_trips_available_for_work(self.request.user)
+
+    def create(self, request, *args, **kwargs):
+
+        trip = self.request.data.get('trip', None)
+        if not trip:
+            return Response('Trip required', status=status.HTTP_400_BAD_REQUEST)
+
+        if Review.objects.filter(reviewer=self.request.user, trip=trip):
+            return Response(
+                'Review already exist for this trip. Cant take trip in work again',
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+        return super(WorkRegisterView, self).create(request, *args, **kwargs)
 
 
 class TripList(generics.ListCreateAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
-
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticatedOrReadOnly, ]
 
     def get_serializer_context(self):
         context = super(TripList, self).get_serializer_context()
-        context.update({"token": self.request.headers["Authorization"]})
+        context.update({"user": self.request.user})
         return context
+
+    def get_serializer_class(self):
+        if self.request.user.is_authenticated:
+            return TripSerializer
+        return TripForAnonymousSerializer
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
-        serializer = TripSerializer(queryset, many=True)
+        serializer = self.get_serializer_class()(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def create(self, request, *args, **kwargs):
-        serializer = self.serializer_class(
-            data=request.data, excluded_fields=["status"], context=self.get_serializer_context())
+        serializer = self.get_serializer_class()(
+            data=request.data, context=self.get_serializer_context())
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -56,6 +82,9 @@ class TripList(generics.ListCreateAPIView):
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripSerializer
+
+    # сделать пермишен для владельца заявки и работников МКК, остальным нет
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         trip = self.get_object()
@@ -90,6 +119,8 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
+    permission_classes = [IsAuthenticated, ]
+
     def get_queryset(self):
         queryset = Document.objects.all()
         trip_id = self.request.query_params.get('trip_id')
@@ -113,6 +144,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentDetailSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
     parser_classes = [MultiPartParser, ]
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
@@ -148,27 +180,40 @@ class ReviewList(generics.ListCreateAPIView):
     def get_queryset(self):
         return Review.objects.filter(trip_id=self.kwargs["pk"])
 
+    def get_serializer_context(self):
+        context = super(ReviewList, self).get_serializer_context()
+        context.update({"reviewer": self.request.user})
+        return context
+
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context=self.get_serializer_context())
 
         if serializer.is_valid():
-            reviewer = serializer.validated_data['reviewer']
-            if not TripsOnReviewByUser.objects.filter(trip=trip, user=reviewer).count():
-                return Response("error", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            reviewer = request.user
+
+            if not WorkRegister.objects.filter(trip=trip, user=reviewer).count():
+                return Response(
+                    "Reviewer should take trip on work before create review",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+            if Review.objects.filter(trip=trip, reviewer=reviewer):
+                return Response(
+                    "Reviewer can't create several reviewers for one trip",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
             review = serializer.save()
             try_change_status_from_review_to_at_issuer(trip)
-            TripsOnReviewByUser.objects.filter(trip=review.trip, user=review.reviewer).delete()
+            WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated, ]
 
 
 class ReviewFromIssuerDetail(
@@ -178,31 +223,38 @@ class ReviewFromIssuerDetail(
     serializer_class = ReviewFromIssuerSerializer
     permission_classes = [IsIssuer, ]
 
+    def get_serializer_context(self):
+        context = super(ReviewFromIssuerDetail, self).get_serializer_context()
+        context.update({"reviewer": self.request.user})
+        return context
+
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(
+            data=request.data, context=self.get_serializer_context())
+
         if serializer.is_valid():
-            serializer.save()
+            issuer = request.user
+
+            if not WorkRegister.objects.filter(trip=trip, user=issuer).count():
+                return Response(
+                    "Reviewer should take trip on work before create review",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+            if Review.objects.filter(trip=trip, reviewer=issuer):
+                return Response(
+                    "Reviewer can't create several reviewers for one trip",
+                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
+            review = serializer.save()
             result = serializer.validated_data['result']
             if trip.status == TripStatus.AT_ISSUER:
                 trip.status = result
                 trip.save()
-
+            WorkRegister.objects.filter(trip=review.trip, user=review.reviewer).delete()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-@api_view(['POST'])
-@permission_classes([IsReviewer | IsIssuer, ])
-def take_trip_on_review(request, *args, **kwargs):
-    trip_id = kwargs['trip_id']
-    try:
-        trip = Trip.objects.get(pk=trip_id)
-    except Trip.DoesNotExist:
-        raise Http404(f"No trip by id: {trip_id}")
-    in_work_record = TripsOnReviewByUser(user=request.user, trip=trip)
-    in_work_record.save()
-    return Response(status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])

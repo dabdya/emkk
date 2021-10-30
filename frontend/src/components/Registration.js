@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
+import { Button, Center, Input, Gapped, Link } from '@skbkontur/react-ui';
 
-// Здесь после успешной регистрации отадется jwt пользователя, нужно его сохранить в куки
 export default class Registration extends React.Component {
 
     constructor(props){
@@ -15,12 +15,13 @@ export default class Registration extends React.Component {
                     email: "",
                     password: "",
                     password2: "",
-                    first_name: "",
-                    last_name: ""
+                    firstName: "",
+                    secondName: ""
                 }
             };
         this.onSubmit = this.onSubmit.bind(this);
         this.changeInputRegister = this.changeInputRegister.bind(this);
+        this.renderInput = this.renderInput.bind(this);
     }
 
     changeInputRegister(event) {
@@ -52,8 +53,8 @@ export default class Registration extends React.Component {
                     username: this.state.register.username,
                     email: this.state.register.email,
                     password: this.state.register.password,
-                    first_name: this.state.register.first_name,
-                    last_name: this.state.register.last_name
+                    first_name: this.state.register.firstName,
+                    last_name: this.state.register.secondName
                 }
             }, config).then(res => {
                 if (res.data) {
@@ -68,57 +69,40 @@ export default class Registration extends React.Component {
         }
     };
 
+    renderInput(text, type, className, id, name, value, onChange){
+		return (
+            <div style={{marginTop: "15px"}}>
+                <label htmlFor={name}>{text}</label><br/>
+                <input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required/>
+            </div>
+		);
+	}
+
     render() {
         return (
-        <div className="form">
-            <h1>Registration:</h1>
-            <form onSubmit={this.onSubmit}>
-                <p>Name: <input
-                    type="username"
-                    id="username"
-                    name="username"
-                    value={this.state.register.username}
-                    onChange={this.changeInputRegister}
-                /></p>
-                <p>Email: <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={this.state.register.email}
-                    onChange={this.changeInputRegister}
-                    formNoValidate
-                /></p>
-                <p>First name: <input
-                    type="first_name"
-                    id="first_name"
-                    name="first_name"
-                    value={this.state.register.first_name}
-                    onChange={this.changeInputRegister}
-                /></p>
-                <p>Last name: <input
-                    type="last_name"
-                    id="last_name"
-                    name="last_name"
-                    value={this.state.register.last_name}
-                    onChange={this.changeInputRegister}
-                /></p>
-                <p>Password: <input
-                    type="password"
-                    id="password"
-                    name="password"
-                    value={this.state.register.password}
-                    onChange={this.changeInputRegister}
-                    /></p>
-                <p>Repeat password: <input
-                    type="password"
-                    id="password2"
-                    name="password2"
-                    value={this.state.register.password2}
-                    onChange={this.changeInputRegister}
-                /></p>
-                <input type="submit"/>
-            </form>
-        </div>
-    )
+            <Center style={{ height: '80vh' }}>
+                <div className="form" style={{ width: '500px', height: '550px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '0.5px solid gray', borderRadius: '15px'}}>
+                    <Center style={{ height: '91vh' }}>
+                        <div style={{height:145, width: 300, marginLeft: '40px'}}>
+                            <h1 style={{marginLeft:'80px', fontSize: 25, color:"#0a77ac"}}>EMKK</h1>
+                            <span style={{fontSize: 18, color:"#0a77ac"}}>Электронная маршрутно-квалификационная комиссия</span>
+						</div>
+                        <div style={{marginTop: "-60px"}}>
+                            <form style={{marginLeft: "25px"}} onSubmit={this.onSubmit}>
+                                {this.renderInput("Логин", "username", "inputField", "username", "username", this.state.register.username, this.changeInputRegister)}
+                                {this.renderInput("Email", "email", "inputField", "email", "email", this.state.register.email, this.changeInputRegister)}
+                                {this.renderInput("Имя", "firstName", "inputField", "firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
+                                {this.renderInput("Фамилия", "secondName", "inputField", "secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
+                                {this.renderInput("Пароль", "password", "inputField", "password", "password", this.state.register.password, this.changeInputRegister)}
+                                {this.renderInput("Повторите пароль", "password", "inputField", "password2", "password2", this.state.register.password2, this.changeInputRegister)}
+                                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                                    <Button style={{height: "100px", width: "200px", marginTop:"20px", marginRight:"30px"}} type="submit">Зарегистрироваться</Button>
+                                </div>
+                            </form>
+                        </div>
+                    </Center>
+                </div>
+            </Center>
+        )
 }
 }
