@@ -14,20 +14,26 @@ class DocumentDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class ReviewSerializer(serializers.ModelSerializer):
+class BaseReviewSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        reviewer = self.context['reviewer']
+        validated_data['reviewer'] = reviewer
+        return super(BaseReviewSerializer, self).create(validated_data)
+
+
+class ReviewSerializer(BaseReviewSerializer):
     class Meta:
         model = Review
         fields = '__all__'
         read_only_fields = ['reviewer', ]
 
-    def create(self, validated_data):
-        reviewer = self.context['reviewer']
-        validated_data['reviewer'] = reviewer
-        return super(ReviewSerializer, self).create(validated_data)
 
-
-class ReviewFromIssuerSerializer(ReviewSerializer):
-    ReviewSerializer.Meta.model = ReviewFromIssuer
+class ReviewFromIssuerSerializer(BaseReviewSerializer):
+    class Meta:
+        model = ReviewFromIssuer
+        fields = '__all__'
+        read_only_fields = ['reviewer', ]
 
 
 class WorkRegisterSerializer(serializers.ModelSerializer):

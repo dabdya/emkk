@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.services import get_reviewers_count_by_difficulty
-from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, WorkRegister
+from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, WorkRegister, ReviewFromIssuer
 
 
 class ReviewTest(TestCase):
