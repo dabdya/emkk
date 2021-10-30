@@ -50,7 +50,7 @@ class ReviewTest(TestCase):
 
         self.env.client_post(f'/api/trips/work', data={'trip': trip.id}, user=issuer)
         self.env.client_post(
-            f'/api/trips/{trip.id}/reviews-from-issuer', data=review_data, user=issuer)
+            f'/api/trips/{trip.id}/reviews', data=review_data, user=issuer)
 
         trip = self.env.client_get(f'/api/trips/{trip.id}').data
         self.assertEqual(trip.get('status'), issuer_result)

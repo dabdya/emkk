@@ -17,6 +17,12 @@ def try_change_status_from_review_to_at_issuer(trip):
         trip.save()
 
 
+def try_change_trip_status_to_issuer_result(trip, result):
+    if trip.status == TripStatus.AT_ISSUER:
+        trip.status = result
+        trip.save()
+
+
 def get_trips_available_for_work(user):
 
     if user.ISSUER:
