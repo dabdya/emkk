@@ -18,10 +18,18 @@ from configurations import Configuration
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 
-class Dev(Configuration):  # usage - python manage.py runserver --settings=config.settings --configuration=Dev
+class Base(Configuration):  # usage - python manage.py runserver --settings=config.settings --configuration=Dev
     BASE_DIR = Path(__file__).resolve().parent.parent
     DATABASES = {
         'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.environ.get('DB_NAME'),
+            'USER': os.environ.get('DB_USER'),
+            'PASSWORD': os.environ.get('DB_PASSWORD'),
+            'HOST': os.environ.get('DB_HOST'),
+            'PORT': 5432
+        },
+        'sqlite_db': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
@@ -149,3 +157,12 @@ class Dev(Configuration):  # usage - python manage.py runserver --settings=confi
     # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
     DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+class Dev(Base):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': os.path.join(Base.BASE_DIR, 'db.sqlite3'),
+        }
+    }
