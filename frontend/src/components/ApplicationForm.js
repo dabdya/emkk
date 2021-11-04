@@ -3,7 +3,7 @@ import React from 'react';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
-import { Button, Center, Input, Gapped, Link, ScrollContainer, Tooltip, ComboBox, Select} from '@skbkontur/react-ui';
+import { Button, Center, Gapped, Tooltip, ComboBox, Select} from '@skbkontur/react-ui';
 import Requests from '../utils/requests';
 import { Grid, Box } from '@mui/material'
 
@@ -12,7 +12,6 @@ export default class ApplicationForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			// mail: "IVAN@IVANOV.RU",
 			groupName: "",
 			leaderFullName: "", // не нужен
 			generalArea: "Поиск...	",
@@ -27,8 +26,8 @@ export default class ApplicationForm extends React.Component {
 			cartographicMaterial: null,
 			participantsReferences: null,
 			insurancePolicyScans: null,
-			routeDifficulty: 1,
-			participantsNumber: 1,
+			routeDifficulty: Number,
+			participantsNumber: Number,
 			tourismKind: "",
 			coordinatorName: "", // два поля: имя координатора и его телефон. Было одно -- coordinatorInfo
 			coordinatorPhoneNumber: "",
@@ -199,7 +198,7 @@ export default class ApplicationForm extends React.Component {
 			<Grid item xs={5}>
 				<label >{fileName}</label><br />
 				<Gapped>
-					<Button style={{ width: "317px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>
+					<Button style={{ width: "407px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>
 					<Tooltip render={toolTipMethod} pos="right top">
 						<HelpDotIcon />
 					</Tooltip>
@@ -208,13 +207,6 @@ export default class ApplicationForm extends React.Component {
 			</Grid>
 		)
 	}
-	//
-	// renderItem(item) {
-	// 	<Gapped>
-	// 		<div style={{ width: 40 }}>{item.value}</div>
-	// 		<div style={{ width: 210, whiteSpace: 'normal' }}>{item.label}</div>
-	// 	</Gapped>
-	// };
 
 	render() {
 		const getItems = query =>
@@ -227,108 +219,72 @@ export default class ApplicationForm extends React.Component {
 				<Center>
 					<form onSubmit={this.onSubmit}>
 						<Box sx={{ flexGrow: 1 }}>
-							<Grid container spacing={3}>
-								<Grid item xs={5}>
-									<label htmlFor="groupName">Название спортивной организации</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="groupName" name="groupName"
-										   defaultValue={this.state.groupName} onChange={this.changeInputRegister} placeholder="Команда Дятлова" required />
-								</Grid>
-
-								<Grid item xs={5}>
-									<label htmlFor="coordinatorName">ФИО координатора</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="coordinatorName" name="coordinatorName"
-										   defaultValue={this.state.coordinatorName} onChange={this.changeInputRegister}
-										   placeholder="Иванов Иван Иванович" required />
-								</Grid>
+							<Grid container spacing={2.5} justifyContent="end">
+								{this.renderInput("Название спортивной организации", "text", "formInputField",
+									"groupName", "groupName", this.state.groupName, this.changeInputRegister, "Команда Иванова")}
+								{this.renderInput("ФИО координатора", "text", "formInputField",
+									"coordinatorName", "coordinatorName", this.state.coordinatorName, this.changeInputRegister, "Иванов Иван Иванович")}
 								<Grid item xs={5}>
 									<label htmlFor="generalArea">Общий район</label><br />
-									<ComboBox style={{border: "0.4px solid"}} drawArrow={true} size="medium" width={317} getItems={getItems}
+									<ComboBox style={{border: "0.4px solid"}} drawArrow={true} size="medium" width={407} getItems={getItems}
 											  value={{ value: this.state.generalArea, label: this.state.generalArea }}
 											  onValueChange={this.changeComboBox} name="generalArea"/>
 								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="coordinatorPhoneNumber">Контактный телефон координатора</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="coordinatorPhoneNumber" name="coordinatorPhoneNumber"
-										   defaultValue={this.state.coordinatorPhoneNumber} onChange={this.changeInputRegister}
-										   placeholder="+7(999)-111-22-33" required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="startRouteLocality">Населенный пункт начала маршрута</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="startRouteLocality" name="startRouteLocality"
-										   defaultValue={this.state.startRouteLocality} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="localArea">Локальный район</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="localArea" name="localArea"
-										   defaultValue={this.state.localArea} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="realStartRouteDate">Контрольный срок сообщения о начале маршрута</label><br />
-									<input autoComplete="new-password" type='date' className="formInputField" id="realStartRouteDate" name="realStartRouteDate"
-										   defaultValue={this.state.realStartRouteDate} onChange={this.changeInputRegister} required />
-								</Grid>
+								{this.renderInput("Контактный телефон координатора", "text", "formInputField",
+									"coordinatorPhoneNumber", "coordinatorPhoneNumber", this.state.coordinatorPhoneNumber,
+									this.changeInputRegister, "+7(999)-111-22-33")}
+								{this.renderInput("Локальный район", "text", "formInputField",
+									"localArea", "localArea", this.state.localArea,
+									this.changeInputRegister, "хребет Катунские Белки")}
+								{this.renderInput("Населенный пункт начала маршрута район", "text", "formInputField",
+									"startRouteLocality", "startRouteLocality", this.state.startRouteLocality,
+									this.changeInputRegister, "деревня Хлопинки")}
+								{this.renderInput("Категория сложность", "text", "formInputField",
+									"routeDifficulty", "routeDifficulty", this.state.routeDifficulty,
+									this.changeInputRegister, "1-4")}
+								{this.renderInput("Контрольный срок сообщения о начале маршрута", "date", "formInputField",
+									"realStartRouteDate", "realStartRouteDate", this.state.realStartRouteDate,
+									this.changeInputRegister, "")}
 								<Grid item xs={5}>
 									<label htmlFor="tourismKind">Вид туризма</label><br />
-									<Select size="medium" width={317} items={this.tourismVariants}
+									<Select size="medium" width={407} items={this.tourismVariants}
 											value={this.state.tourismKind} // почему-то value убирает плейсхолдер "ничего не выбрано"
 											onValueChange={this.changeTourismKind} required/>
 								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="endRouteLocality">Населенный пункт окончания маршрута</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="endRouteLocality" name="endRouteLocality"
-										   defaultValue={this.state.endRouteLocality} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="routeStartDate">Дата выхода на маршрут</label><br />
-									<input autoComplete="new-password" type='date' className="formInputField" id="routeStartDate" name="routeStartDate"
-										   defaultValue={this.state.routeStartDate} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="realEndRouteDate">Контрольный срок сообщения об окончании маршрута</label><br />
-									<input autoComplete="new-password" type='date' className="formInputField" id="realEndRouteDate" name="realEndRouteDate"
-										   defaultValue={this.state.realEndRouteDate} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="routeEndDate">Дата окончания маршрута</label><br />
-									<input autoComplete="new-password" type='date' className="formInputField" id="routeEndDate" name="routeEndDate"
-										   defaultValue={this.state.routeEndDate} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									{this.renderFileUpload("Маршрутная книжка", "routeBook", this.hiddenFileInputRoute, this.ToolTipForRouteBook)}
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="participantsNumber">Количество человек</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="participantsNumber" name="participantsNumber"
-										   defaultValue={this.state.participantsNumber} onChange={this.changeInputRegister} required />
-								</Grid>
-								<Grid item xs={5}>
-									{this.renderFileUpload("Картографический материал",
-										"cartographicMaterial", this.hiddenFileInputCartographic, this.ToolTipForCartographic)}
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="insuranceCompanyName">Наименование страховой компании</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField" id="insuranceCompanyName" name="insuranceCompanyName"
-										   defaultValue={this.state.insuranceCompanyName} onChange={this.changeInputRegister} required />
-								</Grid>
-								{/*<Grid item xs={5}>*/}
+								{this.renderInput("Населенный пункт окончания маршрута", "text", "formInputField",
+									"endRouteLocality", "endRouteLocality", this.state.endRouteLocality,
+									this.changeInputRegister, "деревня Икниплох")}
+								{this.renderInput("Дата выхода на маршрут", "date", "formInputField",
+									"routeStartDate", "routeStartDate", this.state.routeStartDate,
+									this.changeInputRegister, "")}
+								{this.renderInput("Контрольный срок сообщения об окончании маршрута", "date", "formInputField",
+									"realEndRouteDate", "realEndRouteDate", this.state.realEndRouteDate,
+									this.changeInputRegister, "")}
+								{this.renderInput("Дата окончания маршрута", "date", "formInputField",
+									"routeEndDate", "routeEndDate", this.state.routeEndDate,
+									this.changeInputRegister, "")}
+								{this.renderFileUpload("Маршрутная книжка", "routeBook", this.hiddenFileInputRoute, this.ToolTipForRouteBook)}
+								{this.renderInput("Количество человек", "text", "formInputField",
+									"participantsNumber", "participantsNumber", this.state.participantsNumber,
+									this.changeInputRegister, "")}
+								{this.renderFileUpload("Картографический материал",
+									"cartographicMaterial", this.hiddenFileInputCartographic, this.ToolTipForCartographic)}
+								{this.renderInput("Наименование страховой компании", "text", "formInputField",
+									"insuranceCompanyName", "insuranceCompanyName", this.state.insuranceCompanyName,
+									this.changeInputRegister, "ЕМККСтрахование")}
 								{this.renderFileUpload("Справки участников", "participantsReferences",
 									this.hiddenFileInputParticipants, this.ToolTipForReferences)}
-								{/*</Grid>*/}
-								<Grid item xs={5}>
-									<label htmlFor="insurancePolicyValidityDuration">Срок действия страховых полисов</label><br />
-									<input autoComplete="new-password" type='date' className="formInputField"
-										   id="insurancePolicyValidityDuration" name="insurancePolicyValidityDuration"
-										   defaultValue={this.state.insurancePolicyValidityDuration} onChange={this.changeInputRegister} required />
+								{this.renderInput("Срок действия страховых полисов", "date", "formInputField",
+									"insurancePolicyValidityDuration", "insurancePolicyValidityDuration", this.state.insurancePolicyValidityDuration,
+									this.changeInputRegister, "")}
+								{this.renderFileUpload("Сканы страховых полисов", "insurancePolicyScans",
+									this.hiddenFileInputInsurance, this.ToolTipForInsuranceScans)}
+								<Grid item xs={6}>
+									<div>
+									</div>
 								</Grid>
-								<Grid item xs={5}>
-									{this.renderFileUpload("Сканы страховых полисов", "insurancePolicyScans",
-										this.hiddenFileInputInsurance, this.ToolTipForInsuranceScans)}
-								</Grid>
-								<Grid item xs={5}>
-									<label htmlFor="routeDifficulty">Категория сложности</label><br />
-									<input autoComplete="new-password" type='text' className="formInputField"
-										   id="routeDifficulty" name="routeDifficulty"
-										   defaultValue={this.state.routeDifficulty} onChange={this.changeInputRegister} required />
+								<Grid item xs={2}>
+									<Button type="submit">Подать заявку</Button>
 								</Grid>
 							</Grid>
 						</Box>
