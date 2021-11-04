@@ -52,3 +52,7 @@ code {
   outline: none;
 }
 
+.formInputField {
+  width: 310px;
+  height: 35px;
+}
