@@ -28,7 +28,7 @@ export default class Dashboard extends React.Component {
 		{
 			name: 'Вид туризма',
 			selector: row => row.kind,
-			sortable: false,
+			sortable: true,
 			cell: row => KINDOFTOURISM[row.kind],
 			center: true,
 		},

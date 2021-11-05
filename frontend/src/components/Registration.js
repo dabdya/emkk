@@ -98,7 +98,7 @@ export default class Registration extends React.Component {
                                 "password2", "password2", this.state.register.password2, this.changeInputRegister)}
                             <Center>
                                 <Button style={{marginTop:20}} size="large" type="submit">
-                                    Зарегестрироваться
+                                    Зарегистрироваться
                                 </Button>
                             </Center>
                         </form>

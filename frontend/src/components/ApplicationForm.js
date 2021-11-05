@@ -3,7 +3,7 @@ import React from 'react';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
-import { Button, Center, Gapped, Tooltip, ComboBox, Select, Modal} from '@skbkontur/react-ui';
+import { Button, Center, Gapped, Tooltip, ComboBox, Select, Modal } from '@skbkontur/react-ui';
 import Requests from '../utils/requests';
 import { Grid, Box } from '@mui/material'
 import ShowModal from "./ShowModal"
@@ -90,36 +90,36 @@ export default class ApplicationForm extends React.Component {
 		await request.post("http://localhost:8000/api/trips",
 			formTrip
 			, config).then(respForm => {
-			let form = new FormData()
-			this.setState({
-				buttonIsPressed: true
-			});
-			form.append("file", this.state.routeBook);
-			form.append("trip", parseInt(respForm.data.id))
-			axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
-				form, config
-			);
-			form = new FormData()
-			form.append("file", this.state.cartographicMaterial);
-			form.append("trip", parseInt(respForm.data.id))
-			axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
-				form, config
-			);
-			form = new FormData()
-			form.append("file", this.state.participantsReferences);
-			form.append("trip", parseInt(respForm.data.id))
-			axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
-				form, config
-			)
-			form = new FormData()
-			form.append("file", this.state.insurancePolicyScans);
-			form.append("trip", parseInt(respForm.data.id))
-			axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
-				form, config
-			)
+				let form = new FormData()
+				this.setState({
+					buttonIsPressed: true
+				});
+				form.append("file", this.state.routeBook);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				);
+				form = new FormData()
+				form.append("file", this.state.cartographicMaterial);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				);
+				form = new FormData()
+				form.append("file", this.state.participantsReferences);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				)
+				form = new FormData()
+				form.append("file", this.state.insurancePolicyScans);
+				form.append("trip", parseInt(respForm.data.id))
+				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+					form, config
+				)
 
 
-		})
+			})
 	}
 
 	handleClick(event) {
@@ -135,11 +135,11 @@ export default class ApplicationForm extends React.Component {
 		})
 	};
 
-	changeTourismKind(event) {
+	changeTourismKind(value) {
 		this.setState((prev) => {
 			return {
 				...prev,
-				tourismKind: event.value
+				tourismKind: value
 			}
 		})
 	};
@@ -158,11 +158,11 @@ export default class ApplicationForm extends React.Component {
 
 	close = () => {
 		this.setState(() => ({ buttonIsPressed: false }))
+		window.location.href = '/';
 	}
 
 	open = () => {
 		this.setState(() => ({ buttonIsPressed: true }))
-		console.log(this.state)
 	}
 
 	renderInput(text, type, className, id, name, value, onChange, placeholder) {
@@ -170,7 +170,7 @@ export default class ApplicationForm extends React.Component {
 			<Grid item xs={5}>
 				<label htmlFor={name}>{text}</label><br />
 				<input autoComplete="new-password" type={type} className={className} id={id} name={name}
-					   defaultValue={value} onChange={onChange} placeholder={placeholder}/>
+					defaultValue={value} onChange={onChange} placeholder={placeholder} />
 			</Grid>
 		);
 	}
@@ -243,9 +243,9 @@ export default class ApplicationForm extends React.Component {
 									"coordinatorName", "coordinatorName", this.state.coordinatorName, this.changeInputRegister, "Иванов Иван Иванович")}
 								<Grid item xs={5}>
 									<label htmlFor="generalArea">Общий район</label><br />
-									<ComboBox style={{border: "0.4px solid"}} drawArrow={true} size="medium" width={407} getItems={getItems}
-											  value={{ value: this.state.generalArea, label: this.state.generalArea }}
-											  onValueChange={this.changeComboBox} name="generalArea"/>
+									<ComboBox style={{ border: "0.4px solid" }} drawArrow={true} size="medium" width={407} getItems={getItems}
+										value={{ value: this.state.generalArea, label: this.state.generalArea }}
+										onValueChange={this.changeComboBox} name="generalArea" />
 								</Grid>
 								{this.renderInput("Контактный телефон координатора", "text", "formInputField",
 									"coordinatorPhoneNumber", "coordinatorPhoneNumber", this.state.coordinatorPhoneNumber,
@@ -265,8 +265,8 @@ export default class ApplicationForm extends React.Component {
 								<Grid item xs={5}>
 									<label htmlFor="tourismKind">Вид туризма</label><br />
 									<Select size="medium" width={407} items={this.tourismVariants}
-											value={this.state.tourismKind} // почему-то value убирает плейсхолдер "ничего не выбрано"
-											onValueChange={this.changeTourismKind} required/>
+										value={this.state.tourismKind} // почему-то value убирает плейсхолдер "ничего не выбрано"
+										onValueChange={this.changeTourismKind} required />
 								</Grid>
 								{this.renderInput("Населенный пункт окончания маршрута", "text", "formInputField",
 									"endRouteLocality", "endRouteLocality", this.state.endRouteLocality,
@@ -306,7 +306,7 @@ export default class ApplicationForm extends React.Component {
 							</Grid>
 						</Box>
 					</form>
-					{buttonIsPressed && <ShowModal close={this.close}/>}
+					{buttonIsPressed && <ShowModal close={this.close} />}
 				</Center>
 			</div>
 		)
