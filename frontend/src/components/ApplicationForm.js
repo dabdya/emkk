@@ -3,9 +3,10 @@ import React from 'react';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
-import { Button, Center, Gapped, Tooltip, ComboBox, Select} from '@skbkontur/react-ui';
+import { Button, Center, Gapped, Tooltip, ComboBox, Select, Modal} from '@skbkontur/react-ui';
 import Requests from '../utils/requests';
 import { Grid, Box } from '@mui/material'
+import ShowModal from "./ShowModal"
 
 export default class ApplicationForm extends React.Component {
 
@@ -33,7 +34,7 @@ export default class ApplicationForm extends React.Component {
 			coordinatorPhoneNumber: "",
 			insuranceCompanyName: "",
 			insurancePolicyValidityDuration: new Date(),
-
+			buttonIsPressed: false
 		};
 		this.hiddenFileInputRoute = React.createRef(null);
 		this.hiddenFileInputCartographic = React.createRef(null);
@@ -53,7 +54,8 @@ export default class ApplicationForm extends React.Component {
 		this.changeTourismKind = this.changeTourismKind.bind(this);
 		this.tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"]
-		// this.renderItem = this.renderItem.bind(this);
+		this.open = this.open.bind(this);
+		this.close = this.close.bind(this);
 	}
 
 	onFileChange(event) {
@@ -64,9 +66,10 @@ export default class ApplicationForm extends React.Component {
 		event.preventDefault();
 
 		const { groupName, generalArea, localArea, routeStartDate, routeEndDate,
-			insuranceInfo, coordinatorInfo, tourismKind, routeDifficulty, participantsNumber } = this.state;
+			insuranceInfo, coordinatorInfo, tourismKind, routeDifficulty, participantsNumber, coordinatorName, insuranceCompanyName } = this.state;
 
 		const formTrip = new FormData()
+		console.log(tourismKind)
 		formTrip.append("kind", KINDOFTOURISM[tourismKind]);
 		formTrip.append("group_name", groupName);
 		formTrip.append("difficulty_category", routeDifficulty);
@@ -74,8 +77,8 @@ export default class ApplicationForm extends React.Component {
 		formTrip.append("local_region", localArea);
 		formTrip.append("start_date", routeStartDate);
 		formTrip.append("end_date", routeEndDate);
-		formTrip.append("coordinator_info", coordinatorInfo);
-		formTrip.append("insurance_info", insuranceInfo);
+		formTrip.append("coordinator_info", coordinatorName);
+		formTrip.append("insurance_info", insuranceCompanyName);
 		formTrip.append("participants_count", participantsNumber);//Как добавят ФИО руководителя и емейл на бэке, заапендить в формТрип эти поля.
 
 		let config = {
@@ -88,6 +91,9 @@ export default class ApplicationForm extends React.Component {
 			formTrip
 			, config).then(respForm => {
 			let form = new FormData()
+			this.setState({
+				buttonIsPressed: true
+			});
 			form.append("file", this.state.routeBook);
 			form.append("trip", parseInt(respForm.data.id))
 			axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
@@ -149,12 +155,22 @@ export default class ApplicationForm extends React.Component {
 
 		})
 	};
+
+	close = () => {
+		this.setState(() => ({ buttonIsPressed: false }))
+	}
+
+	open = () => {
+		this.setState(() => ({ buttonIsPressed: true }))
+		console.log(this.state)
+	}
+
 	renderInput(text, type, className, id, name, value, onChange, placeholder) {
 		return (
 			<Grid item xs={5}>
 				<label htmlFor={name}>{text}</label><br />
 				<input autoComplete="new-password" type={type} className={className} id={id} name={name}
-					   defaultValue={value} onChange={onChange} placeholder={placeholder} required />
+					   defaultValue={value} onChange={onChange} placeholder={placeholder}/>
 			</Grid>
 		);
 	}
@@ -214,6 +230,7 @@ export default class ApplicationForm extends React.Component {
 				GLOBALAREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.startsWith(query))
 			);
+		const { buttonIsPressed } = this.state
 		return (
 			<div>
 				<Center>
@@ -284,11 +301,12 @@ export default class ApplicationForm extends React.Component {
 									</div>
 								</Grid>
 								<Grid item xs={2}>
-									<Button type="submit">Подать заявку</Button>
+									<Button onClick={this.open} type="submit">Подать заявку</Button>
 								</Grid>
 							</Grid>
 						</Box>
 					</form>
+					{buttonIsPressed && <ShowModal close={this.close}/>}
 				</Center>
 			</div>
 		)

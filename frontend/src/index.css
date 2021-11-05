@@ -46,7 +46,7 @@ code {
   border: none;
   background: transparent;
   border-bottom: 1px solid;
-  width: 300px;
+  width: 40vh;
 }
 .inputField:focus {
   outline: none;
