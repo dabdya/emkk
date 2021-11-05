@@ -1,9 +1,14 @@
 export const KINDOFTOURISM = {
-	"Лыжи": "ski",
+	"Лыжный": "ski",
 	"Пешочком": "pedestrian",
-	"Велосипед": "cycling",
-	"Горы": "mountain",
-	"Вода": "water",
+	"Велосипедный": "cycling",
+	"Горный": "mountain",
+	"Водный": "water",
+	"ski": "Лыжный",
+}
+
+export const STATUS = {
+	"on_review": "На ревью",
 }
 
 export const GLOBALAREA = [
