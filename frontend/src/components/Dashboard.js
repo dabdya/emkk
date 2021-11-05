@@ -5,14 +5,13 @@ import { KINDOFTOURISM } from '../utils/Constants';
 import review from '../fonts/review.png'
 import rejected from '../fonts/rejected.png'
 import accepted from '../fonts/accepted.png'
-
 import DataTable from 'react-data-table-component'
 
 export default class Dashboard extends React.Component {
 	columns = [
 		{
 			name: 'Название спорт. организации',
-			selector: 'group_name',
+			selector: row => row.group_name,
 			sortable: false,
 			right: false,
 			wrap: true,
@@ -20,42 +19,42 @@ export default class Dashboard extends React.Component {
 			center: true
 		},
 		{
-			name: 'Общий регоин',
-			selector: 'global_region',
+			name: 'Общий регион',
+			selector: row => row.global_region,
 			sortable: false,
 			wrap: true,
 			center: true
 		},
 		{
 			name: 'Вид туризма',
-			selector: 'kind',
+			selector: row => row.kind,
 			sortable: false,
 			cell: row => KINDOFTOURISM[row.kind],
 			center: true,
 		},
 		{
 			name: 'Категория сложности',
-			selector: 'difficulty_category',
+			selector: row => row.difficulty_category,
 			sortable: false,
 			width: "230px",
 			center: true
 		},
 		{
 			name: 'Статус',
-			selector: 'status',
+			selector: row => row.status,
 			sortable: false,
 			cell: row => <img height="50px" src={row.status} />,
 			center: true
 		},
 		{
 			name: 'Дата начала',
-			selector: 'start_date',
-			sortable: false,
+			selector: row => row.start_date,
+			sortable: true,
 			center: true,
 		},
 		{
 			name: 'Дата завершения',
-			selector: 'end_date',
+			selector: row => row.end_date,
 			sortable: false,
 			center: true
 		},
@@ -69,15 +68,15 @@ export default class Dashboard extends React.Component {
 			isLoaded: false,
 			trips: [],
 		};
-		this.handleLogout = this.handleLogout.bind(this);
+		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
 
 	async componentDidMount() {
-		let config = {
+		let config = getToken() ? {
 			headers: {
-				Authorization: 'Token ' + getToken() //the token is a variable which holds the token
+				Authorization: 'Token ' + getToken()
 			}
-		};
+		} : {};
 		const request = new Requests();
 		await request.get("http://localhost:8000/api/trips", config)
 			.then(
@@ -97,10 +96,9 @@ export default class Dashboard extends React.Component {
 				});
 	}
 
-	handleLogout(target) {
-		// removeUserSession();
-
-		//this.props.history.push(`/review`); не работает
+	onClickOnRow(target) {
+		// this.props.history.push(`/review`);// не работает
+		window.location.href = `/home/review/${target.id}`;
 	};
 
 	renderImage(status) {
@@ -111,6 +109,7 @@ export default class Dashboard extends React.Component {
 		}
 		return accepted;
 	}
+
 	render() {
 		return (
 			<DataTable
@@ -118,12 +117,12 @@ export default class Dashboard extends React.Component {
 				data={this.state.trips}
 				subHeaderWrap={false}
 				fixedHeader={true}
-				onRowClicked={(target) => { this.handleLogout(target) }}
+				onRowClicked={(target) => { this.onClickOnRow(target) }}
 				pagination
 				paginationComponentOptions={{
 					rowsPerPageText: 'Страница: ',
 					rangeSeparatorText: 'из', noRowsPerPage: true,
-					selectAllRowsItem: false, selectAllRowsItemText: 'All'
+					selectAllRowsItem: false
 				}}
 			/>
 		);
