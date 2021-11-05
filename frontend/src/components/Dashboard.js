@@ -1,9 +1,64 @@
 import React from 'react';
-import { getToken, getUser, removeUserSession } from '../utils/Common';
+import { getToken, getUser } from '../utils/Common';
 import Requests from '../utils/requests';
-import axios from 'axios'
+import { KINDOFTOURISM } from '../utils/Constants';
+import review from '../fonts/review.png'
+import rejected from '../fonts/rejected.png'
+import accepted from '../fonts/accepted.png'
+import DataTable from 'react-data-table-component'
 
 export default class Dashboard extends React.Component {
+	columns = [
+		{
+			name: 'Название спорт. организации',
+			selector: row => row.group_name,
+			sortable: false,
+			right: false,
+			wrap: true,
+			width: "280px",
+			center: true
+		},
+		{
+			name: 'Общий регион',
+			selector: row => row.global_region,
+			sortable: false,
+			wrap: true,
+			center: true
+		},
+		{
+			name: 'Вид туризма',
+			selector: row => row.kind,
+			sortable: false,
+			cell: row => KINDOFTOURISM[row.kind],
+			center: true,
+		},
+		{
+			name: 'Категория сложности',
+			selector: row => row.difficulty_category,
+			sortable: false,
+			width: "230px",
+			center: true
+		},
+		{
+			name: 'Статус',
+			selector: row => row.status,
+			sortable: false,
+			cell: row => <img height="50px" src={row.status} />,
+			center: true
+		},
+		{
+			name: 'Дата начала',
+			selector: row => row.start_date,
+			sortable: true,
+			center: true,
+		},
+		{
+			name: 'Дата завершения',
+			selector: row => row.end_date,
+			sortable: false,
+			center: true
+		},
+	];
 
 	constructor(props) {
 		super(props);
@@ -13,21 +68,24 @@ export default class Dashboard extends React.Component {
 			isLoaded: false,
 			trips: [],
 		};
-		this.handleLogout = this.handleLogout.bind(this);
+		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
 
 	async componentDidMount() {
-		let config = {
+		let config = getToken() ? {
 			headers: {
-				Authorization: 'Token ' + getToken() //the token is a variable which holds the token
+				Authorization: 'Token ' + getToken()
 			}
-		};
+		} : {};
 		const request = new Requests();
 		await request.get("http://localhost:8000/api/trips", config)
 			.then(
 				(result) => {
 					this.setState({
-						trips: result.data
+						trips: result.data.map(item => {
+							item.status = this.renderImage(item.status);
+							return item;
+						})
 					});
 				},
 				(error) => {
@@ -35,51 +93,38 @@ export default class Dashboard extends React.Component {
 						isLoaded: true,
 						error
 					});
-				})
+				});
 	}
 
-
-	// handle click event of logout button
-	handleLogout() {
-		removeUserSession();
-
-		this.props.history.push('/login');
+	onClickOnRow(target) {
+		// this.props.history.push(`/review`);// не работает
+		window.location.href = `/home/review/${target.id}`;
 	};
 
-	renderTable() {
-
+	renderImage(status) {
+		if (status === "on_review") {
+			return review;
+		} else if (status === "rejected") {
+			return rejected
+		}
+		return accepted;
 	}
 
 	render() {
 		return (
-			<div className="table">
-				<table className="table">
-					<thead>
-						<tr>
-							<th>ФИО Руководителя</th>
-							<th>Общий район</th>
-							<th>Вид туризма</th>
-							<th>Сложность</th>
-							<th>Статус</th>
-							<th>Дата начала</th>
-							<th>Дата конца</th>
-						</tr>
-					</thead>
-					<tbody>
-						{this.state.trips.map(trip => (
-							<tr key={trip.id}>
-								<td>{trip.coordinator_info}</td>
-								<td>{trip.global_region}</td>
-								<td>{trip.kind}</td>
-								<td>{trip.difficulty_category}</td>
-								<td>{trip.status}</td>
-								<td>{trip.start_date}</td>
-								<td>{trip.end_date}</td>
-							</tr>
-						))}
-					</tbody>
-				</table>
-			</div>
+			<DataTable
+				columns={this.columns}
+				data={this.state.trips}
+				subHeaderWrap={false}
+				fixedHeader={true}
+				onRowClicked={(target) => { this.onClickOnRow(target) }}
+				pagination
+				paginationComponentOptions={{
+					rowsPerPageText: 'Страница: ',
+					rangeSeparatorText: 'из', noRowsPerPage: true,
+					selectAllRowsItem: false
+				}}
+			/>
 		);
 	}
 }
