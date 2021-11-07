@@ -1,24 +1,23 @@
-from django.urls import path, re_path
+from django.urls import path
 
 from .views import (
     DocumentList, DocumentDetail,
-    ReviewList, ReviewDetail,
-    TripList, TripDetail, take_trip_on_review, change_trip_status, TripsForReview,
-    ReviewFromIssuerDetail)
+    ReviewerView, IssuerView, ReviewDetail,
+    TripList, TripDetail, change_trip_status, WorkRegisterView, )
 
 urlpatterns = [
     path('trips', TripList.as_view()),
     path('trips/<int:pk>', TripDetail.as_view()),
-    path('trips/<int:trip_id>/take-on-review', take_trip_on_review),
     path('trips/<int:trip_id>/change-status', change_trip_status),
     path('trips/<int:pk>/documents', DocumentList.as_view()),
     path('trips/<int:pk>/documents/<int:doc_id>', DocumentDetail.as_view()),
 
-    path('trips/<int:pk>/reviews', ReviewList.as_view()),
+    path('trips/<int:pk>/reviews', ReviewerView.as_view()),
     path('trips/<int:pk>/reviews/<int:rev_id>', ReviewDetail.as_view()),
-    path('trips/<int:pk>/reviews-from-issuer', ReviewFromIssuerDetail.as_view()),
-    path('trips/for-review', TripsForReview.as_view())
+    path('trips/<int:pk>/reviews-from-issuer', IssuerView.as_view()),
+    path('trips/work', WorkRegisterView.as_view())
 ]
+
 """
 trips GET - get all trips
 trips POST - create new trip
