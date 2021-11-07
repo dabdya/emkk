@@ -72,7 +72,7 @@ export default class Dashboard extends React.Component {
 	}
 
 	async componentDidMount() {
-		let config = getToken() ? {
+		const config = getToken() ? {
 			headers: {
 				Authorization: 'Token ' + getToken()
 			}
@@ -97,7 +97,6 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		// this.props.history.push(`/review`);// не работает
 		window.location.href = `/home/review/${target.id}`;
 	};
 

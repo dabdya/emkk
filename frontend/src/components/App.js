@@ -28,7 +28,7 @@ export default class App extends React.Component {
 		}
 		let config = {
 			headers: {
-				Authorization: 'Token ' + this.state.token //the token is a variable which holds the token
+				Authorization: 'Token ' + this.state.token
 			}
 		};
 		await axios.get(`http://localhost:8000/auth/user`, config).then(response => {
