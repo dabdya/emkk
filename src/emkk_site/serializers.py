@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Document, Trip, Review, ReviewFromIssuer, WorkRegister
+from src.jwt_auth.serializers import UserSerializer
 
 
 class DocumentSerializer(serializers.ModelSerializer):
@@ -55,8 +56,11 @@ class WorkRegisterSerializer(serializers.ModelSerializer):
 
 
 class TripSerializer(serializers.ModelSerializer):
+    leader = UserSerializer()
+
     class Meta:
         model = Trip
+        depth = 1
         fields = '__all__'
         read_only_fields = ['created_at', 'status', 'leader', ]
 
@@ -67,8 +71,11 @@ class TripSerializer(serializers.ModelSerializer):
 
 
 class TripForAnonymousSerializer(serializers.ModelSerializer):
+    leader = UserSerializer()
+
     class Meta:
         model = Trip
+        depth = 1
         exclude = [
             'insurance_info', 'coordinator_info', 'participants_count',
             'actual_start_date', 'actual_end_date',
