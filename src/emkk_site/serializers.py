@@ -56,13 +56,13 @@ class WorkRegisterSerializer(serializers.ModelSerializer):
 
 
 class TripSerializer(serializers.ModelSerializer):
-    leader = UserSerializer()
+    leader = UserSerializer(read_only=True)
 
     class Meta:
         model = Trip
         depth = 1
         fields = '__all__'
-        read_only_fields = ['created_at', 'status', 'leader', ]
+        read_only_fields = ['created_at', 'status', ]
 
     def create(self, validated_data):
         user = self.context['user']
