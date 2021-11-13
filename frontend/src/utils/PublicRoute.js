@@ -2,10 +2,10 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 
-export default function PublicRoute({ component: Component, ...rest }) {
+export default function PublicRoute({ component: Component, ...props }) {
 	return (
 		<Route
-			{...rest}
+			{...props}
 			render={(props) => <Component {...props} />}
 		/>
 	)

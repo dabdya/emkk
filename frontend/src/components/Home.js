@@ -6,7 +6,9 @@ import PublicRoute from '../utils/PublicRoute'
 import PrivateRoute from '../utils/PrivateRoute'
 import ApplicationForm from './ApplicationForm';
 export default class Home extends React.Component {
-
+	constructor(props) {
+		super(props);
+	}
 	render() {
 		return (
 			<div className="Home" style={{ height: "100%" }}>
@@ -15,16 +17,13 @@ export default class Home extends React.Component {
 						<div className="header-home">
 							<NavLink exact activeClassName="active" to="/home/dashboard">Табло походов</NavLink>
 							<NavLink activeClassName="active" to="/home/review">Мои заявки</NavLink>
-							<NavLink activeClassName="active" to="/home/form">Form</NavLink>
+							{this.props.isLogined && <NavLink activeClassName="active" to="/home/form">Form</NavLink>}
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>
-								<PrivateRoute path="/home/form">
-									<ApplicationForm />
-								</PrivateRoute>
-								<PublicRoute path="/home/dashboard">
-									<Dashboard />
-								</PublicRoute>
+
+								<PrivateRoute path="/home/form" component={ApplicationForm} />
+								<PublicRoute path="/home/dashboard" component={Dashboard} />
 								<Route path="*" component={NotFound} />
 							</Switch>
 						</div>

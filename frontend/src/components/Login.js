@@ -67,7 +67,7 @@ export default class Login extends React.Component {
 									"password", "password", this.state.password, this.changeInputRegister)}
 								{this.state.error && <><small style={{ color: 'red', position: "absolute" }}><WarningSign /></small><br /></>}<br />
 							</Gapped>
-							<Button use='link'>Забыли пароль?</Button>
+							<Link href="/reset-password">Забыли пароль?</Link>
 							<Center>
 								<div style={{ marginTop: 80 }}>
 									<Gapped gap={20}>

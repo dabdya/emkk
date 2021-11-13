@@ -10,13 +10,15 @@ import PublicRoute from '../utils/PublicRoute';
 import NotFound from './NotFound';
 import { getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 import logo from "../fonts/logo.png"
+import PrivateRoute from '../utils/PrivateRoute';
+import ForgetPass from './ForgetPassword';
 
 export default class App extends React.Component {
 
 	constructor(props) {
 		super(props)
 
-		this.state = { token: null };
+		this.state = { token: null, isLogined: true };
 		this.onLogout = this.onLogout.bind(this);
 	}
 
@@ -32,6 +34,7 @@ export default class App extends React.Component {
 		};
 		await axios.get(`http://localhost:8000/auth/user`, config).then(response => {
 			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
+			this.setState({ isLogined: true });
 		}).catch(error => {
 			console.error(error);
 			removeUserSession();
@@ -47,7 +50,7 @@ export default class App extends React.Component {
 		return (
 			<div className="App">
 				<BrowserRouter>
-					<div style={{height:"100%"}}>
+					<div style={{ height: "100%" }}>
 						<div className="header">
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
 								<img src={logo} height="43px" width="68px" alt="logo" /></NavLink>
@@ -64,15 +67,15 @@ export default class App extends React.Component {
 								</>}
 
 						</div>
-						<div className="content" style={{height: "80%"}}>
+						<div className="content" style={{ height: "80%" }}>
 							<Switch>
-
 								<Route exact path="/" render={() => (
 									<Redirect to="/home/dashboard" />
 								)} />
-								<PublicRoute exact path="/home/dashboard">
-									<Home />
-								</PublicRoute>
+								<Route exact path="/home/dashboard" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+								<Route exact path="/home/form" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+								<PublicRoute path="/reset-password" component={ForgetPass} />
+								<PublicRoute path="/home/review" component={Home} />
 								<PublicRoute path="/login" component={Login} />
 								<PublicRoute path="/signup" component={Registration} />
 								<PublicRoute path="/form" component={ApplicationForm} />
