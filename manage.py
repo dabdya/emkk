@@ -54,6 +54,25 @@ def reset_db(args):
         sys.exit(2)
 
 
+def init_db(args):
+    if not args:
+        print('Need integer count samples')
+        sys.exit(3)
+
+    import django
+    django.setup()
+
+    from src.emkk_site.utils import EntityGenerator
+    from src.emkk_site.models import Trip
+    eg = EntityGenerator()
+
+    samples = int(args[0])
+    for i in range(samples):
+        instance = eg.generate_instance_by_model(Trip)
+        instance.save()
+    print('Instances was created successfully')
+
+
 if __name__ == "__main__":
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     os.environ.setdefault('DJANGO_CONFIGURATION', 'Base')
@@ -62,5 +81,9 @@ if __name__ == "__main__":
 
     if sys.argv[1] == 'reset_db':
         reset_db(sys.argv[2:])
+
+    elif sys.argv[1] == 'init_db':
+        init_db(sys.argv[2:])
+
     else:
         execute_from_command_line(sys.argv)
