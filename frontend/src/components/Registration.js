@@ -81,25 +81,33 @@ export default class Registration extends React.Component {
     render() {
         return (
             <Center style={{ height: '80vh' }}>
-                <div className="form" style={{ width: '500px', height: '550px', display: 'flex', justifyContent: 'center', alignItems: 'center', border: '0.5px solid gray', borderRadius: '15px'}}>
-                    <Center style={{ height: '91vh' }}>
-                        <div style={{height:145, width: 300, marginLeft: '40px'}}>
-                            <h1 style={{marginLeft:'80px', fontSize: 25, color:"#0a77ac"}}>EMKK</h1>
-                            <span style={{fontSize: 18, color:"#0a77ac"}}>Электронная маршрутно-квалификационная комиссия</span>
-						</div>
-                        <div style={{marginTop: "-60px"}}>
-                            <form style={{marginLeft: "25px"}} onSubmit={this.onSubmit}>
-                                {this.renderInput("Логин", "username", "inputField", "username", "username", this.state.register.username, this.changeInputRegister)}
-                                {this.renderInput("Email", "email", "inputField", "email", "email", this.state.register.email, this.changeInputRegister)}
-                                {this.renderInput("Имя", "firstName", "inputField", "firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
-                                {this.renderInput("Фамилия", "secondName", "inputField", "secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
-                                {this.renderInput("Пароль", "password", "inputField", "password", "password", this.state.register.password, this.changeInputRegister)}
-                                {this.renderInput("Повторите пароль", "password", "inputField", "password2", "password2", this.state.register.password2, this.changeInputRegister)}
-                                <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                                    <Button style={{height: "100px", width: "200px", marginTop:"20px", marginRight:"30px"}} type="submit">Зарегистрироваться</Button>
-                                </div>
-                            </form>
-                        </div>
+                <div style={{height: "65vh", width:"60vh", border:"0.5px solid gray", borderRadius: 15}}>
+                    <Center>
+                        <form onSubmit={this.onSubmit}>
+                            {this.renderInput("Логин", "username", "inputField",
+                                "username", "username", this.state.register.username, this.changeInputRegister)}
+                            {this.renderInput("Email", "email", "inputField",
+                                "email", "email", this.state.register.email, this.changeInputRegister)}
+                            {this.renderInput("Имя", "firstName", "inputField",
+                                "firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
+                            {this.renderInput("Фамилия", "secondName", "inputField",
+                                "secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
+                            {this.renderInput("Пароль", "password", "inputField",
+                                "password", "password", this.state.register.password, this.changeInputRegister)}
+                            {this.renderInput("Повторите пароль", "password", "inputField",
+                                "password2", "password2", this.state.register.password2, this.changeInputRegister)}
+                            <Center>
+                                <Button style={{marginTop:20}} size="large" type="submit">
+                                    Зарегистрироваться
+                                </Button>
+                            </Center>
+                        </form>
+                    <Center>
+                        <h1 style={{fontSize:20, color:"gray"}}>ЭМКК</h1>
+                    </Center>
+                    <Center>
+                        <h1 style={{fontSize:13, color:"gray"}}>©Электронная Маршрутно-Квалификационная комиссия</h1>
+                    </Center>
                     </Center>
                 </div>
             </Center>

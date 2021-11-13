@@ -2,16 +2,15 @@ from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.services import get_reviewers_count_by_difficulty
-from src.emkk_site.models import Trip, Review, TripKind, TripStatus, ReviewResult, WorkRegister, ReviewFromIssuer
+from src.emkk_site.models import Review, TripStatus, ReviewResult, WorkRegister
 
 
 class ReviewTest(TestCase):
 
     def setUp(self):
         self.trips_count = 1
-        self.env = TestEnvironment() \
-            .with_user(reviewer=True) \
-            .with_trips(self.trips_count)
+        self.env = TestEnvironment().with_user(reviewer=True) \
+            .with_trips(self.trips_count, status=TripStatus.ON_REVIEW)
 
     # noinspection PyMethodMayBeStatic
     def get_review_data(self, trip_id):

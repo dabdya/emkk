@@ -6,5 +6,5 @@ venv/
 data/
 media/
 db.sqlite3
-/src/jwt_auth/migrations
-/src/emkk_site/migrations
+src/jwt_auth/migrations/
+src/emkk_site/migrations/

@@ -2,6 +2,8 @@ from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.models import Trip, TripKind
+from src.emkk_site.utils import EntityGenerator
+from src.emkk_site.serializers import TripSerializer
 
 
 class TripTest(TestCase):
@@ -16,9 +18,12 @@ class TripTest(TestCase):
             'participants_count': 12,
             'start_date': '2021-10-08',
             'end_date': '2021-10-28',
-            'coordinator_info': 'Info',
-            'insurance_info': 'Info'
+            'coordinator_name': 'Info',
+            'coordinator_phone_number': '89527373254',
+            'insurance_company_name': 'Info',
+            'insurance_policy_validity_duration': '2021-12-24'
         }
+
         self.trips_count = 1
         self.env = TestEnvironment() \
             .with_user(reviewer=True) \
