@@ -18,10 +18,49 @@ def main():
     execute_from_command_line(sys.argv)
 
 
+def reset_db(args):
+    if not args:
+        print('Database type not specified. Use Prod or Dev')
+        sys.exit(1)
+
+    import os
+    import glob
+    import shutil
+
+    migrations = [f for f in glob.glob('./src/*/migrations/*.py')
+                  if '__init__' not in f]
+
+    for migration in migrations:
+        os.remove(migration)
+
+    db_type = args[0]
+    if db_type == 'Dev':
+        try:
+            os.remove('db.sqlite3')
+        except FileNotFoundError as err:
+            print('Database Dev was deleted early')
+        os.system('python manage.py makemigrations --configuration=Dev')
+        os.system('python manage.py migrate --configuration=Dev')
+
+    elif db_type == 'Prod':
+        try:
+            shutil.rmtree('data')
+        except FileNotFoundError as err:
+            print('Database Prod was deleted early')
+        print('New migrations apply when docker-compose up running')
+
+    else:
+        print('Database type only Prod or Dev')
+        sys.exit(2)
+
+
 if __name__ == "__main__":
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
     os.environ.setdefault('DJANGO_CONFIGURATION', 'Base')
 
     from configurations.management import execute_from_command_line
 
-    execute_from_command_line(sys.argv)
+    if sys.argv[1] == 'reset_db':
+        reset_db(sys.argv[2:])
+    else:
+        execute_from_command_line(sys.argv)

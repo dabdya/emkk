@@ -62,7 +62,7 @@ class TripSerializer(serializers.ModelSerializer):
         model = Trip
         depth = 1
         fields = '__all__'
-        read_only_fields = ['created_at', 'status', ]
+        read_only_fields = ['created_at', 'status', 'leader', ]
 
     def create(self, validated_data):
         user = self.context['user']
@@ -76,8 +76,7 @@ class TripForAnonymousSerializer(serializers.ModelSerializer):
     class Meta:
         model = Trip
         depth = 1
-        exclude = [
-            'insurance_info', 'coordinator_info', 'participants_count',
-            'actual_start_date', 'actual_end_date',
-        ]
+        fields = [
+            'status', 'kind', 'leader', 'group_name', 'difficulty_category',
+            'global_region', 'local_region', 'start_date', 'end_date']
 

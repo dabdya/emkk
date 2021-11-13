@@ -65,7 +65,7 @@ class EntityGenerator:
             attr_name = field.name
             attr_val = kwargs.get(attr_name)
 
-            if not attr_val:
+            if attr_val is None:
                 attr_val = self._generate_field_value(field)
             setattr(instance, attr_name, attr_val)
 
