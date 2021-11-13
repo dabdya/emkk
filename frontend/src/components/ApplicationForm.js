@@ -3,7 +3,7 @@ import React from 'react';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
-import { Button, Center, Gapped, Tooltip, ComboBox, Select, Modal } from '@skbkontur/react-ui';
+import { Button, Center, Gapped, Tooltip, ComboBox, Select } from '@skbkontur/react-ui';
 import Requests from '../utils/requests';
 import { Grid, Box } from '@mui/material'
 import ShowModal from "./ShowModal"

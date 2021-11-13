@@ -47,7 +47,7 @@ export default class App extends React.Component {
 		return (
 			<div className="App">
 				<BrowserRouter>
-					<div>
+					<div style={{height:"100%"}}>
 						<div className="header">
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
 								<img src={logo} height="43px" width="68px" alt="logo" /></NavLink>
@@ -64,7 +64,7 @@ export default class App extends React.Component {
 								</>}
 
 						</div>
-						<div className="content">
+						<div className="content" style={{height: "80%"}}>
 							<Switch>
 
 								<Route exact path="/" render={() => (
