@@ -43,7 +43,7 @@ export default class Dashboard extends React.Component {
 			name: 'Статус',
 			selector: row => row.status,
 			sortable: false,
-			cell: row => <img height="50px" src={row.status} />,
+			cell: row => <img height="50px" src={row.status} alt="status"/>,
 			center: true
 		},
 		{
