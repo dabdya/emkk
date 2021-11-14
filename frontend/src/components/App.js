@@ -10,7 +10,6 @@ import PublicRoute from '../utils/PublicRoute';
 import NotFound from './NotFound';
 import { getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 import logo from "../fonts/logo.png"
-import PrivateRoute from '../utils/PrivateRoute';
 import ForgetPass from './ForgetPassword';
 
 export default class App extends React.Component {

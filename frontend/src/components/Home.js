@@ -5,6 +5,8 @@ import NotFound from './NotFound';
 import PublicRoute from '../utils/PublicRoute'
 import PrivateRoute from '../utils/PrivateRoute'
 import ApplicationForm from './ApplicationForm';
+import { getToken } from '../utils/Common';
+
 export default class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -17,7 +19,7 @@ export default class Home extends React.Component {
 						<div className="header-home">
 							<NavLink exact activeClassName="active" to="/home/dashboard">Табло походов</NavLink>
 							<NavLink activeClassName="active" to="/home/review">Мои заявки</NavLink>
-							{this.props.isLogined && <NavLink activeClassName="active" to="/home/form">Form</NavLink>}
+							{getToken() && <NavLink activeClassName="active" to="/home/form">Form</NavLink>}
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>
