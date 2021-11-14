@@ -17,9 +17,9 @@ export default class Home extends React.Component {
 				<BrowserRouter>
 					<div style={{ display: "flex", minHeight: "100%", height: "fit-content" }}>
 						<div className="header-home">
-							<NavLink exact activeClassName="active" to="/home/dashboard">Табло походов</NavLink>
-							<NavLink activeClassName="active" to="/home/review">Мои заявки</NavLink>
-							{getToken() && <NavLink activeClassName="active" to="/home/form">Form</NavLink>}
+							<NavLink exact activeClassName="active" to="/home/dashboard"><div className="cell">Мои заявки</div></NavLink>
+							<NavLink activeClassName="active" to="/home/review"><div className="cell">Ревью</div></NavLink>
+							{getToken() && <NavLink activeClassName="active" to="/home/form"> <div className="cell">Форма </div></NavLink>}
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>

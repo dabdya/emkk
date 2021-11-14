@@ -3,6 +3,7 @@ body {
 	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Playfair Display", sans-serif;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+	background-color: #F7F7F7;
 }
 
 * {
@@ -46,11 +47,26 @@ code {
 	min-height: 92vh;
 }
 
-
 .header-home a {
-	padding: 15px;
 	color: #0072ff;
 	text-decoration: none;
+	text-align: center;
+	display: block;
+	border-bottom: 1px solid #ffffff;
+	width: 100%;
+}
+
+.header-home .cell {
+	min-height: 120px;
+	min-width: 120px;
+}
+
+.header-home .cell:hover {
+	background-color: #00518E;
+}
+
+.header-home .active .cell{
+	background-color: #00518E;
 }
 
 .header .emkk {
