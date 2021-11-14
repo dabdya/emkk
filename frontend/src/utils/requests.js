@@ -31,6 +31,7 @@ export default class Requests {
 							return this.wrappedAxios.post(url, data, config);
 						})
 				}
+				return Promise.reject(error)
 			});
 	}
 }

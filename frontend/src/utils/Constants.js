@@ -7,6 +7,8 @@ export const KINDOFTOURISM = {
 	"ski": "Лыжный",
 	"pedestrian": "Пеший",
 	"cycling": "Велосипедный",
+	"water": "Водный",
+	"mountain": "Горный",
 }
 
 export const STATUS = {
