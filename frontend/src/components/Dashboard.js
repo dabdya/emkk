@@ -2,12 +2,13 @@ import React from 'react';
 import { getToken, getUser } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KINDOFTOURISM } from '../utils/Constants';
-import review from '../fonts/review.png'
-import rejected from '../fonts/rejected.png'
-import accepted from '../fonts/accepted.png'
-import DataTable from 'react-data-table-component'
+import review from '../fonts/review.png';
+import rejected from '../fonts/rejected.png';
+import accepted from '../fonts/accepted.png';
+import DataTable from 'react-data-table-component';
+import { withRouter } from 'react-router-dom';
 
-export default class Dashboard extends React.Component {
+export class Dashboard extends React.Component {
 	columns = [
 		{
 			name: 'Название спорт. организации',
@@ -97,8 +98,12 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		// this.props.history.push(`/review`);// не работает
-		window.location.href = `/home/review/${target.id}`;
+		this.props.history.push({
+			pathname: `/application`,
+			state: target,
+		});
+		// console.log(target)
+		// window.location.href = `/home/review/${target.id}`;
 	};
 
 	renderImage(status) {
@@ -128,3 +133,5 @@ export default class Dashboard extends React.Component {
 		);
 	}
 }
+
+export default withRouter(Dashboard);

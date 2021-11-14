@@ -3,6 +3,8 @@ import { BrowserRouter, Switch, Route, NavLink } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import NotFound from './NotFound';
 import PublicRoute from '../utils/PublicRoute'
+import Application from "./Application";
+import ApplicationForm from "./ApplicationForm";
 export default class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -23,6 +25,7 @@ export default class Home extends React.Component {
 								<PublicRoute path="/home/dashboard">
 									<Dashboard />
 									</PublicRoute>
+								<PublicRoute path="/application" component={Application} />
 								<Route path="*" component={NotFound} />
 							</Switch>
 						</div>
