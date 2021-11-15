@@ -49,6 +49,7 @@ export default class Application extends React.Component {
                     // coordinatorPhoneNumber: ""
                 })
             })
+            .catch(err => console.error(err));
 
     }
 
