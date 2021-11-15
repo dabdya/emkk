@@ -44,7 +44,7 @@ class Base(Configuration):
 
     # SECURITY WARNING: don't run with debug turned on in production!
 
-    ALLOWED_HOSTS = ['testserver', 'localhost']
+    ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
 
     MEDIA_URL = "media/"
     MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
