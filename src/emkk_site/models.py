@@ -29,6 +29,11 @@ class TripKind(models.TextChoices):
     MOUNTAIN = 'mountain'
     WATER = 'water'
     SKI = 'ski'
+    PEDESTRIAN_WATER = 'pedestrian_water'
+    SPELEO = 'speleo'
+    YACHTING = 'yachting'
+    HORSE_SPORT = 'horse_sport'
+    AUTO_MOTO = 'auto_moto'
 
 
 class Trip(models.Model):
@@ -96,5 +101,6 @@ class UserExperience(models.Model):
 class WorkRegister(models.Model):
     class Meta:
         unique_together = (('trip', 'user'),)
+
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

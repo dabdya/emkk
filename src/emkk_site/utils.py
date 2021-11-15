@@ -97,7 +97,7 @@ def generate_3_trips_and_users():
         for i in range(3):
             difficulty = list(range(6))[i % 6]
             trip = Trip(
-                kind=TripKind.CYCLING, group_name="TestGroup",
+                kind=TripKind.HORSE_SPORT, group_name="TestGroup",
                 difficulty_category=difficulty, global_region="Russia",
                 local_region="Ural", participants_count=12,
                 start_date='2021-10-08', end_date='2021-10-28',
