@@ -1,24 +1,25 @@
 import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
-import { Button, Center, Input, Gapped, Link } from '@skbkontur/react-ui';
+import { Button, Center} from '@skbkontur/react-ui';
 
 export default class Registration extends React.Component {
 
-    constructor(props){
+    constructor(props) {
         super(props);
 
-        this.state = 
-            {register: 
-                {
-                    username: "",
-                    email: "",
-                    password: "",
-                    password2: "",
-                    firstName: "",
-                    secondName: ""
-                }
-            };
+        this.state =
+        {
+            register:
+            {
+                username: "",
+                email: "",
+                password: "",
+                password2: "",
+                firstName: "",
+                secondName: ""
+            }
+        };
         this.onSubmit = this.onSubmit.bind(this);
         this.changeInputRegister = this.changeInputRegister.bind(this);
         this.renderInput = this.renderInput.bind(this);
@@ -26,23 +27,25 @@ export default class Registration extends React.Component {
 
     changeInputRegister(event) {
         event.persist();
-        
+
         this.setState(prev => {
-            return { register:{
-                ...prev.register,
-                [event.target.name]: event.target.value}
+            return {
+                register: {
+                    ...prev.register,
+                    [event.target.name]: event.target.value
+                }
             }
         })
     };
 
-    onSubmit (event){
+    onSubmit(event) {
         event.preventDefault();
-        if(!validator.isEmail(this.state.register.email)) {
+        if (!validator.isEmail(this.state.register.email)) {
             alert("You did not enter email") // делать не аллертами
-        } else if(this.state.register.password !== this.state.register.password2) {
+        } else if (this.state.register.password !== this.state.register.password2) {
             alert("Repeated password incorrectly") // делать не аллертами
-        } else if(!validator.isStrongPassword(this.state.register.password, {minSymbols: 0})) {
-            alert("Password must consist of one lowercase, uppercase letter and number, at least 8 characters") // делать не аллертами
+        } else if (!validator.isStrongPassword(this.state.register.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
+            alert("Password must consist of one lowercase letter, at least 6 characters") // делать не аллертами
         } else {
             const config = {
                 "Access-Control-Allow-Origin": "*",
@@ -69,19 +72,19 @@ export default class Registration extends React.Component {
         }
     };
 
-    renderInput(text, type, className, id, name, value, onChange){
-		return (
-            <div style={{marginTop: "15px"}}>
-                <label htmlFor={name}>{text}</label><br/>
-                <input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required/>
+    renderInput(text, type, className, id, name, value, onChange) {
+        return (
+            <div style={{ marginTop: "15px" }}>
+                <label htmlFor={name}>{text}</label><br />
+                <input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required />
             </div>
-		);
-	}
+        );
+    }
 
     render() {
         return (
             <Center style={{ height: '80vh' }}>
-                <div style={{height: "65vh", width:"60vh", border:"0.5px solid gray", borderRadius: 15}}>
+                <div style={{ height: "65vh", width: "60vh", border: "0.5px solid gray", borderRadius: 15 }}>
                     <Center>
                         <form onSubmit={this.onSubmit}>
                             {this.renderInput("Логин", "username", "inputField",
@@ -97,20 +100,20 @@ export default class Registration extends React.Component {
                             {this.renderInput("Повторите пароль", "password", "inputField",
                                 "password2", "password2", this.state.register.password2, this.changeInputRegister)}
                             <Center>
-                                <Button style={{marginTop:20}} size="large" type="submit">
+                                <Button style={{ marginTop: 20 }} size="large" type="submit">
                                     Зарегистрироваться
                                 </Button>
                             </Center>
                         </form>
-                    <Center>
-                        <h1 style={{fontSize:20, color:"gray"}}>ЭМКК</h1>
-                    </Center>
-                    <Center>
-                        <h1 style={{fontSize:13, color:"gray"}}>©Электронная Маршрутно-Квалификационная комиссия</h1>
-                    </Center>
+                        <Center>
+                            <h1 style={{ fontSize: 20, color: "gray" }}>ЭМКК</h1>
+                        </Center>
+                        <Center>
+                            <h1 style={{ fontSize: 13, color: "gray" }}>©Электронная Маршрутно-Квалификационная комиссия</h1>
+                        </Center>
                     </Center>
                 </div>
             </Center>
         )
-}
+    }
 }

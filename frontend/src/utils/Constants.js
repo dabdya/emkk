@@ -1,10 +1,14 @@
 export const KINDOFTOURISM = {
 	"Лыжный": "ski",
-	"Пешочком": "pedestrian",
+	"Пеший": "pedestrian",
 	"Велосипедный": "cycling",
 	"Горный": "mountain",
 	"Водный": "water",
 	"ski": "Лыжный",
+	"pedestrian": "Пеший",
+	"cycling": "Велосипедный",
+	"water": "Водный",
+	"mountain": "Горный",
 }
 
 export const STATUS = {

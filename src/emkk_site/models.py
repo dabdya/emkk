@@ -47,10 +47,15 @@ class Trip(models.Model):
     participants_count = models.IntegerField()
     start_date = models.DateField()
     end_date = models.DateField()
-    coordinator_info = models.TextField()
-    insurance_info = models.TextField()
-    actual_start_date = models.TextField(null=True)
-    actual_end_date = models.TextField(null=True)
+    coordinator_name = models.CharField(max_length=100)
+    coordinator_phone_number = models.CharField(max_length=20)
+    insurance_company_name = models.CharField(max_length=100)
+    insurance_policy_validity_duration = models.DateField()
+
+    control_start_date = models.DateField(null=True)
+    control_end_date = models.DateField(null=True)
+    control_start_region = models.CharField(max_length=100, null=True)
+    control_end_region = models.CharField(max_length=100, null=True)
 
     created_at = models.DateTimeField(editable=False, default=timezone.now)
 
@@ -84,6 +89,12 @@ class UserExperience(models.Model):
         validators=[MinValueValidator(1), MaxValueValidator(6)])
 
 
-class TripsOnReviewByUser(models.Model):
+# class TripsOnReviewByUser(models.Model):
+#     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+class WorkRegister(models.Model):
+    class Meta:
+        unique_together = (('trip', 'user'),)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)

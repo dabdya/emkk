@@ -44,7 +44,7 @@ export class Dashboard extends React.Component {
 			name: 'Статус',
 			selector: row => row.status,
 			sortable: false,
-			cell: row => <img height="50px" src={row.status} />,
+			cell: row => <img height="50px" src={row.status} alt="status"/>,
 			center: true
 		},
 		{
@@ -73,7 +73,7 @@ export class Dashboard extends React.Component {
 	}
 
 	async componentDidMount() {
-		let config = getToken() ? {
+		const config = getToken() ? {
 			headers: {
 				Authorization: 'Token ' + getToken()
 			}
@@ -102,8 +102,6 @@ export class Dashboard extends React.Component {
 			pathname: `/application`,
 			state: target,
 		});
-		// console.log(target)
-		// window.location.href = `/home/review/${target.id}`;
 	};
 
 	renderImage(status) {
