@@ -11,6 +11,7 @@ import NotFound from './NotFound';
 import { getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 import logo from "../fonts/logo.png"
 import ForgetPass from './ForgetPassword';
+import PrivateRoute from '../utils/PrivateRoute';
 
 export default class App extends React.Component {
 
@@ -75,6 +76,7 @@ export default class App extends React.Component {
 								<Route exact path="/home/form" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<PublicRoute path="/reset-password" component={ForgetPass} />
 								<PublicRoute path="/home/review" component={Home} />
+								<PublicRoute path="/home/application" component={Home} />
 								<PublicRoute path="/login" component={Login} />
 								<PublicRoute path="/signup" component={Registration} />
 								<PublicRoute path="/form" component={ApplicationForm} />
