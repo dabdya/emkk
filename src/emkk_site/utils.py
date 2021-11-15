@@ -1,8 +1,14 @@
+import random
+import string
+
 from django.db import models
 from uuid import uuid4
 from random import randint
 from django.utils import timezone
 from datetime import datetime
+
+from .models import TripKind, Trip
+from ..jwt_auth.models import User
 
 
 class EntityGenerator:
@@ -20,12 +26,12 @@ class EntityGenerator:
         if field_class in [models.CharField, models.TextField]:
             choices = field_dict.get('choices')
             if not choices:
-                return str(uuid4())
+                return random_word(5)
             i = randint(0, len(choices) - 1)
-            return choices[i]
+            return choices[i][0]
 
         if field_class == models.EmailField:
-            return str(uuid4()) + "@" + str(uuid4())
+            return random_word(4) + "@gmail.com"
 
         if field_class == models.DateTimeField:
             return timezone.now()
@@ -70,3 +76,32 @@ class EntityGenerator:
             setattr(instance, attr_name, attr_val)
 
         return instance
+
+
+def random_word(length):
+    letters = string.ascii_lowercase
+    return ''.join(random.choice(letters) for i in range(length))
+
+
+def generate_3_trips_and_users():
+    user_count = User.objects.all().count()
+    if not user_count:
+        u = User(username="LeoMessi(Staff)",
+                 email="a@a.ru", is_staff=True).save()
+        u1 = User(username="Sam Johnstone",
+                  email="SamJohnstone@a.ru").save()
+        u2 = User(username="Kalvin Phillips",
+                  email="KalvinPhillips@a.ru").save()
+
+    if not Trip.objects.all().count():
+        for i in range(3):
+            difficulty = list(range(6))[i % 6]
+            trip = Trip(
+                kind=TripKind.CYCLING, group_name="TestGroup",
+                difficulty_category=difficulty, global_region="Russia",
+                local_region="Ural", participants_count=12,
+                start_date='2021-10-08', end_date='2021-10-28',
+                coordinator_name="Info", insurance_company_name="Info",
+                insurance_policy_validity_duration='2021-08-09',
+                leader=random.choice(list(User.objects.all())))
+            trip.save()
