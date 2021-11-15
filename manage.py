@@ -65,11 +65,16 @@ def init_db(args):
     from src.emkk_site.utils import EntityGenerator
     from src.emkk_site.models import Trip
     eg = EntityGenerator()
-
     samples = int(args[0])
+    if samples > 6:
+        from src.emkk_site.utils import generate_3_trips_and_users
+        generate_3_trips_and_users()
+        samples -= 3
+
     for i in range(samples):
         instance = eg.generate_instance_by_model(Trip)
         instance.save()
+
     print('Instances was created successfully')
 
 
