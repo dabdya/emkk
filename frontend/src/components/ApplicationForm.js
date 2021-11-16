@@ -3,7 +3,7 @@ import React from 'react';
 import { getToken } from '../utils/Common';
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import HelpDotIcon from '@skbkontur/react-icons/HelpDot';
-import { Button, Center, Gapped, Tooltip, ComboBox, Select, Modal } from '@skbkontur/react-ui';
+import { Button, Center, Gapped, Tooltip, ComboBox, Select } from '@skbkontur/react-ui';
 import Requests from '../utils/requests';
 import { Grid, Box } from '@mui/material'
 import ShowModal from "./ShowModal"
@@ -13,12 +13,12 @@ export default class ApplicationForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			groupName: "",
-			leaderFullName: "", // не нужен
+			groupName: "Ivan",
+			leaderFullName: "Ivan", // не нужен
 			generalArea: "Поиск...	",
-			localArea: "",
-			startRouteLocality: "", // населенный пункт начала маршрута
-			endRouteLocality: "", // населенный пункт окончания маршрута
+			localArea: "Ivan",
+			startRouteLocality: "Ivan", // населенный пункт начала маршрута
+			endRouteLocality: "Ivan", // населенный пункт окончания маршрута
 			routeStartDate: new Date(),
 			routeEndDate: new Date(),
 			realStartRouteDate: new Date(), // контрольный срок сообщения о начале маршрута
@@ -27,12 +27,12 @@ export default class ApplicationForm extends React.Component {
 			cartographicMaterial: null,
 			participantsReferences: null,
 			insurancePolicyScans: null,
-			routeDifficulty: Number,
-			participantsNumber: Number,
-			tourismKind: "",
-			coordinatorName: "", // два поля: имя координатора и его телефон. Было одно -- coordinatorInfo
-			coordinatorPhoneNumber: "",
-			insuranceCompanyName: "",
+			routeDifficulty: 1,
+			participantsNumber: 1,
+			tourismKind: null,
+			coordinatorName: "1", // два поля: имя координатора и его телефон. Было одно -- coordinatorInfo
+			coordinatorPhoneNumber: "1",
+			insuranceCompanyName: "1",
 			insurancePolicyValidityDuration: new Date(),
 			buttonIsPressed: false
 		};
@@ -52,8 +52,6 @@ export default class ApplicationForm extends React.Component {
 		this.ToolTipForInsuranceScans = this.ToolTipForInsuranceScans.bind(this);
 		this.changeComboBox = this.changeComboBox.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
-		this.tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
-			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"]
 		this.open = this.open.bind(this);
 		this.close = this.close.bind(this);
 	}
@@ -65,11 +63,10 @@ export default class ApplicationForm extends React.Component {
 	async onSubmit(event) {
 		event.preventDefault();
 
-		const { groupName, generalArea, localArea, routeStartDate, routeEndDate,
-			insuranceInfo, coordinatorInfo, tourismKind, routeDifficulty, participantsNumber, coordinatorName, insuranceCompanyName } = this.state;
+		const { groupName, generalArea, localArea, routeStartDate, routeEndDate, insurancePolicyValidityDuration,
+			tourismKind, routeDifficulty, participantsNumber, coordinatorName, insuranceCompanyName, coordinatorPhoneNumber } = this.state;
 
 		const formTrip = new FormData()
-		console.log(tourismKind)
 		formTrip.append("kind", KINDOFTOURISM[tourismKind]);
 		formTrip.append("group_name", groupName);
 		formTrip.append("difficulty_category", routeDifficulty);
@@ -77,11 +74,13 @@ export default class ApplicationForm extends React.Component {
 		formTrip.append("local_region", localArea);
 		formTrip.append("start_date", routeStartDate);
 		formTrip.append("end_date", routeEndDate);
-		formTrip.append("coordinator_info", coordinatorName);
-		formTrip.append("insurance_info", insuranceCompanyName);
+		formTrip.append("coordinator_name", coordinatorName);
+		formTrip.append("coordinator_phone_number", coordinatorPhoneNumber);
+		formTrip.append("insurance_company_name", insuranceCompanyName);
+		formTrip.append("insurance_policy_validity_duration", insurancePolicyValidityDuration);
 		formTrip.append("participants_count", participantsNumber);//Как добавят ФИО руководителя и емейл на бэке, заапендить в формТрип эти поля.
 
-		let config = {
+		const config = {
 			headers: {
 				Authorization: 'Token ' + getToken()
 			}
@@ -117,8 +116,6 @@ export default class ApplicationForm extends React.Component {
 				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
 					form, config
 				)
-
-
 			})
 	}
 
@@ -170,7 +167,7 @@ export default class ApplicationForm extends React.Component {
 			<Grid item xs={5}>
 				<label htmlFor={name}>{text}</label><br />
 				<input autoComplete="new-password" type={type} className={className} id={id} name={name}
-					defaultValue={value} onChange={onChange} placeholder={placeholder} />
+					defaultValue={value} onChange={onChange} placeholder={placeholder} required/>
 			</Grid>
 		);
 	}
@@ -230,7 +227,9 @@ export default class ApplicationForm extends React.Component {
 				GLOBALAREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.startsWith(query))
 			);
-		const { buttonIsPressed } = this.state
+		const { buttonIsPressed } = this.state;
+		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
+			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		return (
 			<div>
 				<Center>
@@ -264,8 +263,8 @@ export default class ApplicationForm extends React.Component {
 									this.changeInputRegister, "")}
 								<Grid item xs={5}>
 									<label htmlFor="tourismKind">Вид туризма</label><br />
-									<Select size="medium" width={407} items={this.tourismVariants}
-										value={this.state.tourismKind} // почему-то value убирает плейсхолдер "ничего не выбрано"
+									<Select size="medium" width={407} items={tourismVariants}
+										value={this.state.tourismKind}
 										onValueChange={this.changeTourismKind} required />
 								</Grid>
 								{this.renderInput("Населенный пункт окончания маршрута", "text", "formInputField",
@@ -301,7 +300,7 @@ export default class ApplicationForm extends React.Component {
 									</div>
 								</Grid>
 								<Grid item xs={2}>
-									<Button onClick={this.open} type="submit">Подать заявку</Button>
+									<Button type="submit">Подать заявку</Button>
 								</Grid>
 							</Grid>
 						</Box>
