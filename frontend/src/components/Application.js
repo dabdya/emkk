@@ -10,19 +10,17 @@ export default class Application extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			currentApplication: {
-				groupName: "",
-				leaderName: "",
-				generalArea: "",
-				localArea: "",
-				participantsNumber: "",
-				routeDifficulty: "",
-				tourismKind: "",
-				routeStartDate: new Date(),
-				routeEndDate: new Date(),
-				coordinatorName: "",
-				coordinatorPhoneNumber: ""
-			},
+			groupName: "",
+			leaderName: "",
+			generalArea: "",
+			localArea: "",
+			participantsNumber: "",
+			routeDifficulty: "",
+			tourismKind: "",
+			routeStartDate: "",
+			routeEndDate: "",
+			coordinatorName: "",
+			coordinatorPhoneNumber: ""
 		};
 	}
 
@@ -63,7 +61,7 @@ export default class Application extends React.Component {
 						<h2 style={{ fontWeight: "normal" }}>Имя руководителя: {this.state.leaderName}</h2>
 						<h2 style={{ fontWeight: "normal" }}>Общий район: {this.state.generalArea}</h2>
 						<h2 style={{ fontWeight: "normal" }}>Локальный район: {this.state.localArea}</h2>
-						<h2 style={{ fontWeight: "normal" }}>Число участников: {this.participantsNumber}</h2>
+						<h2 style={{ fontWeight: "normal" }}>Число участников: {this.state.participantsNumber}</h2>
 						<h2 style={{ fontWeight: "normal" }}>Сложность маршрута: {this.state.routeDifficulty}</h2>
 						<h2 style={{ fontWeight: "normal" }}>Вид туризма: {KINDOFTOURISM[this.state.tourismKind]}</h2>
 						<h2 style={{ fontWeight: "normal" }}>Дата начала маршрута: {this.state.routeStartDate}</h2>

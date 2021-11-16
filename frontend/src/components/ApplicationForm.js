@@ -167,7 +167,7 @@ export default class ApplicationForm extends React.Component {
 			<Grid item xs={5}>
 				<label htmlFor={name}>{text}</label><br />
 				<input autoComplete="new-password" type={type} className={className} id={id} name={name}
-					defaultValue={value} onChange={onChange} placeholder={placeholder} />
+					defaultValue={value} onChange={onChange} placeholder={placeholder} required/>
 			</Grid>
 		);
 	}
