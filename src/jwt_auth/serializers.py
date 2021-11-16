@@ -113,3 +113,10 @@ class RefreshTokenSerializer(serializers.Serializer):
 
         except jwt.InvalidSignatureError as invalid_signature_error:
             raise serializers.ValidationError(invalid_signature_error)
+
+
+# noinspection PyRedeclaration
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name', 'last_name', ]
