@@ -49,4 +49,19 @@ export default class Requests {
 				return Promise.reject(error)
 			});
 	}
+
+	async delete(url, config = { headers: {} }) {
+		return this.wrappedAxios.delete(url, config)
+			.catch(async error => {
+				if (error.response.data.detail === "Signature has expired") {
+					return await this.wrappedAxios.post("http://localhost:8000/auth/users/refresh", { refresh_token: getRefreshToken() })
+						.then(resp => {
+							setToken(resp.data.access_token);
+							config.headers["Authorization"] = "Token " + getToken();
+							return this.wrappedAxios.delete(url, config);
+						})
+				}
+				return Promise.reject(error)
+			});
+	}
 }

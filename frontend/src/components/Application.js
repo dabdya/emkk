@@ -4,7 +4,8 @@ import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import { ScrollContainer, Button, Select, ComboBox } from '@skbkontur/react-ui'
 import Requests from '../utils/requests';
 import { getToken } from '../utils/Common';
-
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
 export default class Application extends React.Component {
 
@@ -13,12 +14,16 @@ export default class Application extends React.Component {
 		this.state = {
 			id: -1,
 			isEditing: false,
+			files: [],
 		};
 
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
 		this.changeComboBox = this.changeComboBox.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
+		this.createBlob = this.createBlob.bind(this);
+		this.deleteDocument = this.deleteDocument.bind(this);
+		this.addDocument = this.addDocument.bind(this);
 
 	}
 
@@ -47,7 +52,18 @@ export default class Application extends React.Component {
 				})
 			})
 			.catch(err => console.error(err));
+		await request.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, config)
+			.then(async resp => {
+				resp.data.forEach(async el => {
+					await request.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${el}`, config)
+						.then(async response => {
+							this.setState(prevState => ({
+								files: [...prevState.files, { id: response.data.id, file: response.data.file }]
+							}))
 
+						})
+				});
+			});
 	}
 
 	changeTourismKind(value) {
@@ -58,6 +74,15 @@ export default class Application extends React.Component {
 			}
 		})
 	};
+
+	async createBlob(e, file) {
+		e.preventDefault();
+		let mime;
+		const resp = await axios.get(`http://localhost:8000${file.file}`, { responseType: 'arraybuffer' })
+			.then(resp => { mime = resp.headers["Content-Type"]; return resp; })
+		const blob = new Blob([resp.data], { type: mime });
+		window.open(URL.createObjectURL(blob));
+	}
 
 	changeComboBox(event) {
 		this.setState((prev) => {
@@ -70,7 +95,7 @@ export default class Application extends React.Component {
 
 	async onSubmit(event) {
 		event.preventDefault();
-		const { id, isEditing, ...data } = this.state;
+		const { id, isEditing, files, ...data } = this.state;
 		const request = new Requests();
 		const config = {
 			headers: {
@@ -85,6 +110,39 @@ export default class Application extends React.Component {
 
 	changeEditing() {
 		this.setState({ isEditing: !this.state.isEditing })
+	}
+
+	async deleteDocument(file) {
+		const request = new Requests();
+		const config = {
+			headers: {
+				Authorization: 'Token ' + getToken()
+			}
+		};
+		await request.delete(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${file.id}`,
+			config)
+			.then(response => {
+				this.setState(prevState => ({ files: prevState.files.filter(item => item.id !== file.id) }));
+			})
+	}
+
+	async addDocument(afile) {
+		const file = afile.target.files[0];
+		const request = new Requests();
+		const config = {
+			headers: {
+				Authorization: 'Token ' + getToken()
+			}
+		};
+		let form = new FormData()
+		form.append("file", file);
+		form.append("trip", parseInt(this.props.location.state))
+
+		await request.post(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, form,
+			config)
+			.then(resp => {
+				this.setState(prevState => ({ files: [...prevState.files, { id: resp.data.id, file: resp.data.file }] }));
+			})
 	}
 
 	render() {
@@ -123,8 +181,29 @@ export default class Application extends React.Component {
 					<div>
 						<hr />
 					</div>
-					<div style={{ marginTop: 15, height: "300px" }}>
+
+					<div style={{ marginTop: 15, marginLeft: 15, height: "300px" }}>
 						Документы
+						<div>
+							<ul>
+								{
+									this.state.files.map(file => {
+										return (<li>
+											<a onClick={(e) => { this.createBlob(e, file); }} href="" target="_blank">{file.file}</a>
+											<img onClick={() => this.deleteDocument(file)} alt="delete" />
+										</li>);
+									})
+								}
+							</ul>
+							<input
+								ref="fileInput"
+								onChange={this.addDocument}
+								type="file"
+								style={{ display: "none" }}
+								multiple={true}
+							/>
+							<Button onClick={() => this.refs.fileInput.click()}>Добавить документы</Button>
+						</div>
 					</div>
 					<div>
 						<hr />
