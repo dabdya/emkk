@@ -216,7 +216,7 @@ export default class ApplicationForm extends React.Component {
 						<HelpDotIcon />
 					</Tooltip>
 				</Gapped>
-				<input type="file" style={{ display: "none" }} name={name} ref={ref} onChange={this.onFileChange} />
+				<input type="file" style={{ display: "none" }} name={name} ref={ref} onChange={this.onFileChange} multiple />
 			</Grid>
 		)
 	}
@@ -225,7 +225,7 @@ export default class ApplicationForm extends React.Component {
 		const getItems = query =>
 			Promise.resolve(
 				GLOBALAREA.map(item => { return { value: item, label: item } })
-					.filter(item => item.value.startsWith(query))
+					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
 			);
 		const { buttonIsPressed } = this.state;
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
