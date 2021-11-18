@@ -72,6 +72,17 @@ class TripSerializer(serializers.ModelSerializer):
         return super(TripSerializer, self).create(validated_data)
 
 
+class TripDetailSerializer(serializers.ModelSerializer):
+    leader = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Trip
+        depth = 1
+        fields = '__all__'
+        read_only_fields = ['created_at', 'status', 'leader', ]
+        extra_kwargs = {field.name: {'required': False} for field in Trip._meta.fields}
+
+
 class TripForAnonymousSerializer(serializers.ModelSerializer):
     leader = UserSerializer()
 

@@ -7,7 +7,7 @@ from src.emkk_site.models import Trip, TripKind
 class TripTest(TestCase):
 
     def setUp(self):
-        self.trip_data = self.trip = {
+        self.trip_data = {
             'kind': TripKind.CYCLING,
             'difficulty_category': 1,
             'group_name': 'TestGroup',
@@ -42,3 +42,13 @@ class TripTest(TestCase):
         response = self.env.client_get(f'/api/trips', set_auth_header=False)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data[0].get('insurance_info', False))
+
+    def test_trip_change_fields_correct_work(self):
+        trip = self.env.trips[0]
+        r = self.env.client_patch(f'/api/trips/{trip.id}', {
+            'participants_count': trip.participants_count + 1})
+
+        self.assertEqual(r.status_code, 201)
+        self.assertEqual(r.data['participants_count'], trip.participants_count + 1)
+        self.assertEqual(
+            Trip.objects.get(id=trip.id).participants_count, trip.participants_count + 1)

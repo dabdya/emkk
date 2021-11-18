@@ -12,7 +12,7 @@ from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly)
 
 from src.emkk_site.serializers import (
-    DocumentSerializer, TripSerializer, TripForAnonymousSerializer,
+    DocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
     ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer,
     WorkRegisterSerializer)
 
@@ -87,7 +87,7 @@ class TripList(generics.ListCreateAPIView):
 
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
-    serializer_class = TripSerializer
+    serializer_class = TripDetailSerializer
 
     # сделать пермишен для владельца заявки и работников МКК, остальным нет
     permission_classes = [IsAuthenticated, ]
@@ -107,7 +107,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
         serializer = self.serializer_class(trip, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_object(self):
