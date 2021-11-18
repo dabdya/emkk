@@ -23,6 +23,7 @@ export default class Home extends React.Component {
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>
+								{/* <PublicRoute path="/home/application" component={EditForm} /> */}
 								<PublicRoute path="/home/application" component={Application} />
 								<PrivateRoute path="/home/form" component={ApplicationForm} />
 								<PublicRoute path="/home/dashboard" component={Dashboard} />
