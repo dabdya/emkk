@@ -1,20 +1,20 @@
 import React from 'react';
-import { Grid, Box } from '@mui/material'
 import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
 import { ScrollContainer, Button, Select, ComboBox } from '@skbkontur/react-ui'
 import Requests from '../utils/requests';
 import { getToken } from '../utils/Common';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 export default class Application extends React.Component {
 
+	requests = new Requests();
 	constructor(props) {
 		super(props);
 		this.state = {
 			id: -1,
 			isEditing: false,
 			files: [],
+			reviews: [],
 		};
 
 		this.changeEditing = this.changeEditing.bind(this);
@@ -24,17 +24,21 @@ export default class Application extends React.Component {
 		this.createBlob = this.createBlob.bind(this);
 		this.deleteDocument = this.deleteDocument.bind(this);
 		this.addDocument = this.addDocument.bind(this);
+		this.config = this.config.bind(this);
+
 
 	}
 
-	async componentDidMount() {
-		const config = {
+	config() {
+		return {
 			headers: {
 				Authorization: 'Token ' + getToken()
 			}
-		};
-		const request = new Requests();
-		await request.get(`http://localhost:8000/api/trips/${this.props.location.state}`, config)
+		}
+	};
+
+	async componentDidMount() {
+		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}`, this.config())
 			.then(response => {
 				this.setState({
 					id: response.data.id,
@@ -52,10 +56,10 @@ export default class Application extends React.Component {
 				})
 			})
 			.catch(err => console.error(err));
-		await request.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, config)
+		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(async el => {
-					await request.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${el}`, config)
+					await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${el}`, this.config())
 						.then(async response => {
 							this.setState(prevState => ({
 								files: [...prevState.files, { id: response.data.id, file: response.data.file }]
@@ -64,7 +68,12 @@ export default class Application extends React.Component {
 						})
 				});
 			});
-	}
+		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/reviews`, this.config())
+			.then(resp => {
+				this.setState({ reviews: resp.data });
+			})
+			.catch(err => console.error(err));
+	};
 
 	changeTourismKind(value) {
 		this.setState((prev) => {
@@ -79,10 +88,13 @@ export default class Application extends React.Component {
 		e.preventDefault();
 		let mime;
 		const resp = await axios.get(`http://localhost:8000${file.file}`, { responseType: 'arraybuffer' })
-			.then(resp => { mime = resp.headers["Content-Type"]; return resp; })
+			.then(resp => {
+				mime = resp.headers["Content-Type"];
+				return resp;
+			})
 		const blob = new Blob([resp.data], { type: mime });
 		window.open(URL.createObjectURL(blob));
-	}
+	};
 
 	changeComboBox(event) {
 		this.setState((prev) => {
@@ -95,16 +107,11 @@ export default class Application extends React.Component {
 
 	async onSubmit(event) {
 		event.preventDefault();
-		const { id, isEditing, files, ...data } = this.state;
-		const request = new Requests();
-		const config = {
-			headers: {
-				Authorization: 'Token ' + getToken()
-			}
-		};
-		await request.patch(`http://localhost:8000/api/trips/${id}`, data, config)
+		const { id, isEditing, files, reviews, ...data } = this.state;
+
+		await this.requests.patch(`http://localhost:8000/api/trips/${id}`, data, this.config())
 			.then(resp => {
-				console.log(resp);
+				this.changeEditing();
 			})
 	}
 
@@ -113,14 +120,8 @@ export default class Application extends React.Component {
 	}
 
 	async deleteDocument(file) {
-		const request = new Requests();
-		const config = {
-			headers: {
-				Authorization: 'Token ' + getToken()
-			}
-		};
-		await request.delete(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${file.id}`,
-			config)
+		await this.requests.delete(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${file.id}`,
+			this.config())
 			.then(response => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.id !== file.id) }));
 			})
@@ -128,18 +129,12 @@ export default class Application extends React.Component {
 
 	async addDocument(afile) {
 		const file = afile.target.files[0];
-		const request = new Requests();
-		const config = {
-			headers: {
-				Authorization: 'Token ' + getToken()
-			}
-		};
 		let form = new FormData()
 		form.append("file", file);
 		form.append("trip", parseInt(this.props.location.state))
 
-		await request.post(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, form,
-			config)
+		await this.requests.post(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, form,
+			this.config())
 			.then(resp => {
 				this.setState(prevState => ({ files: [...prevState.files, { id: resp.data.id, file: resp.data.file }] }));
 			})
@@ -154,6 +149,7 @@ export default class Application extends React.Component {
 				GLOBALAREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
 			);
+
 		return (
 			<div>
 				<ScrollContainer>
@@ -208,8 +204,8 @@ export default class Application extends React.Component {
 					<div>
 						<hr />
 					</div>
-					<div style={{ marginTop: 15, height: "500px" }}>
-						Рецензии
+					<div style={{ marginTop: 15, marginLeft: 15, height: "500px" }}>
+						Рецензии ({this.state.reviews.length}/2)
 					</div>
 				</ScrollContainer >
 			</div >
