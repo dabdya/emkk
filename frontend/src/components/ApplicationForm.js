@@ -86,7 +86,7 @@ export default class ApplicationForm extends React.Component {
 			}
 		};
 		const request = new Requests();
-		await request.post("http://localhost:8000/api/trips",
+		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
 			formTrip
 			, config).then(respForm => {
 				let form = new FormData()
@@ -95,25 +95,25 @@ export default class ApplicationForm extends React.Component {
 				});
 				form.append("file", this.state.routeBook);
 				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
 					form, config
 				);
 				form = new FormData()
 				form.append("file", this.state.cartographicMaterial);
 				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
 					form, config
 				);
 				form = new FormData()
 				form.append("file", this.state.participantsReferences);
 				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
 					form, config
 				)
 				form = new FormData()
 				form.append("file", this.state.insurancePolicyScans);
 				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`http://localhost:8000/api/trips/${respForm.data.id}/documents`,
+				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
 					form, config
 				)
 			})

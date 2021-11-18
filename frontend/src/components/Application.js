@@ -38,7 +38,7 @@ export default class Application extends React.Component {
 	};
 
 	async componentDidMount() {
-		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}`, this.config())
 			.then(response => {
 				this.setState({
 					id: response.data.id,
@@ -56,10 +56,10 @@ export default class Application extends React.Component {
 				})
 			})
 			.catch(err => console.error(err));
-		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(async el => {
-					await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${el}`, this.config())
+					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${el}`, this.config())
 						.then(async response => {
 							this.setState(prevState => ({
 								files: [...prevState.files, { id: response.data.id, file: response.data.file }]
@@ -68,7 +68,7 @@ export default class Application extends React.Component {
 						})
 				});
 			});
-		await this.requests.get(`http://localhost:8000/api/trips/${this.props.location.state}/reviews`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
@@ -87,7 +87,7 @@ export default class Application extends React.Component {
 	async createBlob(e, file) {
 		e.preventDefault();
 		let mime;
-		const resp = await axios.get(`http://localhost:8000${file.file}`, { responseType: 'arraybuffer' })
+		const resp = await axios.get(`${process.env.REACT_APP_URL}${file.file}`, { responseType: 'arraybuffer' })
 			.then(resp => {
 				mime = resp.headers["Content-Type"];
 				return resp;
@@ -109,7 +109,7 @@ export default class Application extends React.Component {
 		event.preventDefault();
 		const { id, isEditing, files, reviews, ...data } = this.state;
 
-		await this.requests.patch(`http://localhost:8000/api/trips/${id}`, data, this.config())
+		await this.requests.patch(`${process.env.REACT_APP_URL}/api/trips/${id}`, data, this.config())
 			.then(resp => {
 				this.changeEditing();
 			})
@@ -120,7 +120,7 @@ export default class Application extends React.Component {
 	}
 
 	async deleteDocument(file) {
-		await this.requests.delete(`http://localhost:8000/api/trips/${this.props.location.state}/documents/${file.id}`,
+		await this.requests.delete(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${file.id}`,
 			this.config())
 			.then(response => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.id !== file.id) }));
@@ -133,7 +133,7 @@ export default class Application extends React.Component {
 		form.append("file", file);
 		form.append("trip", parseInt(this.props.location.state))
 
-		await this.requests.post(`http://localhost:8000/api/trips/${this.props.location.state}/documents`, form,
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, form,
 			this.config())
 			.then(resp => {
 				this.setState(prevState => ({ files: [...prevState.files, { id: resp.data.id, file: resp.data.file }] }));
@@ -185,7 +185,7 @@ export default class Application extends React.Component {
 								{
 									this.state.files.map(file => {
 										return (<li>
-											<a onClick={(e) => { this.createBlob(e, file); }} href="" target="_blank">{file.file}</a>
+											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank">{file.file}</a>
 											<img onClick={() => this.deleteDocument(file)} alt="delete" />
 										</li>);
 									})
