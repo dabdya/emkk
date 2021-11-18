@@ -1,26 +1,28 @@
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.exceptions import NotFound
+from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
 from rest_framework.permissions import IsAuthenticated
-from src.jwt_auth.permissions import IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import Http404
 
-from .serializers import (
+from src.jwt_auth.permissions import (
+    IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly)
+
+from src.emkk_site.serializers import (
     DocumentSerializer, TripSerializer, TripForAnonymousSerializer,
     ReviewSerializer, DocumentDetailSerializer, ReviewFromIssuerSerializer,
     WorkRegisterSerializer)
 
-from .services import (
+from src.emkk_site.services import (
     get_trips_available_for_work,
     try_change_status_from_review_to_at_issuer,
     try_change_trip_status_to_issuer_result, )
 
-from .models import Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer
+from src.emkk_site.models import (
+    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
 
 
 class WorkRegisterView(generics.ListCreateAPIView):
@@ -123,7 +125,7 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = Document.objects.all()
@@ -137,10 +139,24 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         try:
             trip = Trip.objects.get(pk=trip_id)
         except ObjectDoesNotExist:
-            return NotFound(detail='No such trip')
+            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         docs = Document.objects.filter(trip_id=trip.pk)
         docs_ids = list(map(lambda d: d.id, docs))
         return Response(docs_ids)
+
+    def create(self, request, *args, **kwargs):
+        trip_id = kwargs['pk']
+        try:
+            trip = Trip.objects.get(id=trip_id)
+        except Trip.DoesNotExist as err:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        documents = []
+        for file in self.request.FILES.getlist('file'):
+            document = Document(trip=trip, file=file)
+            document.save()
+            documents.append(document.file.url)
+        return Response(documents, status=status.HTTP_201_CREATED)
 
 
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):

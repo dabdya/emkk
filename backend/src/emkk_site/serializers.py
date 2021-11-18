@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Document, Trip, Review, ReviewFromIssuer, WorkRegister
+from src.emkk_site.models import (
+    Document, Trip, Review, ReviewFromIssuer, WorkRegister)
 from src.jwt_auth.serializers import UserSerializer
 
 

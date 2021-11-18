@@ -1,4 +1,4 @@
-from .models import Trip, TripStatus, Review, WorkRegister
+from src.emkk_site.models import Trip, TripStatus, Review, WorkRegister
 
 
 def get_reviewers_count_by_difficulty(difficulty):

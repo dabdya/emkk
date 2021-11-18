@@ -32,7 +32,7 @@ export default class App extends React.Component {
 				Authorization: 'Token ' + this.state.token
 			}
 		};
-		await axios.get(`http://localhost:8000/auth/user`, config).then(response => {
+		await axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
 			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 			this.setState({ isLogined: true });
 		}).catch(error => {
@@ -47,13 +47,14 @@ export default class App extends React.Component {
 	}
 
 	render() {
+		// 43 68
 		return (
 			<div className="App">
 				<BrowserRouter>
 					<div style={{ height: "100%" }}>
 						<div className="header">
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
-								<img src={logo} height="43px" width="68px" alt="logo" /></NavLink>
+								<img src={logo} height="80px" width="125px" alt="logo" /></NavLink>
 							<div className="emkk">Электронная маршрутно-квалификационная комиссия</div>
 							{!this.state.token &&
 								<>

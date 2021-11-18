@@ -20,7 +20,7 @@ export default class Login extends React.Component {
 
 	onSubmit(e) {
 		e.preventDefault();
-		axios.post('http://localhost:8000/auth/users/login', { user: { username: this.state.login, password: this.state.password } })
+		axios.post(`${process.env.REACT_APP_URL}/auth/users/login`, { user: { username: this.state.login, password: this.state.password } })
 			.then(response => {
 				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 

@@ -2,8 +2,6 @@ from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.models import Trip, TripKind
-from src.emkk_site.utils import EntityGenerator
-from src.emkk_site.serializers import TripSerializer
 
 
 class TripTest(TestCase):

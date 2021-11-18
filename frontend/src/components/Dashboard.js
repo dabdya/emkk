@@ -79,7 +79,7 @@ export default class Dashboard extends React.Component {
 			}
 		} : {};
 		const request = new Requests();
-		await request.get("http://localhost:8000/api/trips", config)
+		await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
 			.then(
 				(result) => {
 					this.setState({

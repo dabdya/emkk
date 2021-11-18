@@ -5,7 +5,7 @@ services:
     container_name: 'emkk-db'
     image: postgres
     volumes:
-      - ./data:/var/lib/postgresql/data
+      - ./backend/data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=emkk_db
       - POSTGRES_USER=admin
@@ -16,9 +16,9 @@ services:
   backend:
     container_name: 'emkk-backend'
     image: emkk_backend
-    build: .
+    build: ./backend
     volumes:
-      - ./media:/emkk/media
+      - ./backend/media:/emkk/backend/media
     environment:
       - DB_HOST=db
       - DB_PORT=5432
