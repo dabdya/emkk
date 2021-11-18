@@ -125,7 +125,7 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = Document.objects.all()

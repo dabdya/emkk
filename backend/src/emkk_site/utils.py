@@ -31,7 +31,7 @@ class EntityGenerator:
             return choices[i][0]
 
         if field_class == models.EmailField:
-            return random_word(4) + "@gmail.com"
+            return random_word(5) + "@gmail.com"
 
         if field_class == models.DateTimeField:
             return timezone.now()

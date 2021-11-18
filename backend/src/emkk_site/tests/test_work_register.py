@@ -89,7 +89,7 @@ class WorkRegisterTestForIssuer(TestCase):
         self.trips_count = 20
         self.env = TestEnvironment()\
             .with_user(issuer=True)\
-            .with_trips(self.trips_count)
+            .with_trips(self.trips_count, status='on_review')
 
     def test_all_trips_with_on_reviews_status_should_filtered(self):
         trips = self.env.trips
