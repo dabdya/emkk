@@ -89,33 +89,20 @@ export default class ApplicationForm extends React.Component {
 		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
 			formTrip
 			, config).then(respForm => {
-				let form = new FormData()
 				this.setState({
 					buttonIsPressed: true
 				});
+
+				const form = new FormData()
+				form.append("trip", parseInt(respForm.data.id))
 				form.append("file", this.state.routeBook);
-				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
-					form, config
-				);
-				form = new FormData()
 				form.append("file", this.state.cartographicMaterial);
-				form.append("trip", parseInt(respForm.data.id))
+				form.append("file", this.state.participantsReferences);
+				form.append("file", this.state.insurancePolicyScans);
 				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
 					form, config
 				);
-				form = new FormData()
-				form.append("file", this.state.participantsReferences);
-				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
-					form, config
-				)
-				form = new FormData()
-				form.append("file", this.state.insurancePolicyScans);
-				form.append("trip", parseInt(respForm.data.id))
-				axios.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
-					form, config
-				)
+
 			})
 	}
 
@@ -167,7 +154,7 @@ export default class ApplicationForm extends React.Component {
 			<Grid item xs={5}>
 				<label htmlFor={name}>{text}</label><br />
 				<input autoComplete="new-password" type={type} className={className} id={id} name={name}
-					defaultValue={value} onChange={onChange} placeholder={placeholder} required/>
+					defaultValue={value} onChange={onChange} placeholder={placeholder} required />
 			</Grid>
 		);
 	}

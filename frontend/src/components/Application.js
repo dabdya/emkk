@@ -128,9 +128,12 @@ export default class Application extends React.Component {
 	}
 
 	async addDocument(afile) {
-		const file = afile.target.files[0];
-		let form = new FormData()
-		form.append("file", file);
+		const files = afile.target.files;
+
+		const form = new FormData()
+		for (const file of files) {
+			form.append("file", file);
+		}
 		form.append("trip", parseInt(this.props.location.state))
 
 		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, form,
