@@ -5,7 +5,7 @@ services:
     container_name: 'emkk-db'
     image: postgres
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=emkk_db
       - POSTGRES_USER=admin
@@ -18,13 +18,10 @@ services:
     image: emkk_backend
     build: .
     volumes:
-      - .:/emkk
-    command: >
-      sh -c "python manage.py makemigrations &&
-             python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
+      - ./media:/emkk/media
     environment:
       - DB_HOST=db
+      - DB_PORT=5432
       - DB_NAME=emkk_db
       - DB_USER=admin
       - DB_PASSWORD=pass
@@ -40,10 +37,7 @@ services:
     command: npm run start
     environment:
       CHOKIDAR_USEPOLLING: "true"
-    volumes:
-      - /frontend/node_modules
-      - ./frontend:/frontend
     ports:
-      - "3000:3000"
+      - "80:80"
     depends_on:
       - backend

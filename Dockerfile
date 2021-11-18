@@ -10,3 +10,6 @@ COPY requirements.txt /emkk/
 RUN pip install -r requirements.txt
 
 COPY . /emkk/
+
+RUN chmod +x /emkk/entrypoint.sh
+ENTRYPOINT ["/bin/sh", "/emkk/entrypoint.sh"]

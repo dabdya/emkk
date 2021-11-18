@@ -1,10 +1,23 @@
 export const KINDOFTOURISM = {
 	"Лыжный": "ski",
-	"Пешочком": "pedestrian",
+	"Пеший": "pedestrian",
 	"Велосипедный": "cycling",
 	"Горный": "mountain",
 	"Водный": "water",
+	"Пеше-водный": "pedestrian_water",
+	"pedestrian_water": "Пеше-водный",
+	"Спелео": "speleo",
+	"Парусный": "yachting",
+	"yachting": "Парусный",
+	"Конный": "horse_sport",
+	"horse_sport": "Конный",
+	"Авто-мото": "auto_moto",
+	"auto_moto": "Авто-мото",
 	"ski": "Лыжный",
+	"pedestrian": "Пеший",
+	"cycling": "Велосипедный",
+	"water": "Водный",
+	"mountain": "Горный",
 }
 
 export const STATUS = {
