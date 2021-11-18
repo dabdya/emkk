@@ -105,9 +105,6 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     def update(self, request, *args, **kwargs):
         trip = self.get_object()
         serializer = self.serializer_class(trip, data=request.data)
-        if trip.status != TripStatus.ON_REWORK:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            data=f"Trip can be changed only in ON_REWORK status, but was in {trip.status} status")
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
