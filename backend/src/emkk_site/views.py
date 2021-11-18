@@ -245,7 +245,7 @@ class ReviewerView(ReviewView):
         super(ReviewerView, self).__init__(Review)
 
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer, ]
+    permission_classes = [IsReviewer | IsAuthenticatedOrReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
