@@ -1,8 +1,6 @@
 from rest_framework import authentication, exceptions
 from django.conf import settings
-from django.utils import timezone
-from datetime import timedelta
-from .models import User
+from src.jwt_auth.models import User
 import jwt
 
 

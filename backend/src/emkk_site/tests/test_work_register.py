@@ -1,8 +1,9 @@
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
+from src.emkk_site.models import (
+    Review, ReviewResult, WorkRegister, TripStatus)
 from src.emkk_site.services import get_reviewers_count_by_difficulty
-from src.emkk_site.models import Review, ReviewResult, WorkRegister, TripStatus
 
 import random
 

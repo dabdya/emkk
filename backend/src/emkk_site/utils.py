@@ -7,8 +7,8 @@ from random import randint
 from django.utils import timezone
 from datetime import datetime
 
-from .models import TripKind, Trip
-from ..jwt_auth.models import User
+from src.emkk_site.models import TripKind, Trip
+from src.jwt_auth.models import User
 
 
 class EntityGenerator:

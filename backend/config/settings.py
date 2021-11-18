@@ -53,7 +53,6 @@ class Base(Configuration):
     MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
     # Application definition
-
     INSTALLED_APPS = [
         'django.contrib.admin',
         'django.contrib.auth',
