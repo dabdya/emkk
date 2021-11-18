@@ -123,7 +123,7 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = Document.objects.all()
@@ -141,6 +141,19 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         docs = Document.objects.filter(trip_id=trip.pk)
         docs_ids = list(map(lambda d: d.id, docs))
         return Response(docs_ids)
+
+    def create(self, request, *args, **kwargs):
+        trip_id = kwargs['pk']
+        trip = Trip.objects.get(id=trip_id)
+        if not trip:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+
+        documents = []
+        for file in self.request.FILES.getlist('file'):
+            document = Document(trip=trip, file=file)
+            document.save()
+            documents.append(document.file.url)
+        return Response(documents, status=status.HTTP_201_CREATED)
 
 
 class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
