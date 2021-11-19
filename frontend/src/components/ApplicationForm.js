@@ -252,7 +252,7 @@ export default class ApplicationForm extends React.Component {
 									<label htmlFor="tourismKind">Вид туризма</label><br />
 									<Select size="medium" width={407} items={tourismVariants}
 										value={this.state.tourismKind}
-										onValueChange={this.changeTourismKind} required />
+										onValueChange={this.changeTourismKind} required={true}/>
 								</Grid>
 								{this.renderInput("Населенный пункт окончания маршрута", "text", "formInputField",
 									"endRouteLocality", "endRouteLocality", this.state.endRouteLocality,
