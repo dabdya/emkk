@@ -56,18 +56,20 @@ export default class Application extends React.Component {
 				})
 			})
 			.catch(err => console.error(err));
+
 		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(async el => {
 					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${el}`, this.config())
 						.then(async response => {
 							this.setState(prevState => ({
-								files: [...prevState.files, { id: response.data.id, file: response.data.file }]
+								files: [...prevState.files, { id: response.data.id, uuid: response.data.uuid, filename: response.data.filename }]
 							}))
 
 						})
 				});
 			});
+
 		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
@@ -87,9 +89,9 @@ export default class Application extends React.Component {
 	async createBlob(e, file) {
 		e.preventDefault();
 		let mime;
-		const resp = await axios.get(`${process.env.REACT_APP_URL}${file.file}`, { responseType: 'arraybuffer' })
+		const resp = await axios.get(`${process.env.REACT_APP_URL}/api/${file.uuid}`, { responseType: 'arraybuffer' })
 			.then(resp => {
-				mime = resp.headers["Content-Type"];
+				mime = resp.headers["content-type"];
 				return resp;
 			})
 		const blob = new Blob([resp.data], { type: mime });
@@ -122,7 +124,7 @@ export default class Application extends React.Component {
 		await this.requests.delete(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${file.id}`,
 			this.config())
 			.then(response => {
-				this.setState(prevState => ({ files: prevState.files.filter(item => item.id !== file.id) }));
+				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
 	}
 
@@ -133,12 +135,13 @@ export default class Application extends React.Component {
 		for (const file of files) {
 			form.append("file", file);
 		}
-		form.append("trip", parseInt(this.props.location.state))
 
 		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, form,
 			this.config())
 			.then(resp => {
-				this.setState(prevState => ({ files: [...prevState.files, { id: resp.data.id, file: resp.data.file }] }));
+				for (const item of resp.data) {
+					this.setState(prevState => ({ files: [...prevState.files, { id: item.id, uuid: item.uuid, filename: item.filename }] }));
+				}
 			})
 	}
 
@@ -164,14 +167,14 @@ export default class Application extends React.Component {
 									value={{ value: this.state.global_region, label: this.state.global_region }}
 									onValueChange={this.changeComboBox} name="generalArea" /> : this.state.global_region}</h2>
 							<h2 style={{ fontWeight: "normal" }}>Локальный район: {isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</h2>
-							<h2 style={{ fontWeight: "normal" }}>Число участников: {isEditing ? <input type="text" pattern="^[ 0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</h2>
-							<h2 style={{ fontWeight: "normal" }}>Сложность маршрута: {isEditing ? <input type="text" pattern="[123456]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</h2>
+							<h2 style={{ fontWeight: "normal" }}>Число участников: {isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</h2>
+							<h2 style={{ fontWeight: "normal" }}>Сложность маршрута: {isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</h2>
 							<h2 style={{ fontWeight: "normal" }}>Вид туризма:
 								{isEditing ? <Select width="207px" items={tourismVariants}
 									value={KINDOFTOURISM[this.state.kind]}
 									onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</h2>
-							<h2 style={{ fontWeight: "normal" }}>Дата начала маршрута: {isEditing ? <input defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</h2>
-							<h2 style={{ fontWeight: "normal" }}>Дата окончания маршрута: {isEditing ? <input defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</h2>
+							<h2 style={{ fontWeight: "normal" }}>Дата начала маршрута: {isEditing ? <input type="date" defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</h2>
+							<h2 style={{ fontWeight: "normal" }}>Дата окончания маршрута: {isEditing ? <input type="date" min={this.state.start_date} defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</h2>
 							{!isEditing && <Button onClick={this.changeEditing}>Редактировать</Button>}
 							{isEditing && <Button type="submit" >Сохранить</Button>}
 						</div>
@@ -187,7 +190,7 @@ export default class Application extends React.Component {
 								{
 									this.state.files.map(file => {
 										return (<li>
-											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank">{file.file}</a>
+											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank">{file.filename}</a>
 											<img onClick={() => this.deleteDocument(file)} alt="delete" />
 										</li>);
 									})

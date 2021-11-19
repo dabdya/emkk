@@ -36,7 +36,7 @@ def reset_db(args):
     db_type = args[0]
     if db_type == 'Dev':
         try:
-            os.remove('../db.sqlite3')
+            os.remove('db.sqlite3')
         except FileNotFoundError as err:
             print('Database Dev was deleted early')
         os.system('python manage.py makemigrations --configuration=Dev')

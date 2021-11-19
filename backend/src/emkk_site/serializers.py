@@ -8,6 +8,8 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = '__all__'
+        write_only_fields = ['file', ]
+        read_only_fields = ['uuid', 'content_type', 'filename', ]
         extra_kwargs = {'trip': {'required': False}}
 
 
