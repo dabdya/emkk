@@ -37,6 +37,9 @@ services:
     command: npm run start
     environment:
       CHOKIDAR_USEPOLLING: "true"
+    volumes:
+      - /emkk/frontend/node_modules
+      - ./frontend:/emkk/frontend
     ports:
       - "80:80"
     depends_on:
