@@ -1,12 +1,17 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.decorators import api_view
-from rest_framework.renderers import JSONRenderer, BrowsableAPIRenderer
+
+from rest_framework.renderers import (
+    JSONRenderer, BrowsableAPIRenderer, MultiPartRenderer)
+
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
-from django.http import Http404
+from django.http import Http404, HttpResponse
+
+import uuid
 
 from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticatedOrReadOnly)
@@ -117,12 +122,32 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
             raise Http404
 
 
+class DocumentProxyView(generics.ListAPIView):
+    # renderer_classes = [MultiPartRenderer, ]
+
+    def list(self, request, *args, **kwargs):
+        doc_uuid = kwargs['doc_uuid']
+        try:
+            document = Document.objects.get(uuid=doc_uuid)
+        except Document.DoesNotExist as err:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        with open(document.file.path, 'rb') as file:
+            doc_data = file.read()
+
+        # return Response(document, status=status.HTTP_200_OK)
+        response = HttpResponse(doc_data, content_type=document.content_type)
+        response['Content-Disposition'] = f'inline; filename="{document.file.name}"'
+        response['Content-Transfer-Encoding'] = 'binary'
+        return response
+
+
 class DocumentList(generics.ListCreateAPIView):  # by trip_id
     serializer_class = DocumentSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = Document.objects.all()
@@ -136,7 +161,7 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         try:
             trip = Trip.objects.get(pk=trip_id)
         except ObjectDoesNotExist:
-            return Response(status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(status=status.HTTP_404_NOT_FOUND)
         docs = Document.objects.filter(trip_id=trip.pk)
         docs_ids = list(map(lambda d: d.id, docs))
         return Response(docs_ids)
@@ -150,9 +175,11 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
 
         documents = []
         for file in self.request.FILES.getlist('file'):
-            document = Document(trip=trip, file=file)
+            doc_uuid = uuid.uuid4()
+            document = Document(
+                trip=trip, file=file, uuid=doc_uuid, content_type=file.content_type)
             document.save()
-            documents.append(document.file.url)
+            documents.append(document.uuid)
         return Response(documents, status=status.HTTP_201_CREATED)
 
 
@@ -161,7 +188,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentDetailSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
     parser_classes = [MultiPartParser, ]
-    permission_classes = [IsAuthenticated, ]
+    # permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
