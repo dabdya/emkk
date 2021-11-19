@@ -123,7 +123,6 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DocumentProxyView(generics.ListAPIView):
-    # renderer_classes = [MultiPartRenderer, ]
 
     def list(self, request, *args, **kwargs):
         doc_uuid = kwargs['doc_uuid']
@@ -135,10 +134,7 @@ class DocumentProxyView(generics.ListAPIView):
         with open(document.file.path, 'rb') as file:
             doc_data = file.read()
 
-        # return Response(document, status=status.HTTP_200_OK)
         response = HttpResponse(doc_data, content_type=document.content_type)
-        response['Content-Disposition'] = f'inline; filename="{document.file.name}"'
-        response['Content-Transfer-Encoding'] = 'binary'
         return response
 
 
@@ -147,7 +143,7 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer]
     parser_classes = [MultiPartParser, ]
 
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
 
     def get_queryset(self):
         queryset = Document.objects.all()
@@ -176,10 +172,17 @@ class DocumentList(generics.ListCreateAPIView):  # by trip_id
         documents = []
         for file in self.request.FILES.getlist('file'):
             doc_uuid = uuid.uuid4()
+
             document = Document(
-                trip=trip, file=file, uuid=doc_uuid, content_type=file.content_type)
+                trip=trip, file=file, uuid=doc_uuid,
+                content_type=file.content_type, filename=file.name)
             document.save()
-            documents.append(document.uuid)
+
+            documents.append({
+                'uuid': document.uuid,
+                'id': document.id,
+                'filename': document.filename})
+
         return Response(documents, status=status.HTTP_201_CREATED)
 
 
@@ -188,7 +191,7 @@ class DocumentDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentDetailSerializer
     renderer_classes = [BrowsableAPIRenderer, JSONRenderer, ]
     parser_classes = [MultiPartParser, ]
-    # permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()

@@ -9,7 +9,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = '__all__'
         write_only_fields = ['file', ]
-        read_only_fields = ['uuid', ]
+        read_only_fields = ['uuid', 'content_type', 'filename', ]
         extra_kwargs = {'trip': {'required': False}}
 
 
