@@ -1,8 +1,9 @@
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
+from src.emkk_site.models import (
+    Review, ReviewResult, WorkRegister, TripStatus)
 from src.emkk_site.services import get_reviewers_count_by_difficulty
-from src.emkk_site.models import Review, ReviewResult, WorkRegister, TripStatus
 
 import random
 
@@ -88,7 +89,7 @@ class WorkRegisterTestForIssuer(TestCase):
         self.trips_count = 20
         self.env = TestEnvironment()\
             .with_user(issuer=True)\
-            .with_trips(self.trips_count)
+            .with_trips(self.trips_count, status='on_review')
 
     def test_all_trips_with_on_reviews_status_should_filtered(self):
         trips = self.env.trips

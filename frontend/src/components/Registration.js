@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
-import { Button, Center} from '@skbkontur/react-ui';
+import { Button, Center } from '@skbkontur/react-ui';
 
 export default class Registration extends React.Component {
 
@@ -38,7 +38,7 @@ export default class Registration extends React.Component {
         })
     };
 
-    onSubmit(event) {
+    async onSubmit(event) {
         event.preventDefault();
         if (!validator.isEmail(this.state.register.email)) {
             alert("You did not enter email") // делать не аллертами
@@ -51,7 +51,7 @@ export default class Registration extends React.Component {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
             };
-            axios.post("http://localhost:8000/auth/users", {
+            await axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
                 user: {
                     username: this.state.register.username,
                     email: this.state.register.email,

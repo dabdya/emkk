@@ -15,11 +15,14 @@ from pathlib import Path
 from configurations import Configuration
 
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-
-
 class Base(Configuration):
+    # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
+
+    DEPLOY_HOST = 'www.emkk-site.ru'
+
+    # Database
+    # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -27,14 +30,16 @@ class Base(Configuration):
             'USER': os.environ.get('DB_USER'),
             'PASSWORD': os.environ.get('DB_PASSWORD'),
             'HOST': os.environ.get('DB_HOST'),
-            'PORT': 5432
+            'PORT': os.environ.get('DB_PORT'),
         },
         'sqlite_db': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
         }
     }
-    DEBUG = True
+
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = False
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -42,15 +47,12 @@ class Base(Configuration):
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4'
 
-    # SECURITY WARNING: don't run with debug turned on in production!
-
-    ALLOWED_HOSTS = ['testserver', 'localhost', '127.0.0.1']
+    ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST]
 
     MEDIA_URL = "media/"
     MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
     # Application definition
-
     INSTALLED_APPS = [
         'django.contrib.admin',
         'django.contrib.auth',
@@ -79,7 +81,8 @@ class Base(Configuration):
     ]
 
     CORS_ALLOWED_ORIGINS = [
-        'http://localhost:3000',
+        'http://localhost',
+        f'http://{DEPLOY_HOST}'
     ]
 
     ROOT_URLCONF = 'config.urls'
@@ -101,9 +104,6 @@ class Base(Configuration):
     ]
 
     WSGI_APPLICATION = 'config.wsgi.application'
-
-    # Database
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
     REST_FRAMEWORK = {
         'DEFAULT_AUTHENTICATION_CLASSES': (
@@ -159,10 +159,12 @@ class Base(Configuration):
     DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-class Dev(Base): # usage - python manage.py runserver --settings=config.settings --configuration=Dev
+class Dev(Base):  # usage - python manage.py runserver --settings=config.settings --configuration=Dev
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': os.path.join(Base.BASE_DIR, 'db.sqlite3'),
         }
     }
+
+    DEBUG = True

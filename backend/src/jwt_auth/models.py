@@ -4,8 +4,9 @@ from django.utils import timezone
 from django.db import models
 
 from datetime import timedelta
-from config import settings
 import jwt
+
+from config import settings
 
 
 class UserManager(BaseUserManager):
@@ -90,7 +91,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         token = jwt.encode({
             'username': self.username,
             'exp': dt.timestamp()
-        }, settings.SECRET_KEY, algorithm='HS256')
+        }, settings.Base.SECRET_KEY, algorithm='HS256')
 
         return token
 

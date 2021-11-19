@@ -7,8 +7,8 @@ from random import randint
 from django.utils import timezone
 from datetime import datetime
 
-from .models import TripKind, Trip
-from ..jwt_auth.models import User
+from src.emkk_site.models import TripKind, Trip
+from src.jwt_auth.models import User
 
 
 class EntityGenerator:
@@ -31,7 +31,7 @@ class EntityGenerator:
             return choices[i][0]
 
         if field_class == models.EmailField:
-            return random_word(4) + "@gmail.com"
+            return random_word(5) + "@gmail.com"
 
         if field_class == models.DateTimeField:
             return timezone.now()

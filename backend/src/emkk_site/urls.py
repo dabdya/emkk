@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (
+from src.emkk_site.views import (
     DocumentList, DocumentDetail,
     ReviewerView, IssuerView, ReviewDetail,
     TripList, TripDetail, change_trip_status, WorkRegisterView, )

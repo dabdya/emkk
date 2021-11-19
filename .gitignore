@@ -1,10 +1,11 @@
 frontend/node_modules
 emkk/__pycache__/
+backend/__pycache__/
 __pycache__/
-venv/
 .idea/
 data/
-media/
-db.sqlite3
-src/jwt_auth/migrations/
-src/emkk_site/migrations/
+venv/
+backend/media/
+backend/db.sqlite3
+backend/src/jwt_auth/migrations/
+backend/src/emkk_site/migrations/

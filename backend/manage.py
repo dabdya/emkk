@@ -27,7 +27,7 @@ def reset_db(args):
     import glob
     import shutil
 
-    migrations = [f for f in glob.glob('./src/*/migrations/*.py')
+    migrations = [f for f in glob.glob('src/*/migrations/*.py')
                   if '__init__' not in f]
 
     for migration in migrations:
@@ -36,7 +36,7 @@ def reset_db(args):
     db_type = args[0]
     if db_type == 'Dev':
         try:
-            os.remove('db.sqlite3')
+            os.remove('../db.sqlite3')
         except FileNotFoundError as err:
             print('Database Dev was deleted early')
         os.system('python manage.py makemigrations --configuration=Dev')
@@ -64,10 +64,13 @@ def init_db(args):
 
     from src.emkk_site.utils import EntityGenerator
     from src.emkk_site.models import Trip
+
     eg = EntityGenerator()
     samples = int(args[0])
+
     if samples > 6:
         from src.emkk_site.utils import generate_3_trips_and_users
+
         generate_3_trips_and_users()
         samples -= 3
 
