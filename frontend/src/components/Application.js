@@ -63,7 +63,7 @@ export default class Application extends React.Component {
 					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${el}`, this.config())
 						.then(async response => {
 							this.setState(prevState => ({
-								files: [...prevState.files, { id: response.data.id, uuid: response.data.uuid }]
+								files: [...prevState.files, { id: response.data.id, uuid: response.data.uuid, filename: response.data.filename }]
 							}))
 
 						})
@@ -91,7 +91,7 @@ export default class Application extends React.Component {
 		let mime;
 		const resp = await axios.get(`${process.env.REACT_APP_URL}/api/${file.uuid}`, { responseType: 'arraybuffer' })
 			.then(resp => {
-				mime = resp.headers["Content-Type"];
+				mime = resp.headers["content-type"];
 				return resp;
 			})
 		const blob = new Blob([resp.data], { type: mime });
@@ -124,7 +124,7 @@ export default class Application extends React.Component {
 		await this.requests.delete(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${file.id}`,
 			this.config())
 			.then(response => {
-				this.setState(prevState => ({ files: prevState.files.filter(item => item.id !== file.id) }));
+				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
 	}
 
@@ -135,12 +135,13 @@ export default class Application extends React.Component {
 		for (const file of files) {
 			form.append("file", file);
 		}
-		form.append("trip", parseInt(this.props.location.state))
 
 		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, form,
 			this.config())
 			.then(resp => {
-				this.setState(prevState => ({ files: [...prevState.files, { id: resp.data.id, file: resp.data.file }] }));
+				for (const item of resp.data) {
+					this.setState(prevState => ({ files: [...prevState.files, { id: item.id, uuid: item.uuid, filename: item.filename }] }));
+				}
 			})
 	}
 
@@ -189,7 +190,7 @@ export default class Application extends React.Component {
 								{
 									this.state.files.map(file => {
 										return (<li>
-											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank">{file.uuid}</a>
+											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank">{file.filename}</a>
 											<img onClick={() => this.deleteDocument(file)} alt="delete" />
 										</li>);
 									})
