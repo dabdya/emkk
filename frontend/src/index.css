@@ -110,3 +110,14 @@ code {
 	width: 400px;
 	height: 35px;
 }
+
+.deleteIcon {
+	margin-left: 5px;
+	width:1rem;
+	opacity:0.3;
+}
+
+.deleteIcon:hover {
+	opacity: 1;
+	cursor: pointer;
+}
