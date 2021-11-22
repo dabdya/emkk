@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from rest_framework.parsers import JSONParser
+from django.core.mail import send_mail
+from config import settings
 
 from drf_yasg.utils import swagger_auto_schema
 from src.jwt_auth.schemas import refresh_token_schema
@@ -63,7 +65,14 @@ class RegistrationAPIView(APIView):
         user = request.data.get('user', {})
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+
+            send_mail(
+                "Регистрация нового пользователя",
+                """Здравствуйте! Вы успешно зарегистрировались на сайте маршрутно-квалификационной комиссии.
+                   Используйте логин и пароль указанные при регистрации для входа на сайт.""",
+                settings.Base.EMAIL_HOST_USER, [user.email, ])
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
