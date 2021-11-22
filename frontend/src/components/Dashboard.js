@@ -64,7 +64,7 @@ export default class Dashboard extends React.Component {
 			isLoaded: false,
 			trips: [],
 		};
-		if (!this.props.isLogined) {
+		if (!getToken()) {
 			this.columns.splice(0, 0, {
 				name: 'ФИ',
 				selector: row => row.leader,
@@ -73,7 +73,8 @@ export default class Dashboard extends React.Component {
 				wrap: true,
 				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
 			});
-			this.columns.splice(0, 0, {
+			debugger;
+			this.columns.splice(2, 0, {
 				name: 'Локальный район',
 				selector: row => row.local_region,
 				sortable: false,

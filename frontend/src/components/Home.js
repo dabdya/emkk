@@ -1,6 +1,7 @@
 import React from 'react';
-import { 
-  Router, Switch, Route, NavLink } from 'react-router-dom';
+import {
+	Router, Switch, Route, NavLink
+} from 'react-router-dom';
 import Dashboard from './Dashboard';
 import NotFound from './NotFound';
 import PublicRoute from '../utils/PublicRoute'
@@ -23,29 +24,29 @@ export default class Home extends React.Component {
 					<div className="header-home">
 						<NavLink exact activeClassName="active" to="/home/dashboard">
 							<div className="cell">
-								<img src={hiking_dashboard} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
-								<span style={{display:"block", color:"white"}}>Табло походов</span>
+								<img src={hiking_dashboard} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+								<span style={{ display: "block", color: "white" }}>Табло походов</span>
 							</div>
 						</NavLink>
-						{getToken() &&<NavLink exact activeClassName="active" to="/home/tablo">
+						{getToken() && <NavLink exact activeClassName="active" to="/home/tablo">
 							<div className="cell">
-								<img src={my_application} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
-								<span style={{display:"block", color:"white"}}>Мои заявки</span>
+								<img src={my_application} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+								<span style={{ display: "block", color: "white" }}>Мои заявки</span>
 							</div>
-						</NavLink> }
+						</NavLink>}
 						<NavLink activeClassName="active" to="/home/review">
 							<div className="cell">
-								<img src={take_application_in_work} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
-								<span style={{display:"block", color:"white"}}>Взять заявку на рецензию</span>
+								<img src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+								<span style={{ display: "block", color: "white" }}>Взять заявку на рецензию</span>
 							</div>
 						</NavLink>
 						{getToken() &&
-						<NavLink activeClassName="active" to="/home/form">
-							<div className="cell">
-								<img src={application_form} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
-								<span style={{display:"block", color:"white"}}>Форма подачи заявки</span>
-							</div>
-						</NavLink>}
+							<NavLink activeClassName="active" to="/home/form">
+								<div className="cell">
+									<img src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+									<span style={{ display: "block", color: "white" }}>Форма подачи заявки</span>
+								</div>
+							</NavLink>}
 					</div>
 					<div className="content-home" style={{ width: "100%" }}>
 						<Switch>
@@ -53,7 +54,7 @@ export default class Home extends React.Component {
 							<PublicRoute path="/home/application" component={Application} />
 							<PrivateRoute path="/home/form" component={ApplicationForm} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
-							<Route exact path="/home/tablo" component={() => <Dashboard isMyApps={true} {...this.props} />} />
+							<Route exact path="/home/applications" component={() => <Dashboard isMyApps={true} {...this.props} />} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>
