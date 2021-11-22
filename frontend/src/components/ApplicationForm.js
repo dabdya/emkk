@@ -17,12 +17,12 @@ export default class ApplicationForm extends React.Component {
 			leaderFullName: "Ivan", // не нужен
 			generalArea: "Поиск...	",
 			localArea: "Ivan",
-			startRouteLocality: "Ivan", // населенный пункт начала маршрута
-			endRouteLocality: "Ivan", // населенный пункт окончания маршрута
 			routeStartDate: new Date(),
 			routeEndDate: new Date(),
-			realStartRouteDate: new Date(), // контрольный срок сообщения о начале маршрута
-			realEndRouteDate: new Date(), // контрольный срок сообщения об окончании маршрута
+			controlStartDate: new Date(),
+			controlEndDate: new Date(),
+			controlStartRegion: "деревня Хлопинки",
+			controlEndRegion: "деревня икниплоХ",
 			routeBook: null,
 			cartographicMaterial: null,
 			participantsReferences: null,
@@ -64,7 +64,8 @@ export default class ApplicationForm extends React.Component {
 		event.preventDefault();
 
 		const { groupName, generalArea, localArea, routeStartDate, routeEndDate, insurancePolicyValidityDuration,
-			tourismKind, routeDifficulty, participantsNumber, coordinatorName, insuranceCompanyName, coordinatorPhoneNumber } = this.state;
+			tourismKind, routeDifficulty, participantsNumber, coordinatorName, insuranceCompanyName, coordinatorPhoneNumber, controlStartDate,
+			controlEndDate, controlStartRegion, controlEndRegion } = this.state;
 
 		const formTrip = new FormData()
 		formTrip.append("kind", KINDOFTOURISM[tourismKind]);
@@ -74,11 +75,15 @@ export default class ApplicationForm extends React.Component {
 		formTrip.append("local_region", localArea);
 		formTrip.append("start_date", routeStartDate);
 		formTrip.append("end_date", routeEndDate);
+		formTrip.append("control_start_date", controlStartDate);
+		formTrip.append("control_end_date", controlEndDate);
+		formTrip.append("control_start_region", controlStartRegion);
+		formTrip.append("control_end_region", controlEndRegion);
 		formTrip.append("coordinator_name", coordinatorName);
 		formTrip.append("coordinator_phone_number", coordinatorPhoneNumber);
 		formTrip.append("insurance_company_name", insuranceCompanyName);
 		formTrip.append("insurance_policy_validity_duration", insurancePolicyValidityDuration);
-		formTrip.append("participants_count", participantsNumber);//Как добавят ФИО руководителя и емейл на бэке, заапендить в формТрип эти поля.
+		formTrip.append("participants_count", participantsNumber);
 
 		const config = {
 			headers: {
@@ -195,15 +200,15 @@ export default class ApplicationForm extends React.Component {
 
 	renderFileUpload(fileName, name, ref, toolTipMethod) {
 		return (
-			<Grid item xs={5}>
-				<label >{fileName}</label><br />
-				<Gapped>
-					<Button style={{ width: "407px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>
-					<Tooltip render={toolTipMethod} pos="right top">
-						<HelpDotIcon />
-					</Tooltip>
+			<Grid item lg={5} md={12} sm={12} xs={12}>
+				<label>{fileName}</label><br />
+				<Gapped className="fileUpload" gap={45}>
+				{/*	<Button style={{ width: "407px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>*/}
+				<input type="file" style={{}}  name={name} ref={ref} onChange={this.onFileChange} multiple />
+				<Tooltip render={toolTipMethod} pos="right top">
+					<HelpDotIcon />
+				</Tooltip>
 				</Gapped>
-				<input type="file" style={{ display: "none" }} name={name} ref={ref} onChange={this.onFileChange} multiple />
 			</Grid>
 		)
 	}
@@ -240,28 +245,28 @@ export default class ApplicationForm extends React.Component {
 									"localArea", "localArea", this.state.localArea,
 									this.changeInputRegister, "хребет Катунские Белки")}
 								{this.renderInput("Населенный пункт начала маршрута район", "text", "formInputField",
-									"startRouteLocality", "startRouteLocality", this.state.startRouteLocality,
+									"controlStartRegion", "controlStartRegion", this.state.controlStartRegion,
 									this.changeInputRegister, "деревня Хлопинки")}
 								{this.renderInput("Категория сложность", "text", "formInputField",
 									"routeDifficulty", "routeDifficulty", this.state.routeDifficulty,
-									this.changeInputRegister, "1-4")}
+									this.changeInputRegister, "1-6")}
 								{this.renderInput("Контрольный срок сообщения о начале маршрута", "date", "formInputField",
-									"realStartRouteDate", "realStartRouteDate", this.state.realStartRouteDate,
+									"controlStartDate", "controlStartDate", this.state.controlStartDate,
 									this.changeInputRegister, "")}
 								<Grid item xs={5}>
 									<label htmlFor="tourismKind">Вид туризма</label><br />
 									<Select size="medium" width={407} items={tourismVariants}
 										value={this.state.tourismKind}
-										onValueChange={this.changeTourismKind} required={true}/>
+										onValueChange={this.changeTourismKind} required={true} />
 								</Grid>
 								{this.renderInput("Населенный пункт окончания маршрута", "text", "formInputField",
-									"endRouteLocality", "endRouteLocality", this.state.endRouteLocality,
+									"controlEndRegion", "controlEndRegion", this.state.controlEndRegion,
 									this.changeInputRegister, "деревня Икниплох")}
 								{this.renderInput("Дата выхода на маршрут", "date", "formInputField",
 									"routeStartDate", "routeStartDate", this.state.routeStartDate,
 									this.changeInputRegister, "")}
 								{this.renderInput("Контрольный срок сообщения об окончании маршрута", "date", "formInputField",
-									"realEndRouteDate", "realEndRouteDate", this.state.realEndRouteDate,
+									"controlEndDate", "controlEndDate", this.state.controlEndDate,
 									this.changeInputRegister, "")}
 								{this.renderInput("Дата окончания маршрута", "date", "formInputField",
 									"routeEndDate", "routeEndDate", this.state.routeEndDate,

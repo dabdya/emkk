@@ -50,11 +50,12 @@ export default class App extends React.Component {
 		// 43 68
 		return (
 			<div className="App">
-				<BrowserRouter>
+				<BrowserRouter basename="/">
 					<div style={{ height: "100%" }}>
 						<div className="header">
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
-								<img src={logo} height="80px" width="125px" alt="logo" /></NavLink>
+								<img src={logo} style={{marginLeft: 3}} height="80px" width="125px" alt="logo" />
+							</NavLink>
 							<div className="emkk">Электронная маршрутно-квалификационная комиссия</div>
 							{!this.state.token &&
 								<>
@@ -74,6 +75,7 @@ export default class App extends React.Component {
 									<Redirect to="/home/dashboard" />
 								)} />
 								<Route exact path="/home/dashboard" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+								<Route exact path="/home/applications" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<Route exact path="/home/form" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<PublicRoute path="/reset-password" component={ForgetPass} />
 								<PublicRoute path="/home/review" component={Home} />
