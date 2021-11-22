@@ -75,7 +75,7 @@ export default class App extends React.Component {
 									<Redirect to="/home/dashboard" />
 								)} />
 								<Route exact path="/home/dashboard" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
-								<Route exact path="/home/tablo" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+								<Route exact path="/home/applications" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<Route exact path="/home/form" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<PublicRoute path="/reset-password" component={ForgetPass} />
 								<PublicRoute path="/home/review" component={Home} />

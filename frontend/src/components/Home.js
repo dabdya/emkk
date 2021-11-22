@@ -28,7 +28,7 @@ export default class Home extends React.Component {
 								<span style={{ display: "block", color: "white" }}>Табло походов</span>
 							</div>
 						</NavLink>
-						{getToken() && <NavLink exact activeClassName="active" to="/home/tablo">
+						{getToken() && <NavLink exact activeClassName="active" to="/home/applications">
 							<div className="cell">
 								<img src={my_application} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 								<span style={{ display: "block", color: "white" }}>Мои заявки</span>
