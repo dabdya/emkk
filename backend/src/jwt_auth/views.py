@@ -6,7 +6,7 @@ from rest_framework import status
 
 from rest_framework.parsers import JSONParser
 from django.core.mail import send_mail
-from backend.config import settings
+from config import settings
 
 from drf_yasg.utils import swagger_auto_schema
 from src.jwt_auth.schemas import refresh_token_schema
