@@ -63,6 +63,7 @@ code {
 
 .header-home .cell:hover {
 	background-color: #00518E;
+	transition: 0.2s;
 }
 
 .header-home .active .cell {
@@ -111,6 +112,14 @@ code {
 	height: 35px;
 }
 
+.formInputField:focus {
+	border: 2px solid #00518E;
+}
+
+.formInputField:hover {
+	border: 2px solid black;
+}
+
 .deleteIcon {
 	margin-left: 5px;
 	width:1rem;
@@ -118,6 +127,26 @@ code {
 }
 
 .deleteIcon:hover {
+	transition: 0.2s;
 	opacity: 1;
 	cursor: pointer;
 }
+
+.fileUpload {
+	width: fit-content;
+}
+
+.fileUpload:hover {
+	border: 2px solid #00518E;
+	transform: scale(1.02);
+	transition: 0.1s;
+}
+
+.img-home-navbar {
+	display:block;
+	margin-left: auto;
+	margin-right: auto;
+	height: 100px;
+	width: 100px;
+}
+

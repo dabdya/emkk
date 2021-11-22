@@ -7,6 +7,10 @@ import Application from "./Application";
 import PrivateRoute from '../utils/PrivateRoute'
 import ApplicationForm from './ApplicationForm';
 import { getToken } from '../utils/Common';
+import my_application from '../fonts/my_application.png'
+import application_form from '../fonts/application_form.png'
+import take_application_in_work from '../fonts/take_application_in_work.png'
+
 export default class Home extends React.Component {
 	constructor(props) {
 		super(props);
@@ -17,9 +21,25 @@ export default class Home extends React.Component {
 				<BrowserRouter>
 					<div style={{ display: "flex", minHeight: "100%", height: "fit-content" }}>
 						<div className="header-home">
-							<NavLink exact activeClassName="active" to="/home/dashboard"><div className="cell">Мои заявки</div></NavLink>
-							<NavLink activeClassName="active" to="/home/review"><div className="cell">Ревью</div></NavLink>
-							{getToken() && <NavLink activeClassName="active" to="/home/form"> <div className="cell">Форма </div></NavLink>}
+							<NavLink exact activeClassName="active" to="/home/dashboard">
+								<div className="cell">
+									<img src={my_application} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
+									<span style={{display:"block", color:"white"}}>Мои заявки</span>
+								</div>
+							</NavLink>
+							<NavLink activeClassName="active" to="/home/review">
+								<div className="cell">
+									<img src={take_application_in_work} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
+									<span style={{display:"block", color:"white"}}>Взять заявку на рецензию</span>
+								</div>
+							</NavLink>
+							{getToken() &&
+							<NavLink activeClassName="active" to="/home/form">
+								<div className="cell">
+									<img src={application_form} className="img-home-navbar" style={{display:"block", marginLeft: "auto", marginRight:"auto", height: 100, width: 100}}/>
+									<span style={{display:"block", color:"white"}}>Форма подачи заявки</span>
+								</div>
+							</NavLink>}
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>

@@ -201,14 +201,14 @@ export default class ApplicationForm extends React.Component {
 	renderFileUpload(fileName, name, ref, toolTipMethod) {
 		return (
 			<Grid item lg={5} md={12} sm={12} xs={12}>
-				<label >{fileName}</label><br />
-				<Gapped>
-					<Button style={{ width: "407px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>
-					<Tooltip render={toolTipMethod} pos="right top">
-						<HelpDotIcon />
-					</Tooltip>
+				<label>{fileName}</label><br />
+				<Gapped className="fileUpload" gap={45}>
+				{/*	<Button style={{ width: "407px" }} onClick={() => { ref.current.click() }}>Загрузить</Button>*/}
+				<input type="file" style={{}}  name={name} ref={ref} onChange={this.onFileChange} multiple />
+				<Tooltip render={toolTipMethod} pos="right top">
+					<HelpDotIcon />
+				</Tooltip>
 				</Gapped>
-				<input type="file" style={{ display: "none" }} name={name} ref={ref} onChange={this.onFileChange} multiple />
 			</Grid>
 		)
 	}
