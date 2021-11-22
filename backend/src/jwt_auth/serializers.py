@@ -114,6 +114,9 @@ class RefreshTokenSerializer(serializers.Serializer):
         except jwt.InvalidSignatureError as invalid_signature_error:
             raise serializers.ValidationError(invalid_signature_error)
 
+        except jwt.DecodeError as decode_error:
+            raise serializers.ValidationError(decode_error)
+
 
 # noinspection PyRedeclaration
 class UserSerializer(serializers.ModelSerializer):
