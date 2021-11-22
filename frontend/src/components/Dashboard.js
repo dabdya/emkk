@@ -65,6 +65,22 @@ export default class Dashboard extends React.Component {
 			trips: [],
 		};
 		this.isMyApps = this.props.isMyApps;
+		if (!this.isMyApps) {
+			this.columns.splice(0, 0, {
+				name: 'ФИ',
+				selector: row => row.leader,
+				sortable: false,
+				center: true,
+				wrap: true,
+				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
+			});
+			this.columns.splice(2, 0, {
+				name: 'Локальный район',
+				selector: row => row.local_region,
+				sortable: false,
+				wrap: true,
+			});
+		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
 
@@ -78,22 +94,7 @@ export default class Dashboard extends React.Component {
 		await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
 			.then(
 				(result) => {
-					this.columns.splice(0, 0, {
-						name: 'ФИ',
-						selector: row => row.leader,
-						sortable: false,
-						center: true,
-						wrap: true,
-						cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
-					});
-					this.columns.splice(2, 0, {
-						name: 'Локальный район',
-						selector: row => row.local_region,
-						sortable: false,
-						wrap: true,
-					});
 					if (this.isMyApps) {
-
 						this.setState({
 							trips: result.data.filter(trip => trip.leader.username == this.user).map(item => {
 								item.status = this.renderImage(item.status);
