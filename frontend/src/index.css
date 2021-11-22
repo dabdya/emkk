@@ -110,3 +110,24 @@ code {
 	width: 400px;
 	height: 35px;
 }
+
+.rdt_TableCol {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	overflow: visible !important;
+}
+
+.rdt_TableCol_Sortable {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	overflow: visible !important;
+}
+
+
+.lnndaO {
+	font-weight: bolder;
+	overflow: visible !important;
+	white-space: normal !important;
+}

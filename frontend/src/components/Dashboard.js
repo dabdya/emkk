@@ -7,59 +7,54 @@ import rejected from '../fonts/rejected.png';
 import accepted from '../fonts/accepted.png';
 import DataTable from 'react-data-table-component';
 
-
 export default class Dashboard extends React.Component {
 	columns = [
 		{
 			name: 'Название спорт. организации',
 			selector: row => row.group_name,
 			sortable: false,
-			right: false,
+			center: true,
 			wrap: true,
-			width: "280px",
-			center: true
 		},
 		{
 			name: 'Общий регион',
 			selector: row => row.global_region,
 			sortable: false,
 			wrap: true,
-			center: true,
 		},
 		{
 			name: 'Вид туризма',
 			selector: row => row.kind,
 			sortable: true,
 			cell: row => KINDOFTOURISM[row.kind],
-			center: true,
+
 		},
 		{
 			name: 'Категория сложности',
 			selector: row => row.difficulty_category,
-			sortable: false,
-			width: "230px",
 			center: true,
+			width: "100px"
 		},
 		{
 			name: 'Статус',
 			selector: row => row.status,
 			sortable: false,
-			cell: row => <img height="50px" src={row.status} alt="status" />,
 			center: true,
+			cell: row => <img height="50px" src={row.status} alt="status" />,
 		},
 		{
 			name: 'Дата начала',
 			selector: row => row.start_date,
 			sortable: true,
-			center: true,
 		},
 		{
 			name: 'Дата завершения',
 			selector: row => row.end_date,
 			sortable: false,
-			center: true,
+			allowOverflow: true,
 		},
 	];
+
 
 	constructor(props) {
 		super(props);
@@ -69,6 +64,22 @@ export default class Dashboard extends React.Component {
 			isLoaded: false,
 			trips: [],
 		};
+		if (!this.props.isLogined) {
+			this.columns.splice(0, 0, {
+				name: 'ФИ',
+				selector: row => row.leader,
+				sortable: false,
+				center: true,
+				wrap: true,
+				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
+			});
+			this.columns.splice(0, 0, {
+				name: 'Локальный район',
+				selector: row => row.local_region,
+				sortable: false,
+				wrap: true,
+			});
+		}
 		this.isMyApps = this.props.isMyApps;
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
@@ -110,7 +121,7 @@ export default class Dashboard extends React.Component {
 
 	onClickOnRow(target) {
 		this.props.history.push({
-			pathname: '/application',
+			pathname: '/home/application',
 			state: target.id,
 		});
 	};
@@ -129,10 +140,14 @@ export default class Dashboard extends React.Component {
 			<DataTable
 				columns={this.columns}
 				data={this.state.trips}
-				// subHeaderWrap={false}
-				// fixedHeader={true}
+				subHeaderWrap={false}
+				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
+				highlightOnHover
+				pointerOnHover
+				subHeaderAlign="left"
+				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{
 					rowsPerPageText: 'Страница: ',
 					rangeSeparatorText: 'из', noRowsPerPage: true,
