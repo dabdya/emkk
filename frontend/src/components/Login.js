@@ -18,9 +18,10 @@ export default class Login extends React.Component {
 		this.changeInputRegister = this.changeInputRegister.bind(this);
 	}
 
+
 	onSubmit(e) {
 		e.preventDefault();
-		axios.post('http://localhost:8000/auth/users/login', { user: { username: this.state.login, password: this.state.password } })
+		axios.post(`${process.env.REACT_APP_URL}/auth/users/login`, { user: { username: this.state.login, password: this.state.password } })
 			.then(response => {
 				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 
@@ -77,10 +78,10 @@ export default class Login extends React.Component {
 										</Button>
 									</Gapped>
 									<GoogleLogin
-										clientId="608021595332-nse82l1q2o8t0j7g4s0bu9815fp0l4dn.apps.googleusercontent.com"
+										clientId={process.env.REACT_APP_CLIENT_ID}
 										buttonText=""
 										onSuccess={(response) => {
-											console.log(response);
+											axios.post(`${process.env.REACT_APP_URL}/googleauth`, response)
 										}}
 										onFailure={(response) => {
 											console.log(response);

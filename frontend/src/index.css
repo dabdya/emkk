@@ -63,9 +63,10 @@ code {
 
 .header-home .cell:hover {
 	background-color: #00518E;
+	transition: 0.2s;
 }
 
-.header-home .active .cell{
+.header-home .active .cell {
 	background-color: #00518E;
 }
 
@@ -109,4 +110,64 @@ code {
 .formInputField {
 	width: 400px;
 	height: 35px;
+}
+
+
+.rdt_TableCol {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	overflow: visible !important;
+}
+
+.rdt_TableCol_Sortable {
+	white-space: normal !important;
+	word-wrap: break-word !important;
+	overflow-wrap: break-word !important;
+	overflow: visible !important;
+}
+
+
+.lnndaO {
+	font-weight: bolder;
+	overflow: visible !important;
+	white-space: normal !important;
+}
+
+.formInputField:focus {
+	border: 2px solid #00518E;
+}
+
+.formInputField:hover {
+	border: 2px solid black;
+}
+
+.deleteIcon {
+	margin-left: 5px;
+	width:1rem;
+	opacity:0.3;
+}
+
+.deleteIcon:hover {
+	transition: 0.2s;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.fileUpload {
+	width: fit-content;
+}
+
+.fileUpload:hover {
+	border: 2px solid #00518E;
+	transform: scale(1.02);
+	transition: 0.1s;
+}
+
+.img-home-navbar {
+	display:block;
+	margin-left: auto;
+	margin-right: auto;
+	height: 100px;
+	width: 100px;
 }

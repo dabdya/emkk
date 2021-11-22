@@ -1,10 +1,10 @@
 FROM node:16.13.0-alpine
 
-WORKDIR /frontend
+WORKDIR /emkk/frontend
 RUN apk update
 
-COPY package.json /frontend/
-COPY package-lock.json /frontend/
+COPY package.json /emkk/frontend/
+COPY package-lock.json /emkk/frontend/
 RUN npm install
 
-COPY . /frontend/
+COPY . /emkk/frontend/
