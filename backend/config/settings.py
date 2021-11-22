@@ -21,6 +21,12 @@ class Base(Configuration):
 
     DEPLOY_HOST = 'www.emkk-site.ru'
 
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_HOST_USER = 'notify.emkk@gmail.com'
+    EMAIL_HOST_PASSWORD = '$yJegqgZ9M'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+
     # Database
     # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
     DATABASES = {
