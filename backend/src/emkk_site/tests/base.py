@@ -54,7 +54,7 @@ class TestEnvironment:
         if set_auth_header:
             headers.update(self._get_auth_header(user))
 
-        return self.client.post(url, data, **headers)
+        return self.client.post(url, data, content_type='application/json', **headers)
 
     def client_patch(self, url, data, set_auth_header=True, user=None):
         if not user:

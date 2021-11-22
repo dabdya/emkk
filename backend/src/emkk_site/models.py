@@ -4,6 +4,8 @@ from django.utils import timezone
 
 from src.jwt_auth.models import User
 
+import uuid
+
 
 class TripStatus(models.TextChoices):
     ROUTE_COMPLETED = 'route_completed'
@@ -85,6 +87,9 @@ class Document(models.Model):
     """Документ, прилагаемый к заявке"""
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     file = models.FileField(upload_to='%Y/%m/%d/')
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    filename = models.CharField(max_length=250)
+    content_type = models.CharField(max_length=100)
 
 
 class UserExperience(models.Model):
