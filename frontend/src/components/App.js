@@ -54,7 +54,8 @@ export default class App extends React.Component {
 					<div style={{ height: "100%" }}>
 						<div className="header">
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
-								<img src={logo} height="80px" width="125px" alt="logo" /></NavLink>
+								<img src={logo} style={{marginLeft: 3}} height="80px" width="125px" alt="logo" />
+							</NavLink>
 							<div className="emkk">Электронная маршрутно-квалификационная комиссия</div>
 							{!this.state.token &&
 								<>
