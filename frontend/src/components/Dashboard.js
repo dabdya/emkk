@@ -69,6 +69,7 @@ export default class Dashboard extends React.Component {
 			isLoaded: false,
 			trips: [],
 		};
+		this.isMyApps = this.props.isMyApps;
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
 
@@ -82,12 +83,22 @@ export default class Dashboard extends React.Component {
 		await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
 			.then(
 				(result) => {
-					this.setState({
-						trips: result.data.map(item => {
-							item.status = this.renderImage(item.status);
-							return item;
-						})
-					});
+					if (this.isMyApps) {
+						this.setState({
+							trips: result.data.filter(trip => trip.leader.username == this.user).map(item => {
+								item.status = this.renderImage(item.status);
+								return item;
+							})
+						});
+					} else {
+						this.setState({
+							trips: result.data.map(item => {
+								item.status = this.renderImage(item.status);
+								return item;
+							})
+						});
+					}
+
 				},
 				(error) => {
 					this.setState({
@@ -99,7 +110,7 @@ export default class Dashboard extends React.Component {
 
 	onClickOnRow(target) {
 		this.props.history.push({
-			pathname: '/home/application',
+			pathname: '/application',
 			state: target.id,
 		});
 	};

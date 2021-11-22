@@ -14,20 +14,22 @@ export default class Home extends React.Component {
 	render() {
 		return (
 			<div className="Home" style={{ height: "100%" }}>
-				<BrowserRouter>
+				<BrowserRouter basename="/home">
 					<div style={{ display: "flex", minHeight: "100%", height: "fit-content" }}>
 						<div className="header-home">
-							<NavLink exact activeClassName="active" to="/home/dashboard"><div className="cell">Мои заявки</div></NavLink>
-							<NavLink activeClassName="active" to="/home/review"><div className="cell">Ревью</div></NavLink>
-							{getToken() && <NavLink activeClassName="active" to="/home/form"> <div className="cell">Форма </div></NavLink>}
+							<NavLink exact activeClassName="active" to="/dashboard"><div className="cell">Мои заявки</div></NavLink>
+							<NavLink exact activeClassName="active" to="/tablo"><div className="cell">Табло походов</div></NavLink>
+							<NavLink activeClassName="active" to="/review"><div className="cell">Ревью</div></NavLink>
+							{getToken() && <NavLink activeClassName="active" to="/form"> <div className="cell">Форма </div></NavLink>}
 						</div>
 						<div className="content-home" style={{ width: "100%" }}>
 							<Switch>
 								{/* <PublicRoute path="/home/application" component={EditForm} /> */}
-								<PublicRoute path="/home/application" component={Application} />
-								<PrivateRoute path="/home/form" component={ApplicationForm} />
-								<PublicRoute path="/home/dashboard" component={Dashboard} />
-								<Route path="*" component={NotFound} />
+								<Route path="/application" component={Application} />
+								<PrivateRoute path="/form" component={ApplicationForm} />
+								<PublicRoute path="/dashboard" component={Dashboard} />
+								<Route exact path="/tablo" render={(props) => <Dashboard isMyApps={true} {...props} />} />
+								{/* <Route path="*" component={NotFound} /> */}
 							</Switch>
 						</div>
 					</div>
