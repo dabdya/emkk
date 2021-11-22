@@ -1,4 +1,9 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+
+from src.emkk_site.utils import EntityGenerator
+from src.jwt_auth.models import User
+
+import json
 
 
 """
@@ -12,19 +17,64 @@ from django.test import TestCase
 class TestLogin(TestCase):
 
     def setUp(self):
-        pass
+        self.client = Client()
+        self.login_data = {
+            "user": {
+                "username": "test",
+                "password": "Cfj64%324Fd"
+            }
+        }
 
-    def test_login_error_when_data_is_invalid(self):
-        pass
+        eg = EntityGenerator()
+        self.user = eg.generate_instance_by_model(
+            User, **self.login_data["user"], is_active=True)
+        self.user.set_password(self.login_data["user"]["password"])
+        self.user.save()
+
+    def test_login_success_when_data_is_valid(self):
+        r = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(self.login_data), content_type="application/json"
+        )
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue("access_token" in r.data)
 
     def test_login_error_when_user_with_specified_credentials_not_found(self):
-        pass
+        data_with_invalid_pass = self.login_data.copy()
+        data_with_invalid_pass["user"]["password"] = "invalid"
+        r = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(data_with_invalid_pass), content_type="application/json"
+        )
+
+        self.assertEqual(r.status_code, 400)
+        self.assertFalse("access_token" in r.data)
 
     def test_login_error_when_user_was_deactivated(self):
-        pass
+        self.user.is_active = False
+        self.user.save()
 
-    def test_login_process_should_available_for_all(self):
-        pass
+        r = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(self.login_data), content_type="application/json"
+        )
+
+        self.assertEqual(r.status_code, 400)
+        self.assertFalse("access_token" in r.data)
 
     def test_when_login_success_refresh_token_should_be_updated(self):
-        pass
+        r1 = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(self.login_data), content_type="application/json"
+        )
+
+        old_value = r1.data["refresh_token"]
+
+        r2 = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(self.login_data), content_type="application/json"
+        )
+
+        actual_value = r2.data["refresh_token"]
+        self.assertNotEqual(old_value, actual_value)
