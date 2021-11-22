@@ -65,6 +65,7 @@ class Trip(models.Model):
     control_end_region = models.CharField(max_length=100, null=True)
 
     created_at = models.DateTimeField(editable=False, default=timezone.now)
+    last_modified_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.group_name
