@@ -51,7 +51,6 @@ export default class Dashboard extends React.Component {
 			name: 'Дата завершения',
 			selector: row => row.end_date,
 			sortable: false,
-			allowOverflow: true,
 		},
 	];
 
@@ -96,7 +95,7 @@ export default class Dashboard extends React.Component {
 				(result) => {
 					if (this.isMyApps) {
 						this.setState({
-							trips: result.data.filter(trip => trip.leader.username == this.user).map(item => {
+							trips: result.data.filter(trip => trip.leader.username === this.user).map(item => {
 								item.status = this.renderImage(item.status);
 								return item;
 							})

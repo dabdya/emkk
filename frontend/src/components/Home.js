@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-	Router, Switch, Route, NavLink
+	Switch, Route, NavLink
 } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import NotFound from './NotFound';
@@ -21,7 +21,7 @@ export default class Home extends React.Component {
 		return (
 			<div className="Home" style={{ height: "100%" }}>
 				<div style={{ display: "flex", minHeight: "100%", height: "fit-content" }}>
-					<div className="header-home">
+					<div className="header-home" style={{ boxShadow: "2px 2px 2px grey" }}>
 						<NavLink exact activeClassName="active" to="/home/dashboard">
 							<div className="cell">
 								<img src={hiking_dashboard} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
@@ -37,18 +37,18 @@ export default class Home extends React.Component {
 						<NavLink activeClassName="active" to="/home/review">
 							<div className="cell">
 								<img src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
-								<span style={{ display: "block", color: "white" }}>Взять заявку на рецензию</span>
+								<span style={{ display: "block", color: "white" }}>Написать рецензию</span>
 							</div>
 						</NavLink>
 						{getToken() &&
 							<NavLink activeClassName="active" to="/home/form">
 								<div className="cell">
 									<img src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
-									<span style={{ display: "block", color: "white" }}>Форма подачи заявки</span>
+									<span style={{ display: "block", color: "white" }}>Подать заявку</span>
 								</div>
 							</NavLink>}
 					</div>
-					<div className="content-home" style={{ width: "100%" }}>
+					<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 						<Switch>
 							{/* <PublicRoute path="/home/application" component={EditForm} /> */}
 							<PublicRoute path="/home/application" component={Application} />

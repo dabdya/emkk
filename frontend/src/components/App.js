@@ -11,7 +11,6 @@ import NotFound from './NotFound';
 import { getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 import logo from "../fonts/logo.png"
 import ForgetPass from './ForgetPassword';
-import PrivateRoute from '../utils/PrivateRoute';
 
 export default class App extends React.Component {
 
@@ -47,14 +46,13 @@ export default class App extends React.Component {
 	}
 
 	render() {
-		// 43 68
 		return (
 			<div className="App">
 				<BrowserRouter basename="/">
 					<div style={{ height: "100%" }}>
-						<div className="header">
+						<div className="header" style={{ boxShadow: "2px 2px 2px grey" }}>
 							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
-								<img src={logo} style={{marginLeft: 3}} height="80px" width="125px" alt="logo" />
+								<img src={logo} style={{ marginLeft: 3 }} height="80px" width="125px" alt="logo" />
 							</NavLink>
 							<div className="emkk">Электронная маршрутно-квалификационная комиссия</div>
 							{!this.state.token &&

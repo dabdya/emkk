@@ -144,8 +144,8 @@ code {
 
 .deleteIcon {
 	margin-left: 5px;
-	width:1rem;
-	opacity:0.3;
+	width: 1rem;
+	opacity: 0.3;
 }
 
 .deleteIcon:hover {
@@ -165,7 +165,7 @@ code {
 }
 
 .img-home-navbar {
-	display:block;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	height: 100px;
