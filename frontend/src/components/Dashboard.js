@@ -66,12 +66,12 @@ export default class Dashboard extends React.Component {
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
 			this.columns.splice(0, 0, {
-				name: 'ФИ',
+				name: 'Руководитель',
 				selector: row => row.leader,
 				sortable: false,
 				center: true,
 				wrap: true,
-				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
+				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic[0]}.`
 			});
 			this.columns.splice(2, 0, {
 				name: 'Локальный район',

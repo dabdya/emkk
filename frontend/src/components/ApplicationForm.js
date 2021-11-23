@@ -1,6 +1,6 @@
 import React from 'react';
 import { GLOBALAREA } from '../utils/Constants';
-import { Autocomplete, TextField } from '@mui/material'
+import { Autocomplete, TextField, Button } from '@mui/material'
 
 
 export default class ApplicationForm extends React.Component {
@@ -118,8 +118,75 @@ export default class ApplicationForm extends React.Component {
 					/>
 				</div>
 				<div className="cell">
-					<label >sdsdgdsg</label>
-					<input />
+					<Autocomplete
+						openOnFocus
+						id="localarea"
+						options={tourismVariants}
+						style={{ width: '100%' }}
+						renderInput={(params) => <TextField {...params} inputProps={{ ...params.inputProps, tabIndex: 4 }}
+							label="Вид туризма" />}
+
+					/>
+				</div>
+				<div className="cell">
+					<TextField
+						required
+						id="outlined"
+						label="Населённый пункт окончания маршрута"
+						style={{ width: '100%' }}
+						InputProps={{ inputProps: { tabIndex: "30" } }}
+					/>
+				</div>
+				<div className="cell">
+					<TextField
+						id="outlined"
+						label="Дата выхода на маршрут"
+						type="date"
+						style={{ width: '100%' }}
+						InputProps={{ inputProps: { tabIndex: "5" } }}
+						InputLabelProps={{
+							shrink: true
+						}}
+					/>
+				</div>
+				<div className="cell">
+					<TextField
+						id="outlined"
+						label="Контрольный срок сообщения об окончании маршрута"
+						type="date"
+						style={{ width: '100%' }}
+						InputLabelProps={{
+							shrink: true
+						}}
+					/>
+				</div>
+				<div className="cell">
+					<TextField
+						id="outlined"
+						label="Дата выхода с маршрута"
+						type="date"
+						style={{ width: '100%' }}
+						InputProps={{ inputProps: { tabIndex: "6" } }}
+						InputLabelProps={{
+							shrink: true
+						}}
+					/>
+				</div>
+				<div className="cell">
+					<input
+						accept="*"
+						className="file"
+						style={{ display: 'none' }}
+						id="raised-button-file"
+						multiple
+						type="file"
+
+					/>
+					<label htmlFor="raised-button-file" style={{ width: '100%' }}>
+						<Button component="span" className="inl" style={{ width: '100%' }}>
+							Загрузить
+						</Button>
+					</label>
 				</div>
 			</form >
 		)

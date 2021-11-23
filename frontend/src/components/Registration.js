@@ -17,7 +17,8 @@ export default class Registration extends React.Component {
                 password: "",
                 password2: "",
                 firstName: "",
-                secondName: ""
+                secondName: "",
+                patronymic: ""
             }
         };
         this.onSubmit = this.onSubmit.bind(this);
@@ -57,7 +58,8 @@ export default class Registration extends React.Component {
                     email: this.state.register.email,
                     password: this.state.register.password,
                     first_name: this.state.register.firstName,
-                    last_name: this.state.register.secondName
+                    last_name: this.state.register.secondName,
+                    patronymic: this.state.register.patronymic,
                 }
             }, config).then(res => {
                 if (res.data) {
@@ -91,10 +93,12 @@ export default class Registration extends React.Component {
                                 "username", "username", this.state.register.username, this.changeInputRegister)}
                             {this.renderInput("Email", "email", "inputField",
                                 "email", "email", this.state.register.email, this.changeInputRegister)}
-                            {this.renderInput("Имя", "firstName", "inputField",
-                                "firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
                             {this.renderInput("Фамилия", "secondName", "inputField",
                                 "secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
+                            {this.renderInput("Имя", "firstName", "inputField",
+                                "firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
+                            {this.renderInput("Отчество", "patronymic", "inputField",
+                                "patronymic", "patronymic", this.state.register.patronymic, this.changeInputRegister)}
                             {this.renderInput("Пароль", "password", "inputField",
                                 "password", "password", this.state.register.password, this.changeInputRegister)}
                             {this.renderInput("Повторите пароль", "password", "inputField",
