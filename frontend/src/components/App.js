@@ -51,10 +51,7 @@ export default class App extends React.Component {
 				<BrowserRouter basename="/">
 					<div style={{ height: "100%" }}>
 						<div className="header" style={{ boxShadow: "2px 2px 2px grey" }}>
-							<NavLink exact className="justify-start" activeClassName="active" to="/home/dashboard">
-								<img src={logo} style={{ marginLeft: 3 }} height="80px" width="125px" alt="logo" />
-							</NavLink>
-							<div className="emkk">Электронная маршрутно-квалификационная комиссия</div>
+							<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
 							{!this.state.token &&
 								<>
 									<NavLink className="link" activeClassName="active" to="/login">Логин</NavLink>

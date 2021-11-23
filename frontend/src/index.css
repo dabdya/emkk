@@ -171,3 +171,11 @@ code {
 	height: 100px;
 	width: 100px;
 }
+
+.application .cell {
+	flex-direction: column;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+}
