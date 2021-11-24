@@ -71,7 +71,7 @@ export default class Dashboard extends React.Component {
 				sortable: false,
 				center: true,
 				wrap: true,
-				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic[0]}.`
+				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
 			});
 			this.columns.splice(2, 0, {
 				name: 'Локальный район',
