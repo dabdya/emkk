@@ -65,14 +65,10 @@ export default class Application extends React.Component {
 
 		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, this.config())
 			.then(async resp => {
-				resp.data.forEach(async el => {
-					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${el}`, this.config())
-						.then(async response => {
-							this.setState(prevState => ({
-								files: [...prevState.files, { id: response.data.id, uuid: response.data.uuid, filename: response.data.filename }]
-							}))
-
-						})
+				resp.data.forEach(file => {
+					this.setState(prevState => ({
+						files: [...prevState.files, { uuid: file.uuid, filename: file.filename }]
+					}))
 				});
 			});
 
@@ -95,7 +91,7 @@ export default class Application extends React.Component {
 	async createBlob(e, file) {
 		e.preventDefault();
 		let mime;
-		const resp = await axios.get(`${process.env.REACT_APP_URL}/api/${file.uuid}`, { responseType: 'arraybuffer' })
+		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: 'arraybuffer' })
 			.then(resp => {
 				mime = resp.headers["content-type"];
 				return resp;
@@ -127,7 +123,7 @@ export default class Application extends React.Component {
 	}
 
 	async deleteDocument(file) {
-		await this.requests.delete(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${file.id}`,
+		await this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
 			this.config())
 			.then(response => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
@@ -146,7 +142,7 @@ export default class Application extends React.Component {
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
-					this.setState(prevState => ({ files: [...prevState.files, { id: item.id, uuid: item.uuid, filename: item.filename }] }));
+					this.setState(prevState => ({ files: [...prevState.files, { uuid: item.uuid, filename: item.filename }] }));
 				}
 			})
 	}

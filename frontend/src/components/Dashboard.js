@@ -158,8 +158,8 @@ export default class Dashboard extends React.Component {
 				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
-				highlightOnHover={getToken()}
-				pointerOnHover={getToken()}
+				highlightOnHover
+				pointerOnHover
 				subHeaderAlign="left"
 				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{
