@@ -51,7 +51,6 @@ export default class Dashboard extends React.Component {
 			name: 'Дата завершения',
 			selector: row => row.end_date,
 			sortable: false,
-			allowOverflow: true,
 		},
 	];
 
@@ -67,12 +66,12 @@ export default class Dashboard extends React.Component {
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
 			this.columns.splice(0, 0, {
-				name: 'ФИ',
+				name: 'Руководитель',
 				selector: row => row.leader,
 				sortable: false,
 				center: true,
 				wrap: true,
-				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}.`
+				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
 			});
 			this.columns.splice(2, 0, {
 				name: 'Локальный район',
@@ -96,7 +95,7 @@ export default class Dashboard extends React.Component {
 				(result) => {
 					if (this.isMyApps) {
 						this.setState({
-							trips: result.data.filter(trip => trip.leader.username == this.user).map(item => {
+							trips: result.data.filter(trip => trip.leader.username === this.user).map(item => {
 								item.status = this.renderImage(item.status);
 								return item;
 							})

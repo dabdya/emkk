@@ -7,6 +7,7 @@ export const KINDOFTOURISM = {
 	"Пеше-водный": "pedestrian_water",
 	"pedestrian_water": "Пеше-водный",
 	"Спелео": "speleo",
+	"speleo": "Спелео",
 	"Парусный": "yachting",
 	"yachting": "Парусный",
 	"Конный": "horse_sport",
@@ -27,7 +28,6 @@ export const STATUS = {
 export const GLOBALAREA = [
 	"Алтай",
 	"Альпы",
-	"Арктическое побережье нескольких морей СМП РФ (Чукотка, Якутия)",
 	"Архангельская область",
 	"Африка",
 	"Байкал",

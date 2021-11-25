@@ -144,8 +144,8 @@ code {
 
 .deleteIcon {
 	margin-left: 5px;
-	width:1rem;
-	opacity:0.3;
+	width: 1rem;
+	opacity: 0.3;
 }
 
 .deleteIcon:hover {
@@ -165,9 +165,32 @@ code {
 }
 
 .img-home-navbar {
-	display:block;
+	display: block;
 	margin-left: auto;
 	margin-right: auto;
 	height: 100px;
 	width: 100px;
+}
+
+.application .cell {
+	flex-direction: column;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+}
+
+.application .cell-file {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
+.custom-file-upload {
+	border: 1px solid #ccc;
+	display: inline-block;
+	padding: 6px 12px;
+	cursor: pointer;
+	text-align: center;
+	width: 80%;
 }

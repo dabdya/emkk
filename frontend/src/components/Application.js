@@ -4,7 +4,7 @@ import { ScrollContainer, Button, Select, ComboBox } from '@skbkontur/react-ui'
 import Requests from '../utils/requests';
 import { getToken } from '../utils/Common';
 import axios from 'axios';
-import { Grid, Box } from '@mui/material'
+import { Grid } from '@mui/material'
 import icon from "../fonts/delete.ico"
 
 
@@ -41,7 +41,6 @@ export default class Application extends React.Component {
 	async componentDidMount() {
 		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}`, this.config())
 			.then(response => {
-				console.log(response)
 				this.setState({
 					id: response.data.id,
 					group_name: response.data.group_name,
@@ -166,13 +165,13 @@ export default class Application extends React.Component {
 			<div>
 				<ScrollContainer>
 					<form onSubmit={this.onSubmit}>
-						<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block"}}>Заявка №{this.state.id}</h1>
-						<div style={{display: "inline-block", marginLeft: 15}}>
-						{!isEditing && <Button onClick={this.changeEditing}>Редактировать заявку</Button>}
-						{isEditing && <Button type="submit" >Сохранить</Button>}
+						<div style={{ display: "inline-block", marginLeft: 15 }}>
+							<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block" }}>Заявка №{this.state.id}</h1>
+							{!isEditing && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+							{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						</div>
-						<div style={{ marginLeft: 40, height: "fit-content", width: "92%"}}>
-							<Grid container spacing={3}>
+						<div style={{ marginLeft: 40, height: "fit-content", width: "92%" }}>
+							<Grid container >
 								<Grid item lg={6} md={6} sm={6} xs={12}>
 									<h2 style={{ fontWeight: "normal" }}>Имя руководителя: {this.state.leader?.first_name}</h2>
 								</Grid>
@@ -224,25 +223,25 @@ export default class Application extends React.Component {
 							</Grid>
 						</div>
 					</form>
-					<div style={{marginTop: 30, marginLeft: 25, marginRight: 50}}>
+					<div style={{ marginTop: 30, marginLeft: 25, marginRight: 50 }}>
 						<hr />
 					</div>
 
 					<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
-						<h1 style={{ marginBlockEnd: 20, fontSize: 20, color: "#4A4A4A", fontWeight: "normal", textDecoration: "underline", textDecorationColor:"#1D85D0",textUnderlineOffset:"0.5rem"}}>Документы</h1>
+						<h1 style={{ marginBlockEnd: 20, fontSize: 20, color: "#4A4A4A", fontWeight: "normal", textDecoration: "underline", textDecorationColor: "#1D85D0", textUnderlineOffset: "0.5rem" }}>Документы</h1>
 						<div>
-							<Grid container rowSpacing={5} columnSpacing={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
+							<Grid container rowSpacing={1} columnSpacing={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
 								{
 									this.state.files.map(file => {
-										return ( <Grid item xs={12} sm={12} md={12} lg={12}>
-												<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank" style={{textDecoration: "none", color:"#4C94FF"}}>{file.filename}</a>
-												<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon"/>
+										return (<Grid item xs={12} sm={12} md={12} lg={12}>
+											<a onClick={(e) => { this.createBlob(e, file); }} href="#" target="_blank" style={{ textDecoration: "none", color: "#4C94FF" }}>{file.filename}</a>
+											<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />
 										</Grid>
 										);
 									})
 								}
 							</Grid>
-							<div style={{marginTop: 15}}>
+							<div style={{ marginTop: 15 }}>
 								<input
 									ref="fileInput"
 									onChange={this.addDocument}
@@ -254,7 +253,7 @@ export default class Application extends React.Component {
 							</div>
 						</div>
 					</div>
-					<div style={{marginLeft: 25, marginRight: 50}}>
+					<div style={{ marginLeft: 25, marginRight: 50 }}>
 						<hr />
 					</div>
 					<div style={{ marginTop: 15, marginLeft: 15, height: "500px" }}>
