@@ -180,6 +180,12 @@ code {
 
 }
 
+.application .cell-file {
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+
 .custom-file-upload {
 	border: 1px solid #ccc;
 	display: inline-block;

@@ -4,6 +4,9 @@ import { Autocomplete, TextField, Button } from '@mui/material'
 import { getToken } from '../utils/Common';
 import Requests from '../utils/requests'
 import ShowModal from "./ShowModal"
+import HelpIcon from '@mui/icons-material/Help';
+import Tooltip from '@mui/material/Tooltip';
+import IconButton from '@mui/material/IconButton';
 
 
 export default class ApplicationForm extends React.Component {
@@ -30,6 +33,7 @@ export default class ApplicationForm extends React.Component {
 			coordinator_name: "",
 			coordinator_phone_number: "",
 			insurance_company_name: "",
+			insurance_number: 0,
 			insurance_policy_validity_duration: new Date(),
 			buttonIsPressed: false,
 			files: []
@@ -46,7 +50,8 @@ export default class ApplicationForm extends React.Component {
 
 	async onSubmit(event) {
 		event.preventDefault()
-		const { files, buttonIsPressed, ...rest } = this.state;
+		const { files, buttonIsPressed, routeBook, participantsReferences,
+			insurancePolicyScans, cartographicMaterial, ...rest } = this.state;
 		const config = {
 			headers: {
 				Authorization: 'Token ' + getToken()
@@ -56,9 +61,7 @@ export default class ApplicationForm extends React.Component {
 		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
 			rest,
 			config).then(respForm => {
-				this.setState({
-					buttonIsPressed: true
-				});
+				this.open();
 
 				const form = new FormData()
 				for (const file of this.state.files) {
@@ -84,7 +87,7 @@ export default class ApplicationForm extends React.Component {
 
 	handleTag({ target }, fieldName) {
 		const { value } = target;
-		if (fieldName == "kind") {
+		if (fieldName === "kind") {
 			this.setState({ [fieldName]: KINDOFTOURISM[value] });
 
 		} else {
@@ -111,13 +114,15 @@ export default class ApplicationForm extends React.Component {
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		return (
-			<form className="application" onSubmit={this.onSubmit} style={{
-				display: "grid",
-				gridTemplateColumns: "auto auto",
-				gridColumnGap: "5px",
-				gridRowGap: "10px",
-				margin: "10px 10px 10px 10px"
-			}}>
+			<form className="application"
+				onSubmit={this.onSubmit}
+				style={{
+					display: "grid",
+					gridTemplateColumns: "auto auto",
+					gridColumnGap: "5px",
+					gridRowGap: "10px",
+					margin: "10px 10px 10px 10px"
+				}}>
 				<div className="cell">
 					<TextField
 						required
@@ -125,7 +130,7 @@ export default class ApplicationForm extends React.Component {
 						name="group_name"
 						label="Название спортивной организации"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 1 } }}
+						InputProps={{ inputProps: { tabIndex: 1, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
 					/>
@@ -137,7 +142,7 @@ export default class ApplicationForm extends React.Component {
 						name="coordinator_name"
 						label="ФИО координатора"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 11 } }}
+						InputProps={{ inputProps: { tabIndex: 12, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
 					/>
@@ -167,7 +172,7 @@ export default class ApplicationForm extends React.Component {
 						placeholder="+7(999)99999999"
 						style={{ width: '100%' }}
 						variant="filled"
-						InputProps={{ inputProps: { tabIndex: 12 } }}
+						InputProps={{ inputProps: { tabIndex: 13, pattern: "\+?[0-9\s\-\(\)]+", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>
@@ -178,7 +183,7 @@ export default class ApplicationForm extends React.Component {
 						label="Локальный район"
 						name="local_region"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 3 } }}
+						InputProps={{ inputProps: { tabIndex: 3, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
 					/>
@@ -191,7 +196,7 @@ export default class ApplicationForm extends React.Component {
 						label="Населённый пункт начала маршрута"
 						style={{ width: '100%' }}
 						variant="filled"
-						InputProps={{ inputProps: { tabIndex: 13 } }}
+						InputProps={{ inputProps: { tabIndex: 14, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>
@@ -217,10 +222,8 @@ export default class ApplicationForm extends React.Component {
 						name="control_start_date"
 						type="date"
 						style={{ width: '100%' }}
-						InputProps={{ tabIndex: 14 }}
-						InputLabelProps={{
-							shrink: true
-						}}
+						InputProps={{ inputProps: { tabIndex: 15 } }}
+						InputLabelProps={{ shrink: true }}
 						variant="filled"
 						onChange={this.changeInputRegister}
 					/>
@@ -248,7 +251,7 @@ export default class ApplicationForm extends React.Component {
 						label="Населённый пункт окончания маршрута"
 						name="control_end_region"
 						style={{ width: '100%' }}
-						InputProps={{ tabIndex: 15 }}
+						InputProps={{ inputProps: { tabIndex: 16, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
 					/>
@@ -276,7 +279,7 @@ export default class ApplicationForm extends React.Component {
 						type="date"
 						variant="filled"
 						style={{ width: '100%' }}
-						InputProps={{ tabIndex: 16 }}
+						InputProps={{ inputProps: { tabIndex: 17 } }}
 						InputLabelProps={{ shrink: true }}
 						onChange={this.changeInputRegister}
 					/>
@@ -290,7 +293,7 @@ export default class ApplicationForm extends React.Component {
 						type="date"
 						variant="filled"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 7 } }}
+						InputProps={{ inputProps: { tabIndex: 7 }, autoComplete: "off" }}
 						InputLabelProps={{
 							shrink: true
 						}}
@@ -298,15 +301,26 @@ export default class ApplicationForm extends React.Component {
 					/>
 				</div>
 				<div className="cell">
-					<label className="custom-file-upload">
-						<input type="file" multiple
-							onChange={(event) => {
-								this.uploadFile(event);
-								this.setState({ routeBook: this.state.routeBook + event.target.files.length })
-							}}
-							style={{ display: "none" }} />
-						Загрузить маршрутную книжку
-					</label>
+					<div className="cell-file">
+						<label className="custom-file-upload">
+							<input type="file" multiple
+								onChange={(event) => {
+									this.uploadFile(event);
+									this.setState({ routeBook: this.state.routeBook + event.target.files.length })
+								}}
+								style={{ display: "none" }} />
+							Загрузить маршрутную книжку
+						</label>
+						<Tooltip
+							placement="top-start"
+							tabIndex={18}
+							title="Формат имени файла:
+							ГОД_МЕСЯЦ_ФИОруководителя_Район_категория. документ в формате pdf, doc/docx, xls/xlsx">
+							<IconButton>
+								<HelpIcon />
+							</IconButton>
+						</Tooltip>
+					</div>
 					{this.state.routeBook >= 1 && `Загружен(о) ${this.state.routeBook} файл/а/ов`}
 				</div>
 				<div className="cell">
@@ -317,20 +331,31 @@ export default class ApplicationForm extends React.Component {
 						label="Количество участников"
 						variant="filled"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 8, pattern: "[0-9]+" } }}
+						InputProps={{ inputProps: { tabIndex: 8, pattern: "[0-9]+", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>
 				<div className="cell">
-					<label className="custom-file-upload">
-						<input type="file" multiple
-							onChange={(event) => {
-								this.uploadFile(event);
-								this.setState({ cartographicMaterial: this.state.cartographicMaterial + event.target.files.length })
-							}}
-							style={{ display: "none" }} />
-						Загрузить Картографический материал
-					</label>
+					<div className="cell-file">
+						<label className="custom-file-upload">
+							<input type="file" multiple
+								onChange={(event) => {
+									this.uploadFile(event);
+									this.setState({ cartographicMaterial: this.state.cartographicMaterial + event.target.files.length })
+								}}
+								style={{ display: "none" }} />
+							Загрузить Картографический материал
+						</label>
+						<Tooltip
+							placement="top-start"
+							tabIndex={19}
+							title="Формат имени файла:
+							ГОД_МЕСЯЦ_ФИОруководителя_Район_категория_карта">
+							<IconButton>
+								<HelpIcon />
+							</IconButton>
+						</Tooltip>
+					</div>
 					{this.state.cartographicMaterial >= 1 && `Загружен(о) ${this.state.cartographicMaterial} файл/а/ов`}
 				</div>
 				<div className="cell">
@@ -341,21 +366,67 @@ export default class ApplicationForm extends React.Component {
 						name="insurance_company_name"
 						variant="filled"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 9 } }}
+						InputProps={{ inputProps: { tabIndex: 9, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>
 				<div className="cell">
-					<label className="custom-file-upload">
-						<input type="file" multiple
-							onChange={(event) => {
-								this.uploadFile(event);
-								this.setState({ participantsReferences: this.state.participantsReferences + event.target.files.length })
-							}}
-							style={{ display: "none" }} />
-						Загрузить справки участников
-					</label>
+					<div className="cell-file">
+						<label className="custom-file-upload">
+							<input type="file" multiple
+								onChange={(event) => {
+									this.uploadFile(event);
+									this.setState({ participantsReferences: this.state.participantsReferences + event.target.files.length })
+								}}
+								style={{ display: "none" }} />
+							Загрузить справки участников
+						</label>
+						<Tooltip
+							placement="top-start"
+							tabIndex={20}
+							title="Какие-то справки">
+							<IconButton>
+								<HelpIcon />
+							</IconButton>
+						</Tooltip>
+					</div>
 					{this.state.participantsReferences >= 1 && `Загружен(о) ${this.state.participantsReferences} файл/а/ов`}
+				</div>
+				<div className="cell">
+					<TextField
+						required
+						id="outlined"
+						label="Номер полиса"
+						name="insurance_number"
+						variant="filled"
+						style={{ width: '100%' }}
+						InputProps={{ inputProps: { tabIndex: 10, autoComplete: "off" } }}
+						onChange={this.changeInputRegister}
+					/>
+				</div>
+
+				<div className="cell">
+					<div className="cell-file">
+						<label className="custom-file-upload" >
+							<input type="file" multiple
+								onChange={(event) => {
+									this.uploadFile(event);
+									this.setState({ insurancePolicyScans: this.state.insurancePolicyScans + event.target.files.length })
+								}}
+								style={{ display: "none" }} />
+							Загрузить сканы страховых полисов
+						</label>
+						<Tooltip
+							placement="top-start"
+							tabIndex={20}
+							title="Формат имени файла:
+							ГОД_МЕСЯЦ_ФИОруководителя_Район_категория_полисы">
+							<IconButton>
+								<HelpIcon />
+							</IconButton>
+						</Tooltip>
+					</div>
+					{this.state.insurancePolicyScans >= 1 && `Загружен(о) ${this.state.insurancePolicyScans} файл/а/ов`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -366,7 +437,7 @@ export default class ApplicationForm extends React.Component {
 						type="date"
 						variant="filled"
 						style={{ width: '100%' }}
-						InputProps={{ inputProps: { tabIndex: 10 } }}
+						InputProps={{ inputProps: { tabIndex: 11 } }}
 						InputLabelProps={{
 							shrink: true
 						}}
@@ -374,21 +445,9 @@ export default class ApplicationForm extends React.Component {
 					/>
 				</div>
 				<div className="cell">
-					<label className="custom-file-upload" >
-						<input type="file" multiple
-							onChange={(event) => {
-								this.uploadFile(event);
-								this.setState({ insurancePolicyScans: this.state.insurancePolicyScans + event.target.files.length })
-							}}
-							style={{ display: "none" }} />
-						Загрузить сканы страховых полисов
-					</label>
-					{this.state.insurancePolicyScans >= 1 && `Загружен(о) ${this.state.insurancePolicyScans} файл/а/ов`}
-				</div>
-				<div className="cell"> </div>
-				<div className="cell">
 					<Button variant="contained"
 						type="submit"
+						tabIndex={21}
 						style={{ width: "80%", backgroundColor: "#136DAB" }}
 					>Отправить заявку</Button>
 				</div>
