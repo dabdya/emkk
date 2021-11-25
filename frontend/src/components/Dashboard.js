@@ -8,6 +8,22 @@ import accepted from '../fonts/accepted.png';
 import DataTable from 'react-data-table-component';
 
 export default class Dashboard extends React.Component {
+	addedCoumns = [
+		{
+			name: 'Руководитель',
+			selector: row => row.leader,
+			sortable: false,
+			center: true,
+			wrap: true,
+			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
+		},
+		{
+			name: 'Локальный район',
+			selector: row => row.local_region,
+			sortable: false,
+			wrap: true,
+		}
+	]
 	columns = [
 		{
 			name: 'Название спорт. организации',
@@ -65,20 +81,8 @@ export default class Dashboard extends React.Component {
 		};
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
-			this.columns.splice(0, 0, {
-				name: 'Руководитель',
-				selector: row => row.leader,
-				sortable: false,
-				center: true,
-				wrap: true,
-				cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
-			});
-			this.columns.splice(2, 0, {
-				name: 'Локальный район',
-				selector: row => row.local_region,
-				sortable: false,
-				wrap: true,
-			});
+			this.columns.splice(0, 0, this.addedCoumns[0]);
+			this.columns.splice(2, 0, this.addedCoumns[1]);
 		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
@@ -119,11 +123,22 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
+		if (!getToken()) {
+			return;
+		}
+
 		this.props.history.push({
 			pathname: '/home/application',
 			state: target.id,
 		});
 	};
+
+	// onClickOnRowReview(target) {
+	// 	this.props.history.push({
+	// 		pathname: '/home/application',
+	// 		state: "review",
+	// 	});
+	// };
 
 	renderImage(status) {
 		if (status === "on_review") {
@@ -143,8 +158,8 @@ export default class Dashboard extends React.Component {
 				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
-				highlightOnHover
-				pointerOnHover
+				highlightOnHover={getToken()}
+				pointerOnHover={getToken()}
 				subHeaderAlign="left"
 				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{
