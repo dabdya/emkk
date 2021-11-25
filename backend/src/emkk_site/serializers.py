@@ -13,12 +13,6 @@ class DocumentSerializer(serializers.ModelSerializer):
         extra_kwargs = {'trip': {'required': False}}
 
 
-class DocumentDetailSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Document
-        fields = '__all__'
-
-
 class BaseReviewSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
@@ -50,13 +44,13 @@ class WorkRegisterSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         user = self.context['user']
         if WorkRegister.objects.filter(user=user, trip=attrs['trip']):
-            raise serializers.ValidationError("pair user and trip already exists")
+            raise serializers.ValidationError("Unique constraint violated")
         return attrs
 
     def create(self, validated_data):
         user = self.context['user']
         validated_data['user'] = user
-        return super(WorkRegisterSerializer, self).create(validated_data)
+        return super().create(validated_data)
 
 
 class TripSerializer(serializers.ModelSerializer):
