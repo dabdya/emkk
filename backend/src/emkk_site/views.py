@@ -108,9 +108,14 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
         return response
 
     def destroy(self, request, *args, **kwargs):
+        def delete_file(path):
+            import os
+            if os.path.isfile(path):
+                os.remove(path)
         document = self.get_object()
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
+        delete_file(document.file.path)
         document.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

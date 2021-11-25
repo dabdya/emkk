@@ -19,7 +19,8 @@ class TripTest(TestCase):
             'coordinator_name': 'Info',
             'coordinator_phone_number': '89527373254',
             'insurance_company_name': 'Info',
-            'insurance_policy_validity_duration': '2021-12-24'
+            'insurance_policy_validity_duration': '2021-12-24',
+            'insurance_number': '34234234',
         }
 
         self.trips_count = 1
@@ -29,7 +30,6 @@ class TripTest(TestCase):
 
     def test_trip_create_take_leader_from_authorization(self):
         response = self.env.client_post(f'/api/trips', self.trip_data)
-
         trip_id = response.data['id']
         trip = Trip.objects.get(pk=trip_id)
         self.assertEqual(trip.leader, self.env.user)

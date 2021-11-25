@@ -61,6 +61,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'password', 'email', 'username', 'first_name', 'last_name', 'gender',
             'access_token', 'refresh_token',
         ]
+        extra_kwargs = {'patronymic': {'required': False}}
 
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
