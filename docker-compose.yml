@@ -6,10 +6,8 @@ services:
     image: postgres
     volumes:
       - ./backend/data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=emkk_db
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=pass
+    env_file:
+      - ./backend/db.env
     ports:
     - "5432:5432"
 
@@ -18,13 +16,9 @@ services:
     image: emkk_backend
     build: ./backend
     volumes:
-      - ./backend/media:/emkk/backend/media
-    environment:
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=emkk_db
-      - DB_USER=admin
-      - DB_PASSWORD=pass
+      - ./backend:/emkk/backend
+    env_file:
+      - ./backend/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -35,8 +29,8 @@ services:
     image: emkk_frontend
     build: ./frontend
     command: npm run start
-    environment:
-      CHOKIDAR_USEPOLLING: "true"
+    env_file:
+      - ./frontend/.env
     volumes:
       - /emkk/frontend/node_modules
       - ./frontend:/emkk/frontend

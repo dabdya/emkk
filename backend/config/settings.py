@@ -19,7 +19,7 @@ class Base(Configuration):
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
 
-    DEPLOY_HOST = 'www.emkk-site.ru'
+    DEPLOY_HOST = os.environ.get('DEPLOY_HOST')
 
     EMAIL_HOST = 'smtp.gmail.com'
     EMAIL_HOST_USER = 'notify.emkk@gmail.com'
@@ -45,7 +45,7 @@ class Base(Configuration):
     }
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = False
+    DEBUG = eval(os.environ.get('DEBUG', 'False'))
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
