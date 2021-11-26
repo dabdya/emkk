@@ -85,6 +85,10 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
     def update(self, request, *args, **kwargs):
+        if Trip.objects.get(pk=kwargs["pk"]).status == TripStatus.REJECTED:
+            return Response(
+                "Rejected trip cannot be changed",
+                status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, args, kwargs)
         return response
 
@@ -112,6 +116,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             import os
             if os.path.isfile(path):
                 os.remove(path)
+
         document = self.get_object()
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -175,6 +180,7 @@ class DocumentList(generics.ListCreateAPIView):
 
 class ReviewView(generics.ListCreateAPIView):
     """Basic class for IssuerReview and ReviewerReview"""
+
     def __init__(self, model_class):
         super().__init__()
         self.model_class = model_class
@@ -224,6 +230,7 @@ class ReviewView(generics.ListCreateAPIView):
 
 class ReviewerList(ReviewView):
     """Endpoint for creating reviews by reviewers"""
+
     def __init__(self):
         super(ReviewerList, self).__init__(Review)
 
@@ -237,6 +244,7 @@ class ReviewerList(ReviewView):
 
 class IssuerList(ReviewView):
     """Endpoint for creating reviews by issuers"""
+
     def __init__(self):
         super(IssuerList, self).__init__(ReviewFromIssuer)
 
@@ -246,7 +254,6 @@ class IssuerList(ReviewView):
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
         return super(IssuerList, self).create(request, *args, **kwargs)
-
 
 # @api_view(['POST'])
 # # @permission_classes([IsAuthenticated])

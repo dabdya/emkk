@@ -71,8 +71,6 @@ class TripTest(TestCase):
 
     def test_trip_last_modified_is_greater_after_changing_the_trip(self):
         trip = self.env.trips[0]
-        trip.status = TripStatus.ON_REVIEW
-        trip.save()
         old_date = trip.last_modified_at
         import time
         time.sleep(1)
@@ -94,3 +92,16 @@ class TripTest(TestCase):
         response = self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
         trip = Trip.objects.get(pk=trip_id)
         self.assertGreater(trip.last_modified_at, old_date)
+
+    def test_trip_cannot_be_changed_after_rejecting(self):
+        trip = self.env.trips[0]
+        trip.status = TripStatus.REJECTED
+        trip.save()
+        trip.leader.is_active = True
+        trip.leader.save()
+        old_kind = trip.kind
+        r = self.env.client_patch(f'/api/trips/{trip.id}', {
+            'kind': TripKind.CYCLING}, user=trip.leader)
+        new_trip = Trip.objects.get(pk=trip.id)
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(new_trip.kind, old_kind)

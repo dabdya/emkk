@@ -1,4 +1,4 @@
-from src.emkk_site.models import Trip
+from src.emkk_site.models import Trip, TripStatus
 from src.jwt_auth.models import User
 
 from django.test import Client
@@ -26,6 +26,8 @@ class TestEnvironment:
             trip = self.eg.generate_instance_by_model(Trip, **kwargs)
             trip.save()
             self.trips.append(trip)
+        self.trips[0].status = TripStatus.ON_REVIEW  # any status except rejected
+        self.trips[0].save()
         return self
 
     def _generate_users(self, count, reviewer=False, issuer=False):
