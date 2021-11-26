@@ -1,7 +1,8 @@
+
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import Trip, TripKind
+from src.emkk_site.models import Trip, TripKind, TripStatus
 
 
 class TripTest(TestCase):
@@ -68,3 +69,16 @@ class TripTest(TestCase):
         r = self.env.client_delete(f'/api/trips/{trip.id}', user=trip.leader)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(Trip.objects.filter(id=trip.id).count(), 0)
+
+    def test_trip_last_modified_is_greater_after_changing_the_trip(self):
+        trip = self.env.trips[0]
+        trip.status = TripStatus.ON_REVIEW
+        trip.save()
+        old_date = trip.last_modified_at
+        import time
+        time.sleep(1)
+
+        trip.status = TripStatus.AT_ISSUER
+        trip.save()
+        new_date = trip.last_modified_at
+        self.assertGreater(new_date, old_date)
