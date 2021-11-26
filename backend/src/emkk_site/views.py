@@ -19,7 +19,7 @@ from src.emkk_site.services import (
     try_change_trip_status_to_issuer_result, )
 
 from src.emkk_site.models import (
-    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
+    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, ReviewDocument)
 
 
 class WorkRegisterView(generics.ListCreateAPIView):
@@ -249,9 +249,10 @@ class ReviewerList(ReviewView):
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
-        data = request.data
+        # data = request.data
         # for file in self.request.FILES.getlist('file'):
-        #     document = ReviewDocument(trip=data.get())
+        #     document = ReviewDocument(file=file, uuid=uuid.uuid4(),
+        #                               content_type=file.content_type, filename=file.name)
         #     document.save()
         return super(ReviewerList, self).create(request, *args, **kwargs)
 

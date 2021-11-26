@@ -80,6 +80,7 @@ class Review(models.Model):
     result_comment = models.TextField()
     file = models.FileField(null=True)
     file_uuid = models.UUIDField(null=True, default=uuid.uuid4, editable=False, unique=True)
+    filename = models.CharField(max_length=250)
     content_type = models.CharField(max_length=100, null=True)
 
 
@@ -96,8 +97,12 @@ class Document(models.Model):
     content_type = models.CharField(max_length=100)
 
 
-# class ReviewDocument(Document):
-#     pass
+class ReviewDocument(models.Model):
+    review = models.ForeignKey(Review, null=True, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='%Y/%m/%d/')
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    filename = models.CharField(max_length=250, null=True)
+    content_type = models.CharField(max_length=100, null=True)
 
 
 class UserExperience(models.Model):
