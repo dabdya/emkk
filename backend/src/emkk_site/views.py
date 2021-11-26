@@ -207,7 +207,7 @@ class ReviewView(generics.ListCreateAPIView):
         if not data.get("file") and not data.get("result_comment"):
             return Response(
                 "Review must contain Result comment or File. No one found.",
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                status=status.HTTP_400_BAD_REQUEST)
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
         data = request.data
