@@ -65,6 +65,14 @@ class TestEnvironment:
 
         return self.client.patch(url, data, content_type='application/json', **headers)
 
+    def client_delete(self, url, data=None, set_auth_header=True, user=None):
+        if not user:
+            user = self.user
+        headers = {}
+        if set_auth_header:
+            headers.update(self._get_auth_header(user))
+        return self.client.delete(url, data, content_type='application/json', **headers)
+
     def client_get(self, url, set_auth_header=True, user=None):
         if not user:
             user = self.user
