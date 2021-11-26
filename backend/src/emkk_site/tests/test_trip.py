@@ -1,4 +1,3 @@
-
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
@@ -82,3 +81,16 @@ class TripTest(TestCase):
         trip.save()
         new_date = trip.last_modified_at
         self.assertGreater(new_date, old_date)
+
+    def test_trip_last_modified_is_greater_after_changing_the_trip_by_patch(self):
+        response = self.env.client_post(f'/api/trips', self.trip_data)
+        trip_id = response.data['id']
+        old_trip = Trip.objects.get(pk=trip_id)
+        old_date = old_trip.last_modified_at
+        import time
+        time.sleep(1)
+        trip_data = dict(self.trip_data)
+        trip_data['kind'] = TripKind.HORSE_SPORT
+        response = self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
+        trip = Trip.objects.get(pk=trip_id)
+        self.assertGreater(trip.last_modified_at, old_date)
