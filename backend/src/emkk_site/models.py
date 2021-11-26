@@ -78,6 +78,8 @@ class Review(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     result = models.CharField(choices=ReviewResult.choices, max_length=30)
     result_comment = models.TextField()
+    file = models.FileField()
+    file_uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
 
 class ReviewFromIssuer(Review):
@@ -91,6 +93,10 @@ class Document(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     filename = models.CharField(max_length=250)
     content_type = models.CharField(max_length=100)
+
+
+# class ReviewDocument(Document):
+#     pass
 
 
 class UserExperience(models.Model):

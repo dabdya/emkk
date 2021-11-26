@@ -18,6 +18,7 @@ class BaseReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         reviewer = self.context['reviewer']
         validated_data['reviewer'] = reviewer
+
         return super(BaseReviewSerializer, self).create(validated_data)
 
 
@@ -88,4 +89,3 @@ class TripForAnonymousSerializer(serializers.ModelSerializer):
         fields = [
             'status', 'kind', 'leader', 'group_name', 'difficulty_category',
             'global_region', 'local_region', 'start_date', 'end_date']
-

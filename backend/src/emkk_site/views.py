@@ -99,8 +99,11 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
         if not document:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
+            doc = get_review_document(self.kwargs['doc_uuid'])
+            if not doc:
+                return Response(status=status.HTTP_404_NOT_FOUND)
+            with open(doc.path, 'rb') as file:  # unknown content type
+                return HttpResponse(file.read())
         with open(document.file.path, 'rb') as file:
             doc_data = file.read()
 
@@ -112,6 +115,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             import os
             if os.path.isfile(path):
                 os.remove(path)
+
         document = self.get_object()
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -126,6 +130,14 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             return document
         except Document.DoesNotExist:
             pass
+
+
+def get_review_document(doc_uuid):
+    try:
+        review = Review.objects.get(file_uuid=doc_uuid)
+    except Review.DoesNotExist:
+        return None
+    return review.file
 
 
 class DocumentList(generics.ListCreateAPIView):
@@ -172,9 +184,13 @@ class DocumentList(generics.ListCreateAPIView):
 
         return Response(documents, status=status.HTTP_201_CREATED)
 
+    def get_queryset(self):  # for fix
+        return Document.objects.all()
+
 
 class ReviewView(generics.ListCreateAPIView):
     """Basic class for IssuerReview and ReviewerReview"""
+
     def __init__(self, model_class):
         super().__init__()
         self.model_class = model_class
@@ -190,8 +206,9 @@ class ReviewView(generics.ListCreateAPIView):
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
+        data = request.data
         serializer = self.serializer_class(
-            data=request.data, context=self.get_serializer_context())
+            data=data, context=self.get_serializer_context())
 
         context_class = kwargs.get("context_class", None)
 
@@ -224,6 +241,7 @@ class ReviewView(generics.ListCreateAPIView):
 
 class ReviewerList(ReviewView):
     """Endpoint for creating reviews by reviewers"""
+
     def __init__(self):
         super(ReviewerList, self).__init__(Review)
 
@@ -232,11 +250,16 @@ class ReviewerList(ReviewView):
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
+        data = request.data
+        # for file in self.request.FILES.getlist('file'):
+        #     document = ReviewDocument(trip=data.get())
+        #     document.save()
         return super(ReviewerList, self).create(request, *args, **kwargs)
 
 
 class IssuerList(ReviewView):
     """Endpoint for creating reviews by issuers"""
+
     def __init__(self):
         super(IssuerList, self).__init__(ReviewFromIssuer)
 
@@ -246,7 +269,6 @@ class IssuerList(ReviewView):
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
         return super(IssuerList, self).create(request, *args, **kwargs)
-
 
 # @api_view(['POST'])
 # # @permission_classes([IsAuthenticated])
