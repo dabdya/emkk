@@ -77,10 +77,10 @@ class Review(models.Model):
     reviewer = models.ForeignKey(User, on_delete=models.CASCADE)
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     result = models.CharField(choices=ReviewResult.choices, max_length=30)
-    result_comment = models.TextField()
+    result_comment = models.TextField(null=True)
     file = models.FileField(null=True)
     file_uuid = models.UUIDField(null=True, default=uuid.uuid4, editable=False, unique=True)
-    filename = models.CharField(max_length=250)
+    filename = models.CharField(max_length=250, null=True)
     content_type = models.CharField(max_length=100, null=True)
 
 

@@ -203,6 +203,11 @@ class ReviewView(generics.ListCreateAPIView):
         return context
 
     def create(self, request, *args, **kwargs):
+        data = request.data
+        if not data.get("file") and not data.get("result_comment"):
+            return Response(
+                "Review must contain Result comment or File. No one found.",
+                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
         trip_id = kwargs["pk"]
         trip = Trip.objects.get(pk=trip_id)
         data = request.data
@@ -249,11 +254,6 @@ class ReviewerList(ReviewView):
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
-        # data = request.data
-        # for file in self.request.FILES.getlist('file'):
-        #     document = ReviewDocument(file=file, uuid=uuid.uuid4(),
-        #                               content_type=file.content_type, filename=file.name)
-        #     document.save()
         return super(ReviewerList, self).create(request, *args, **kwargs)
 
 
