@@ -80,6 +80,7 @@ class Review(models.Model):
     result_comment = models.TextField()
     file = models.FileField(null=True)
     file_uuid = models.UUIDField(null=True, default=uuid.uuid4, editable=False, unique=True)
+    content_type = models.CharField(max_length=100, null=True)
 
 
 class ReviewFromIssuer(Review):

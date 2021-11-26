@@ -2,7 +2,6 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import HttpResponse, FileResponse
-import magic
 
 import uuid
 
@@ -104,10 +103,10 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
                 doc_data = file.read()
             response = HttpResponse(doc_data, content_type=document.content_type)
             return response
-        doc = get_review_document(self.kwargs['doc_uuid'])
-        if doc:
-            with open(doc.path, 'rb') as file:
-                return HttpResponse(file.read(), content_type=magic.Magic(mime=True).from_file(doc.path))
+        rev = get_review(self.kwargs['doc_uuid'])
+        if rev.file:
+            with open(rev.file.path, 'rb') as file:
+                return HttpResponse(file.read(), content_type=rev.content_type)
         return Response(status=status.HTTP_404_NOT_FOUND)
 
     def destroy(self, request, *args, **kwargs):
@@ -132,12 +131,12 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             pass
 
 
-def get_review_document(doc_uuid):
+def get_review(doc_uuid):
     try:
         review = Review.objects.get(file_uuid=doc_uuid)
     except Review.DoesNotExist:
         return None
-    return review.file
+    return review
 
 
 class DocumentList(generics.ListCreateAPIView):
