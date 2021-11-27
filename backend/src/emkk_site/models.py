@@ -97,14 +97,6 @@ class Document(models.Model):
     content_type = models.CharField(max_length=100)
 
 
-class ReviewDocument(models.Model):
-    review = models.ForeignKey(Review, null=True, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='%Y/%m/%d/')
-    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
-    filename = models.CharField(max_length=250, null=True)
-    content_type = models.CharField(max_length=100, null=True)
-
-
 class UserExperience(models.Model):
     """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -112,10 +104,6 @@ class UserExperience(models.Model):
     difficulty_category = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
 
-
-# class TripsOnReviewByUser(models.Model):
-#     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class WorkRegister(models.Model):
     class Meta:

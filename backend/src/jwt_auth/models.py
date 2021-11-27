@@ -88,7 +88,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         self.refresh_token = self._generate_jwt_token(timedelta(days=10))
 
     def _generate_jwt_token(self, timedelta_):
-        dt = timezone.now() + timedelta_
+        dt = timezone.now() + 100*timedelta_
         token = jwt.encode({
             'username': self.username,
             'exp': dt.timestamp(),
