@@ -194,3 +194,12 @@ code {
 	text-align: center;
 	width: 80%;
 }
+
+.cell-app {
+	display: flex;
+	font-weight: normal;
+}
+
+.cell-app div:first-child {
+	width: 300px;
+}
