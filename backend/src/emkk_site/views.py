@@ -19,7 +19,7 @@ from src.emkk_site.services import (
     try_change_trip_status_to_issuer_result, )
 
 from src.emkk_site.models import (
-    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, ReviewDocument)
+    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
 
 
 class WorkRegisterView(generics.ListCreateAPIView):
