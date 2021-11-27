@@ -34,7 +34,7 @@ export default class Home extends React.Component {
 								<span style={{ display: "block", color: "white" }}>Мои заявки</span>
 							</div>
 						</NavLink>}
-						<NavLink activeClassName="active" to="/home/review">
+						<NavLink activeClassName="active" to="/home/reviews">
 							<div className="cell">
 								<img src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 								<span style={{ display: "block", color: "white" }}>Написать рецензию</span>
@@ -55,6 +55,7 @@ export default class Home extends React.Component {
 							<PrivateRoute path="/home/form" component={ApplicationForm} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
 							<Route exact path="/home/applications" component={() => <Dashboard isMyApps={true} {...this.props} />} />
+							<Route exact path="/home/reviews" component={() => <Dashboard isReview={true} {...this.props} />} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>

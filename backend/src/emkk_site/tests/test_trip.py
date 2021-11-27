@@ -19,7 +19,8 @@ class TripTest(TestCase):
             'coordinator_name': 'Info',
             'coordinator_phone_number': '89527373254',
             'insurance_company_name': 'Info',
-            'insurance_policy_validity_duration': '2021-12-24'
+            'insurance_policy_validity_duration': '2021-12-24',
+            'insurance_number': '34234234',
         }
 
         self.trips_count = 1
@@ -29,7 +30,6 @@ class TripTest(TestCase):
 
     def test_trip_create_take_leader_from_authorization(self):
         response = self.env.client_post(f'/api/trips', self.trip_data)
-
         trip_id = response.data['id']
         trip = Trip.objects.get(pk=trip_id)
         self.assertEqual(trip.leader, self.env.user)
@@ -43,12 +43,28 @@ class TripTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data[0].get('insurance_info', False))
 
-    def test_trip_change_fields_correct_work(self):
+    def test_user_cant_change_trip_if_is_not_owner(self):
         trip = self.env.trips[0]
         r = self.env.client_patch(f'/api/trips/{trip.id}', {
             'participants_count': trip.participants_count + 1})
+        self.assertEqual(r.status_code, 403)
 
-        self.assertEqual(r.status_code, 201)
+        r = self.env.client_delete(f'/api/trips/{trip.id}')
+        self.assertEqual(r.status_code, 403)
+
+    def test_user_can_change_trip_fields_if_is_owner(self):
+        trip = self.env.trips[0]
+        trip.leader.is_active = True
+        trip.leader.save()
+
+        r = self.env.client_patch(f'/api/trips/{trip.id}', {
+            'participants_count': trip.participants_count + 1}, user=trip.leader)
+
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data['participants_count'], trip.participants_count + 1)
         self.assertEqual(
             Trip.objects.get(id=trip.id).participants_count, trip.participants_count + 1)
+
+        r = self.env.client_delete(f'/api/trips/{trip.id}', user=trip.leader)
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(Trip.objects.filter(id=trip.id).count(), 0)

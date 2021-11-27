@@ -45,7 +45,8 @@ class Base(Configuration):
     }
 
     # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = eval(os.environ.get('DEBUG'))
+    
+    DEBUG = eval(os.environ.get('DEBUG', 'False'))
 
     # Quick-start development settings - unsuitable for production
     # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/

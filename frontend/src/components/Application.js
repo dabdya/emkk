@@ -6,6 +6,7 @@ import { getToken } from '../utils/Common';
 import axios from 'axios';
 import { Grid } from '@mui/material'
 import icon from "../fonts/delete.ico"
+import { width } from '@mui/system';
 
 
 export default class Application extends React.Component {
@@ -65,14 +66,10 @@ export default class Application extends React.Component {
 
 		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, this.config())
 			.then(async resp => {
-				resp.data.forEach(async el => {
-					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${el}`, this.config())
-						.then(async response => {
-							this.setState(prevState => ({
-								files: [...prevState.files, { id: response.data.id, uuid: response.data.uuid, filename: response.data.filename }]
-							}))
-
-						})
+				resp.data.forEach(file => {
+					this.setState(prevState => ({
+						files: [...prevState.files, { uuid: file.uuid, filename: file.filename }]
+					}))
 				});
 			});
 
@@ -95,7 +92,7 @@ export default class Application extends React.Component {
 	async createBlob(e, file) {
 		e.preventDefault();
 		let mime;
-		const resp = await axios.get(`${process.env.REACT_APP_URL}/api/${file.uuid}`, { responseType: 'arraybuffer' })
+		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: 'arraybuffer' })
 			.then(resp => {
 				mime = resp.headers["content-type"];
 				return resp;
@@ -127,7 +124,7 @@ export default class Application extends React.Component {
 	}
 
 	async deleteDocument(file) {
-		await this.requests.delete(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents/${file.id}`,
+		await this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
 			this.config())
 			.then(response => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
@@ -146,7 +143,7 @@ export default class Application extends React.Component {
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
-					this.setState(prevState => ({ files: [...prevState.files, { id: item.id, uuid: item.uuid, filename: item.filename }] }));
+					this.setState(prevState => ({ files: [...prevState.files, { uuid: item.uuid, filename: item.filename }] }));
 				}
 			})
 	}
@@ -170,57 +167,57 @@ export default class Application extends React.Component {
 							{!isEditing && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 							{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						</div>
-						<div style={{ marginLeft: 40, height: "fit-content", width: "92%" }}>
-							<Grid container >
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Имя руководителя: {this.state.leader?.first_name}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Число участников: {isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Спортивная организация: {isEditing ? <input defaultValue={this.state.group_name} onChange={e => this.setState({ group_name: e.target.value })} /> : this.state.group_name}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Страховая компания: {isEditing ? <input type="text" defaultValue={this.state.insurance_company_name} onChange={e => this.setState({ insurance_company_name: e.target.value })} /> : this.state.insurance_company_name}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Общий район:{isEditing ? <ComboBox drawArrow={true} getItems={getItems} value={{ value: this.state.global_region, label: this.state.global_region }} onValueChange={this.changeComboBox} name="generalArea" /> : this.state.global_region}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Срок действия страхового полиса: {isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Локальный район: {isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Координатор-связной: {isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Сложность маршрута: {isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Населенный пункт начала маршрута: {isEditing ? <input defaultValue={this.state.control_start_region} onChange={e => this.setState({ control_start_region: e.target.value })} /> : this.state.control_start_region}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Вид туризма:{isEditing ? <Select width="207px" items={tourismVariants} value={KINDOFTOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Контрольный срок сообщения о начале маршрута: {isEditing ? <input defaultValue={this.state.control_start_date} onChange={e => this.setState({ control_start_date: e.target.value })} /> : this.state.control_start_date}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Дата начала маршрута: {isEditing ? <input defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Населенный пункт окончания маршрута: {isEditing ? <input defaultValue={this.state.control_end_region} onChange={e => this.setState({ control_end_region: e.target.value })} /> : this.state.control_end_region}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Дата окончания маршрута: {isEditing ? <input type="date" defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</h2>
-								</Grid>
-								<Grid item lg={6} md={6} sm={6} xs={12}>
-									<h2 style={{ fontWeight: "normal" }}>Контрольный срок сообщения об окончании маршрута: {isEditing ? <input defaultValue={this.state.control_end_date} onChange={e => this.setState({ control_end_date: e.target.value })} /> : this.state.control_end_date}</h2>
-								</Grid>
-							</Grid>
+						<div style={{
+							display: "grid",
+							gridTemplateColumns: "auto auto",
+							gridColumnGap: "0px",
+							gridRowGap: "10px",
+							marginLeft: "40px"
+						}}>
+							<div className="cell-app"><div>ФИО руководителя:</div><div>{`${this.state.leader?.first_name} ${this.state.leader?.last_name} ${this.state.leader?.patronymic}`}</div></div>
+							<div className="cell-app"><div>Спортивная организация:</div><div>{isEditing ? <input defaultValue={this.state.group_name} onChange={e => this.setState({ group_name: e.target.value })} /> : this.state.group_name}</div></div>
+							<div className="cell-app"><div>Страховая компания:</div><div>{isEditing ? <input type="text" defaultValue={this.state.insurance_company_name} onChange={e => this.setState({ insurance_company_name: e.target.value })} /> : this.state.insurance_company_name}</div></div>
+							<div className="cell-app"><div>Район:</div><div>{isEditing ?
+								<>
+									<ComboBox drawArrow={true}
+										getItems={getItems}
+										value={{ value: this.state.global_region, label: this.state.global_region }}
+										onValueChange={this.changeComboBox}
+										name="generalArea"
+									/>
+									<input defaultValue={this.state.local_region}
+										onChange={e => this.setState({ local_region: e.target.value })}
+									/>
+								</> : `${this.state.global_region}, ${this.state.local_region}`}</div></div>
+							<div className="cell-app"><div>Срок действия страхового полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</div></div>
+							<div className="cell-app"><div>Локальный район:</div><div>{isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</div></div>
+							<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</div></div>
+							<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</div></div>
+							<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select width="207px" items={tourismVariants} value={KINDOFTOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</div></div>
+							<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</div></div>
+							<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
+								<>
+									<input defaultValue={this.state.control_start_region}
+										onChange={e => this.setState({ control_start_region: e.target.value })}
+									/>
+									<input defaultValue={this.state.control_start_date}
+										type="date"
+										onChange={e => this.setState({ control_start_date: e.target.value })}
+									/>
+								</> : `${this.state.control_start_region}, ${this.state.control_start_date}`}</div></div>
+							<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</div></div>
+							<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</div></div>
+							<div className="cell-app"><div>Контрольные сроки конца:</div><div>{isEditing ?
+								<>
+									<input defaultValue={this.state.control_end_region}
+
+										onChange={e => this.setState({ control_end_region: e.target.value })}
+									/>
+									<input defaultValue={this.state.control_end_date}
+										type="date"
+										onChange={e => this.setState({ control_end_date: e.target.value })}
+									/>
+								</> : `${this.state.control_end_region}, ${this.state.control_end_date}`}</div></div>
 						</div>
 					</form>
 					<div style={{ marginTop: 30, marginLeft: 25, marginRight: 50 }}>
