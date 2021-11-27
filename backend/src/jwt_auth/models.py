@@ -46,6 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
+    patronymic = models.CharField(max_length=255)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
@@ -53,7 +54,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REVIEWER = models.BooleanField(default=False)
     ISSUER = models.BooleanField(default=False)
     SECRETARY = models.BooleanField(default=False)
-    EMKK_MEMBER = models.BooleanField(default=False)
+    EMKK_MEMBER = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     updated_at = AutoDateTimeField(default=timezone.now)
@@ -90,7 +91,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         dt = timezone.now() + timedelta_
         token = jwt.encode({
             'username': self.username,
-            'exp': dt.timestamp()
+            'exp': dt.timestamp(),
+            'reviewer': self.REVIEWER,
+            'issuer': self.ISSUER,
+            'secretary': self.SECRETARY,
+            'emkk_member': self.EMKK_MEMBER,
         }, settings.Base.SECRET_KEY, algorithm='HS256')
 
         return token

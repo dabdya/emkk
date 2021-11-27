@@ -58,6 +58,7 @@ class Trip(models.Model):
     coordinator_phone_number = models.CharField(max_length=20)
     insurance_company_name = models.CharField(max_length=100)
     insurance_policy_validity_duration = models.DateField()
+    insurance_number = models.CharField(max_length=100)
 
     control_start_date = models.DateField(null=True)
     control_end_date = models.DateField(null=True)
