@@ -1,7 +1,8 @@
 from django.urls import path
 
 from src.jwt_auth.views import (
-    RegistrationAPIView, LoginAPIView, UserRetrieveUpdateAPIView, RefreshTokenView
+    RegistrationAPIView, LoginAPIView, UserRetrieveUpdateAPIView,
+    RefreshTokenView, ResetPasswordView
 )
 
 
@@ -9,7 +10,8 @@ urlpatterns = [
     path('user', UserRetrieveUpdateAPIView.as_view()),
     path('users', RegistrationAPIView.as_view()),
     path('users/login', LoginAPIView.as_view()),
-    path('users/refresh', RefreshTokenView.as_view(),)
+    path('users/refresh', RefreshTokenView.as_view()),
+    path('users/reset-password', ResetPasswordView.as_view()),
 ]
 
 

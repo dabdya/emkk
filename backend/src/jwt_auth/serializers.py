@@ -68,16 +68,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Сериализация и десериализация пользовательских объектов"""
+    """Сериализация и десериализация пользователей"""
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
 
     class Meta:
         model = User
-        fields = [
-            'password', 'email', 'username',
-            'first_name', 'last_name', 'gender'
-        ]
-        # read_only_fields = ('access_token', )
+        fields = ['password', 'email', 'username', 'first_name', 'last_name', ]
+        write_only_fields = ['password', ]
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
@@ -117,10 +114,3 @@ class RefreshTokenSerializer(serializers.Serializer):
 
         except jwt.DecodeError as decode_error:
             raise serializers.ValidationError(decode_error)
-
-
-# noinspection PyRedeclaration
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'first_name', 'last_name', ]
