@@ -344,7 +344,7 @@ export default class ApplicationForm extends React.Component {
 									this.setState({ cartographicMaterial: this.state.cartographicMaterial + event.target.files.length })
 								}}
 								style={{ display: "none" }} />
-							Загрузить Картографический материал
+							Загрузить картографический материал
 						</label>
 						<Tooltip
 							placement="top-start"

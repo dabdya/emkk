@@ -45,6 +45,7 @@ class Base(Configuration):
     }
 
     # SECURITY WARNING: don't run with debug turned on in production!
+    
     DEBUG = eval(os.environ.get('DEBUG', 'False'))
 
     # Quick-start development settings - unsuitable for production
