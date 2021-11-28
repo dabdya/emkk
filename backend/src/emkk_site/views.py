@@ -146,7 +146,6 @@ class DocumentView(generics.ListCreateAPIView):
         related_model_obj = self.get_related_model_obj()  # object of type Review or Trip
         if not related_model_obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
-        print(147)
         documents = []
         for file in self.request.FILES.getlist('file'):
             document = self.model_class.create(related_model_obj)
