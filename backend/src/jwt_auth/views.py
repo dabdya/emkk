@@ -108,19 +108,29 @@ class ResetPasswordView(APIView):
             msg = "Email or url was not provided"
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
 
+        if reset_url[-1] == '/':
+            reset_url = reset_url[:-1]
+
         try:
             user = User.objects.get(email=email)
             dt = timezone.now() + timedelta(minutes=60)
+
             token = jwt.encode({
                 'username': user.email,
                 'exp': dt.timestamp(),
             }, settings.Base.SECRET_KEY, algorithm='HS256')
+
             send_mail(
                 "Запрос на сброс пароля",
                 f"""Здравствуйте! Для вашего аккаунта был запрошен сброс пароля. 
                     Это можно сделать перейдя по ссылке {reset_url}/{token}""",
                 settings.Base.EMAIL_HOST_USER, [user.email, ])
-            return Response({"token": token}, status=status.HTTP_200_OK)
+
+            return Response({
+                "reset_token": token,
+                "access_token": user.access_token,
+            }, status=status.HTTP_200_OK)
+
         except User.DoesNotExist:
             msg = f"User with email {email} not found"
-            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+            return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
