@@ -8,6 +8,8 @@ from rest_framework.parsers import JSONParser
 from django.core.mail import send_mail
 from config import settings
 
+from django.utils import timezone
+
 from drf_yasg.utils import swagger_auto_schema
 from src.jwt_auth.schemas import refresh_token_schema
 
@@ -16,7 +18,11 @@ from src.jwt_auth.serializers import (
     RefreshTokenSerializer
 )
 
+from src.jwt_auth.models import User
 from src.jwt_auth.renderers import UserJSONRenderer
+
+from datetime import timedelta
+import jwt
 
 
 class RefreshTokenView(APIView):
@@ -89,3 +95,32 @@ class LoginAPIView(APIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ResetPasswordView(APIView):
+    permission_classes = [AllowAny, ]
+    authentication_classes = []
+
+    def post(self, request):
+        email = request.data.get('email', None)
+        reset_url = request.data.get('reset_url', None)
+        if not email or not reset_url:
+            msg = "Email or url was not provided"
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.get(email=email)
+            dt = timezone.now() + timedelta(minutes=60)
+            token = jwt.encode({
+                'username': user.email,
+                'exp': dt.timestamp(),
+            }, settings.Base.SECRET_KEY, algorithm='HS256')
+            send_mail(
+                "Запрос на сброс пароля",
+                f"""Здравствуйте! Для вашего аккаунта был запрошен сброс пароля. 
+                    Это можно сделать перейдя по ссылке {reset_url}/{token}""",
+                settings.Base.EMAIL_HOST_USER, [user.email, ])
+
+        except User.DoesNotExist:
+            msg = f"User with email {email} not found"
+            return Response(msg, status=status.HTTP_400_BAD_REQUEST)
