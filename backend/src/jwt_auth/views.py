@@ -120,7 +120,7 @@ class ResetPasswordView(APIView):
                 f"""Здравствуйте! Для вашего аккаунта был запрошен сброс пароля. 
                     Это можно сделать перейдя по ссылке {reset_url}/{token}""",
                 settings.Base.EMAIL_HOST_USER, [user.email, ])
-
+            return Response({"token": token}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             msg = f"User with email {email} not found"
             return Response(msg, status=status.HTTP_400_BAD_REQUEST)
