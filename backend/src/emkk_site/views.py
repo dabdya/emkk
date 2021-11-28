@@ -178,7 +178,7 @@ class ReviewDocumentList(DocumentView):
     serializer_class = ReviewDocumentSerializer
 
     def __init__(self):
-        super(ReviewDocumentList, self).__init__(ReviewDocument, Review)
+        super().__init__(ReviewDocument, Review)
 
 
 class TripDocumentList(DocumentView):
@@ -186,7 +186,7 @@ class TripDocumentList(DocumentView):
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
     def __init__(self):
-        super(TripDocumentList, self).__init__(TripDocument, Trip)
+        super().__init__(TripDocument, Trip)
 
 
 class ReviewView(generics.ListCreateAPIView):
