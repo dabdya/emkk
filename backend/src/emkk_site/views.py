@@ -16,7 +16,7 @@ from src.emkk_site.serializers import (
 from src.emkk_site.services import (
     get_trips_available_for_work,
     try_change_status_from_review_to_at_issuer,
-    try_change_trip_status_to_issuer_result, )
+    try_change_trip_status_to_issuer_result, get_trip_in_work_by_user, )
 
 from src.emkk_site.models import (
     Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
@@ -36,7 +36,11 @@ class WorkRegisterView(generics.ListCreateAPIView):
         return WorkRegisterSerializer
 
     def get_queryset(self):
-        return get_trips_available_for_work(self.request.user)
+        if self.request.method == 'GET':
+            if int(self.request.query_params.get("available")):
+                print(self.request.query_params.get("available"))
+                return get_trips_available_for_work(self.request.user)
+            return get_trip_in_work_by_user(self.request.user)
 
     def create(self, request, *args, **kwargs):
 
@@ -94,7 +98,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DocumentDetail(generics.RetrieveDestroyAPIView):
-    permission_classes = [IsDocumentOwner, ]
+    permission_classes = [IsDocumentOwner | IsIssuer | IsReviewer, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
@@ -112,6 +116,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             import os
             if os.path.isfile(path):
                 os.remove(path)
+
         document = self.get_object()
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -130,7 +135,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
 
 class DocumentList(generics.ListCreateAPIView):
     serializer_class = DocumentSerializer
-    permission_classes = [IsDocumentOwner, ]
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
     def get_related_trip(self):
         trip_id = self.kwargs['pk']
@@ -177,14 +182,14 @@ class ReviewView(generics.ListCreateAPIView):
     """Basic class for IssuerReview and ReviewerReview"""
 
     def __init__(self, model_class):
-        super(ReviewView, self).__init__()
+        super().__init__()
         self.model_class = model_class
 
     def get_queryset(self):
         return self.model_class.objects.filter(trip_id=self.kwargs["pk"])
 
     def get_serializer_context(self):
-        context = super(ReviewView, self).get_serializer_context()
+        context = super().get_serializer_context()
         context.update({"reviewer": self.request.user})
         return context
 
@@ -211,9 +216,9 @@ class ReviewView(generics.ListCreateAPIView):
 
             serializer.save()
 
-            if isinstance(context_class, ReviewerView):
+            if isinstance(context_class, ReviewerList):
                 try_change_status_from_review_to_at_issuer(trip)
-            elif isinstance(context_class, IssuerView):
+            elif isinstance(context_class, IssuerList):
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
 
@@ -223,37 +228,32 @@ class ReviewView(generics.ListCreateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class ReviewerView(ReviewView):
+class ReviewerList(ReviewView):
     """Endpoint for creating reviews by reviewers"""
+
     def __init__(self):
-        super(ReviewerView, self).__init__(Review)
+        super(ReviewerList, self).__init__(Review)
 
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsReviewer | IsIssuer | IsAuthenticated & ReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
-        return super(ReviewerView, self).create(request, *args, **kwargs)
+        return super(ReviewerList, self).create(request, *args, **kwargs)
 
 
-class ReviewDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Review.objects.all()
-    serializer_class = ReviewSerializer
-    permission_classes = [IsAuthenticated, ]
-
-
-class IssuerView(ReviewView):
+class IssuerList(ReviewView):
     """Endpoint for creating reviews by issuers"""
+
     def __init__(self):
-        super(IssuerView, self).__init__(ReviewFromIssuer)
+        super(IssuerList, self).__init__(ReviewFromIssuer)
 
     serializer_class = ReviewFromIssuerSerializer
-    permission_classes = [IsIssuer, ]
+    permission_classes = [IsIssuer | IsAuthenticated & ReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
-        return super(IssuerView, self).create(request, *args, **kwargs)
-
+        return super(IssuerList, self).create(request, *args, **kwargs)
 
 # @api_view(['POST'])
 # # @permission_classes([IsAuthenticated])
