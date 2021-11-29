@@ -1,16 +1,36 @@
 from rest_framework import serializers
 from src.emkk_site.models import (
-    Document, Trip, Review, ReviewFromIssuer, WorkRegister)
+    TripDocument, Trip, Review, ReviewFromIssuer, WorkRegister, ReviewDocument, ReviewFromIssuerDocument)
 from src.jwt_auth.serializers import UserSerializer
 
 
-class DocumentSerializer(serializers.ModelSerializer):
+class TripDocumentSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Document
+        model = TripDocument
         fields = '__all__'
         write_only_fields = ['file', ]
         read_only_fields = ['uuid', 'content_type', 'filename', ]
         extra_kwargs = {'trip': {'required': False}}
+
+
+# TODO delete double repeated code
+class ReviewDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewDocument
+        fields = '__all__'
+        write_only_fields = ['file', ]
+        read_only_fields = ['uuid', 'content_type', 'filename', ]
+        extra_kwargs = {'review': {'required': False}}
+
+
+# TODO delete triple repeated code
+class ReviewFromIssuerDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewFromIssuerDocument
+        fields = '__all__'
+        write_only_fields = ['file', ]
+        read_only_fields = ['uuid', 'content_type', 'filename', ]
+        extra_kwargs = {'review_from_issuer': {'required': False}}
 
 
 class BaseReviewSerializer(serializers.ModelSerializer):
@@ -88,4 +108,3 @@ class TripForAnonymousSerializer(serializers.ModelSerializer):
         fields = [
             'status', 'kind', 'leader', 'group_name', 'difficulty_category',
             'global_region', 'local_region', 'start_date', 'end_date']
-

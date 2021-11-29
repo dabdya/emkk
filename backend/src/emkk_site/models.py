@@ -79,18 +79,64 @@ class Review(models.Model):
     result = models.CharField(choices=ReviewResult.choices, max_length=30)
     result_comment = models.TextField()
 
+    def __str__(self):
+        return f"trip: {self.trip}, result: {self.result}"
+
 
 class ReviewFromIssuer(Review):
     """Рецензия от выпускающего"""
 
 
 class Document(models.Model):
-    """Документ, прилагаемый к заявке"""
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     file = models.FileField(upload_to='%Y/%m/%d/')
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     filename = models.CharField(max_length=250)
     content_type = models.CharField(max_length=100)
+
+    def to_str_restricted(self):
+        return {
+            'uuid': self.uuid,
+            'filename': self.filename
+        }
+
+
+class TripDocument(Document):
+    """Документ, прилагаемый к заявке"""
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+
+    @classmethod
+    def create(cls, trip):
+        return cls(trip=trip)
+
+    @classmethod
+    def get_by_related_obj_id(cls, trip_id):
+        return cls.objects.filter(trip_id=trip_id)
+
+
+class ReviewDocument(Document):
+    """Документ, прилагаемый к рецензии"""
+    review = models.ForeignKey(Review, on_delete=models.CASCADE)
+
+    @classmethod
+    def create(cls, review):
+        return cls(review=review)
+
+    @classmethod
+    def get_by_related_obj_id(cls, review_id):
+        return cls.objects.filter(review_id=review_id)
+
+
+class ReviewFromIssuerDocument(Document):
+    """Документ, прилагаемый к рецензии"""
+    review_from_issuer = models.ForeignKey(ReviewFromIssuer, on_delete=models.CASCADE)
+
+    @classmethod
+    def create(cls, review):
+        return cls(review_from_issuer=review)
+
+    @classmethod
+    def get_by_related_obj_id(cls, review_id):
+        return cls.objects.filter(review_from_issuer_id=review_id)
 
 
 class UserExperience(models.Model):
