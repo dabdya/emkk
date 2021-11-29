@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import HttpResponse
+from typing import Union
 
 import uuid
 
@@ -9,9 +10,9 @@ from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner)
 
 from src.emkk_site.serializers import (
-    DocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
+    TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
     ReviewSerializer, ReviewFromIssuerSerializer,
-    WorkRegisterSerializer)
+    WorkRegisterSerializer, ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
 
 from src.emkk_site.services import (
     get_trips_available_for_work,
@@ -19,7 +20,8 @@ from src.emkk_site.services import (
     try_change_trip_status_to_issuer_result, get_trip_in_work_by_user, )
 
 from src.emkk_site.models import (
-    Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
+    TripDocument, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, Document, ReviewDocument,
+    ReviewFromIssuerDocument)
 
 
 class WorkRegisterView(generics.ListCreateAPIView):
@@ -88,6 +90,10 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
     def update(self, request, *args, **kwargs):
+        if Trip.objects.get(pk=kwargs["pk"]).status == TripStatus.REJECTED:
+            return Response(
+                "Rejected trip cannot be changed",
+                status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, args, kwargs)
         return response
 
@@ -150,31 +156,69 @@ class DocumentList(generics.ListCreateAPIView):
 
         response_data = []
 
-        for document in Document.objects.filter(trip_id=trip.pk):
-            response_data.append({
-                'uuid': document.uuid,
-                'filename': document.filename
-            })
+    def __init__(self, model_class,  # TripDocument or ReviewDocument
+                 related_model_class):  # Trip or Review
+        super().__init__()
+        self.model_class = model_class
+        self.related_model_class = related_model_class
 
-        return Response(response_data, status=status.HTTP_200_OK)
+    def get_queryset(self):
+        return self.model_class.get_by_related_obj_id(self.kwargs["pk"])
 
     def create(self, request, *args, **kwargs):
-        trip = self.get_related_trip()
-        if not trip:
+        related_model_obj = self.get_related_model_obj()  # object of type Review or Trip
+        if not related_model_obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
-
         documents = []
         for file in self.request.FILES.getlist('file'):
-            document = Document(
-                trip=trip, file=file, uuid=uuid.uuid4(),
-                content_type=file.content_type, filename=file.name)
+            document = self.model_class.create(related_model_obj)
+            document.file = file
+            document.content_type = file.content_type
+            document.filename = file.name
             document.save()
 
             documents.append({
                 'uuid': document.uuid,
                 'filename': document.filename})
-
         return Response(documents, status=status.HTTP_201_CREATED)
+
+    def list(self, request, *args, **kwargs):
+        related_model_obj = self.get_related_model_obj()
+        if not related_model_obj:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response([document.to_str_restricted() for document in self.get_queryset()],
+                        status=status.HTTP_200_OK)
+
+    def get_related_model_obj(self) -> Union[Trip, Review]:
+        obj_id = self.kwargs['pk']
+        try:
+            return self.related_model_class.objects.get(pk=obj_id)
+        except self.related_model_class.DoesNotExist:
+            pass
+
+
+class ReviewDocumentList(DocumentView):
+    serializer_class = ReviewDocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+
+    def __init__(self):
+        super().__init__(ReviewDocument, Review)
+
+
+class ReviewFromIssuerDocumentList(DocumentView):
+    serializer_class = ReviewFromIssuerDocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+
+    def __init__(self):
+        super().__init__(ReviewFromIssuerDocument, ReviewFromIssuer)
+
+
+class TripDocumentList(DocumentView):
+    serializer_class = TripDocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+
+    def __init__(self):
+        super().__init__(TripDocument, Trip)
 
 
 class ReviewView(generics.ListCreateAPIView):

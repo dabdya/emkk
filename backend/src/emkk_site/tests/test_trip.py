@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import Trip, TripKind
+from src.emkk_site.models import Trip, TripKind, TripStatus
 
 
 class TripTest(TestCase):
@@ -68,3 +68,40 @@ class TripTest(TestCase):
         r = self.env.client_delete(f'/api/trips/{trip.id}', user=trip.leader)
         self.assertEqual(r.status_code, 204)
         self.assertEqual(Trip.objects.filter(id=trip.id).count(), 0)
+
+    def test_trip_last_modified_is_greater_after_changing_the_trip(self):
+        trip = self.env.trips[0]
+        old_date = trip.last_modified_at
+        import time
+        time.sleep(1)
+
+        trip.status = TripStatus.AT_ISSUER
+        trip.save()
+        new_date = trip.last_modified_at
+        self.assertGreater(new_date, old_date)
+
+    def test_trip_last_modified_is_greater_after_changing_the_trip_by_patch(self):
+        response = self.env.client_post(f'/api/trips', self.trip_data)
+        trip_id = response.data['id']
+        old_trip = Trip.objects.get(pk=trip_id)
+        old_date = old_trip.last_modified_at
+        import time
+        time.sleep(1)
+        trip_data = dict(self.trip_data)
+        trip_data['kind'] = TripKind.HORSE_SPORT
+        response = self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
+        trip = Trip.objects.get(pk=trip_id)
+        self.assertGreater(trip.last_modified_at, old_date)
+
+    def test_trip_cannot_be_changed_after_rejecting(self):
+        trip = self.env.trips[0]
+        trip.status = TripStatus.REJECTED
+        trip.save()
+        trip.leader.is_active = True
+        trip.leader.save()
+        old_kind = trip.kind
+        r = self.env.client_patch(f'/api/trips/{trip.id}', {
+            'kind': TripKind.CYCLING}, user=trip.leader)
+        new_trip = Trip.objects.get(pk=trip.id)
+        self.assertEqual(r.status_code, 400)
+        self.assertEqual(new_trip.kind, old_kind)
