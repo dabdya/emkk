@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, ReviewFromIssuer, WorkRegister, ReviewDocument)
+    TripDocument, Trip, Review, ReviewFromIssuer, WorkRegister, ReviewDocument, ReviewFromIssuerDocument)
 from src.jwt_auth.serializers import UserSerializer
 
 
@@ -20,7 +20,17 @@ class ReviewDocumentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         write_only_fields = ['file', ]
         read_only_fields = ['uuid', 'content_type', 'filename', ]
-        extra_kwargs = {'trip': {'required': False}}
+        extra_kwargs = {'review': {'required': False}}
+
+
+# TODO delete triple repeated code
+class ReviewFromIssuerDocumentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReviewFromIssuerDocument
+        fields = '__all__'
+        write_only_fields = ['file', ]
+        read_only_fields = ['uuid', 'content_type', 'filename', ]
+        extra_kwargs = {'review_from_issuer': {'required': False}}
 
 
 class BaseReviewSerializer(serializers.ModelSerializer):

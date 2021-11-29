@@ -110,7 +110,7 @@ class TripDocument(Document):
 
     @classmethod
     def get_by_related_obj_id(cls, trip_id):
-        return TripDocument.objects.filter(trip_id=trip_id)
+        return cls.objects.filter(trip_id=trip_id)
 
 
 class ReviewDocument(Document):
@@ -123,7 +123,20 @@ class ReviewDocument(Document):
 
     @classmethod
     def get_by_related_obj_id(cls, review_id):
-        return ReviewDocument.objects.filter(review_id=review_id)
+        return cls.objects.filter(review_id=review_id)
+
+
+class ReviewFromIssuerDocument(Document):
+    """Документ, прилагаемый к рецензии"""
+    review_from_issuer = models.ForeignKey(ReviewFromIssuer, on_delete=models.CASCADE)
+
+    @classmethod
+    def create(cls, review):
+        return cls(review_from_issuer=review)
+
+    @classmethod
+    def get_by_related_obj_id(cls, review_id):
+        return cls.objects.filter(review_from_issuer_id=review_id)
 
 
 class UserExperience(models.Model):

@@ -12,7 +12,7 @@ from src.jwt_auth.permissions import (
 from src.emkk_site.serializers import (
     TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
     ReviewSerializer, ReviewFromIssuerSerializer,
-    WorkRegisterSerializer, ReviewDocumentSerializer)
+    WorkRegisterSerializer, ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
 
 from src.emkk_site.services import (
     get_trips_available_for_work,
@@ -20,7 +20,8 @@ from src.emkk_site.services import (
     try_change_trip_status_to_issuer_result, )
 
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, Document, ReviewDocument)
+    TripDocument, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, Document, ReviewDocument,
+    ReviewFromIssuerDocument)
 
 
 class WorkRegisterView(generics.ListCreateAPIView):
@@ -176,9 +177,18 @@ class DocumentView(generics.ListCreateAPIView):
 
 class ReviewDocumentList(DocumentView):
     serializer_class = ReviewDocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
     def __init__(self):
         super().__init__(ReviewDocument, Review)
+
+
+class ReviewFromIssuerDocumentList(DocumentView):
+    serializer_class = ReviewFromIssuerDocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+
+    def __init__(self):
+        super().__init__(ReviewFromIssuerDocument, ReviewFromIssuer)
 
 
 class TripDocumentList(DocumentView):
