@@ -78,7 +78,7 @@ class WorkRegisterTestForReviewer(TestCase):
             if actual_reviews + in_work_reviews >= needed_reviews_count:
                 should_filtered += 1
 
-        trips_for_review = len(self.env.client_get(f'/api/trips/work').data)
+        trips_for_review = len(self.env.client_get(f'/api/trips/work?available=1').data)
         self.assertEqual(trips_for_review, self.trips_count - should_filtered)
 
 
@@ -100,5 +100,5 @@ class WorkRegisterTestForIssuer(TestCase):
             trips[i].status = TripStatus.AT_ISSUER
             trips[i].save()
 
-        available_trips_count_real = len(self.env.client_get(f'/api/trips/work').data)
+        available_trips_count_real = len(self.env.client_get(f'/api/trips/work?available=1').data)
         self.assertEqual(available_trips_count_expect, available_trips_count_real)

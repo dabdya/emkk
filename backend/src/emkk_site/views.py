@@ -4,8 +4,6 @@ from rest_framework import status
 from django.http import HttpResponse
 from typing import Union
 
-import uuid
-
 from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner)
 
@@ -139,7 +137,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
 
 
 class DocumentList(generics.ListCreateAPIView):
-    serializer_class = DocumentSerializer
+    serializer_class = TripDocumentSerializer
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
     def get_related_trip(self):
@@ -197,7 +195,7 @@ class DocumentList(generics.ListCreateAPIView):
             pass
 
 
-class ReviewDocumentList(DocumentView):
+class ReviewDocumentList(DocumentList):
     serializer_class = ReviewDocumentSerializer
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
@@ -205,7 +203,7 @@ class ReviewDocumentList(DocumentView):
         super().__init__(ReviewDocument, Review)
 
 
-class ReviewFromIssuerDocumentList(DocumentView):
+class ReviewFromIssuerDocumentList(DocumentList):
     serializer_class = ReviewFromIssuerDocumentSerializer
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
@@ -213,7 +211,7 @@ class ReviewFromIssuerDocumentList(DocumentView):
         super().__init__(ReviewFromIssuerDocument, ReviewFromIssuer)
 
 
-class TripDocumentList(DocumentView):
+class TripDocumentList(DocumentList):
     serializer_class = TripDocumentSerializer
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 

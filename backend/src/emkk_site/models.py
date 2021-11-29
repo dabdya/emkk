@@ -1,8 +1,6 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-from rest_framework.exceptions import ValidationError
-
 from src.jwt_auth.models import User
 
 import uuid
@@ -71,11 +69,6 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.group_name
-
-    # def save(self, *args, **kwargs):
-    #     if self.status == TripStatus.REJECTED:
-    #         raise ValidationError("Rejected trip cannot be changed")
-    #     super(Trip, self).save(*args, **kwargs)
 
 
 class Review(models.Model):
@@ -152,10 +145,6 @@ class UserExperience(models.Model):
     difficulty_category = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
 
-
-# class TripsOnReviewByUser(models.Model):
-#     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
 class WorkRegister(models.Model):
     class Meta:
