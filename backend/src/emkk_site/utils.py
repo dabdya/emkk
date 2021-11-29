@@ -95,7 +95,7 @@ def generate_3_trips_and_users():
 
     if not Trip.objects.all().count():
         for i in range(3):
-            difficulty = list(range(6))[i % 6]
+            difficulty = list(range(1, 7))[i % 6]
             trip = Trip(
                 kind=TripKind.HORSE_SPORT, group_name="TestGroup",
                 difficulty_category=difficulty, global_region="Russia",

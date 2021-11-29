@@ -5,6 +5,7 @@ from src.emkk_site.views import (
     ReviewerList, IssuerList,
     TripList, TripDetail, WorkRegisterView, ReviewDocumentList, ReviewFromIssuerDocumentList, )
 
+
 urlpatterns = [
 
     path('trips', TripList.as_view()),

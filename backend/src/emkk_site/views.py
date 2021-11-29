@@ -17,7 +17,7 @@ from src.emkk_site.serializers import (
 from src.emkk_site.services import (
     get_trips_available_for_work,
     try_change_status_from_review_to_at_issuer,
-    try_change_trip_status_to_issuer_result, )
+    try_change_trip_status_to_issuer_result, get_trip_in_work_by_user, )
 
 from src.emkk_site.models import (
     TripDocument, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, Document, ReviewDocument,
@@ -38,7 +38,10 @@ class WorkRegisterView(generics.ListCreateAPIView):
         return WorkRegisterSerializer
 
     def get_queryset(self):
-        return get_trips_available_for_work(self.request.user)
+        if self.request.method == 'GET':
+            if self.request.query_params.get("available") and int(self.request.query_params.get("available")):
+                return get_trips_available_for_work(self.request.user)
+            return get_trip_in_work_by_user(self.request.user)
 
     def create(self, request, *args, **kwargs):
 
@@ -135,8 +138,23 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             pass
 
 
-class DocumentView(generics.ListCreateAPIView):
-    """Basic class for TripDocumentView and ReviewDocumentView"""
+class DocumentList(generics.ListCreateAPIView):
+    serializer_class = DocumentSerializer
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+
+    def get_related_trip(self):
+        trip_id = self.kwargs['pk']
+        try:
+            return Trip.objects.get(pk=trip_id)
+        except Document.DoesNotExist:
+            pass
+
+    def list(self, request, *args, **kwargs):
+        trip = self.get_related_trip()
+        if not trip:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+        response_data = []
 
     def __init__(self, model_class,  # TripDocument or ReviewDocument
                  related_model_class):  # Trip or Review
