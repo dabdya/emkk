@@ -37,8 +37,7 @@ class WorkRegisterView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.method == 'GET':
-            if int(self.request.query_params.get("available")):
-                print(self.request.query_params.get("available"))
+            if self.request.query_params.get("available") and int(self.request.query_params.get("available")):
                 return get_trips_available_for_work(self.request.user)
             return get_trip_in_work_by_user(self.request.user)
 
