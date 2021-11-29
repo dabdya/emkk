@@ -24,7 +24,6 @@ def try_change_trip_status_to_issuer_result(trip, result):
 
 
 def get_trips_available_for_work(user):
-
     for_issue = _get_trips_available_for_issuers(user)
     for_review = _get_trips_available_for_reviewers(user)
 
@@ -34,6 +33,10 @@ def get_trips_available_for_work(user):
         return for_issue
     elif user.REVIEWER:
         return for_review
+
+
+def get_trip_in_work_by_user(user):
+    return [record.trip for record in WorkRegister.objects.filter(user=user)]
 
 
 def _get_trips_available_for_reviewers(user):
@@ -63,4 +66,3 @@ def _get_trips_available_for_issuers(user):
             trips_for_issuer.append(trip)
 
     return trips_for_issuer
-
