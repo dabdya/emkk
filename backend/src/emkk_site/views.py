@@ -16,7 +16,7 @@ from src.emkk_site.serializers import (
 from src.emkk_site.services import (
     get_trips_available_for_work,
     try_change_status_from_review_to_at_issuer,
-    try_change_trip_status_to_issuer_result, )
+    try_change_trip_status_to_issuer_result, get_trip_in_work_by_user, )
 
 from src.emkk_site.models import (
     Document, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer)
@@ -36,7 +36,11 @@ class WorkRegisterView(generics.ListCreateAPIView):
         return WorkRegisterSerializer
 
     def get_queryset(self):
-        return get_trips_available_for_work(self.request.user)
+        if self.request.method == 'GET':
+            if int(self.request.query_params.get("available")):
+                print(self.request.query_params.get("available"))
+                return get_trips_available_for_work(self.request.user)
+            return get_trip_in_work_by_user(self.request.user)
 
     def create(self, request, *args, **kwargs):
 
@@ -112,6 +116,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
             import os
             if os.path.isfile(path):
                 os.remove(path)
+
         document = self.get_object()
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -175,6 +180,7 @@ class DocumentList(generics.ListCreateAPIView):
 
 class ReviewView(generics.ListCreateAPIView):
     """Basic class for IssuerReview and ReviewerReview"""
+
     def __init__(self, model_class):
         super().__init__()
         self.model_class = model_class
@@ -224,6 +230,7 @@ class ReviewView(generics.ListCreateAPIView):
 
 class ReviewerList(ReviewView):
     """Endpoint for creating reviews by reviewers"""
+
     def __init__(self):
         super(ReviewerList, self).__init__(Review)
 
@@ -237,6 +244,7 @@ class ReviewerList(ReviewView):
 
 class IssuerList(ReviewView):
     """Endpoint for creating reviews by issuers"""
+
     def __init__(self):
         super(IssuerList, self).__init__(ReviewFromIssuer)
 
@@ -246,7 +254,6 @@ class IssuerList(ReviewView):
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
         return super(IssuerList, self).create(request, *args, **kwargs)
-
 
 # @api_view(['POST'])
 # # @permission_classes([IsAuthenticated])
