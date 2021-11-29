@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from src.jwt_auth.models import User
 
@@ -70,6 +71,11 @@ class Trip(models.Model):
 
     def __str__(self):
         return self.group_name
+
+    # def save(self, *args, **kwargs):
+    #     if self.status == TripStatus.REJECTED:
+    #         raise ValidationError("Rejected trip cannot be changed")
+    #     super(Trip, self).save(*args, **kwargs)
 
 
 class Review(models.Model):

@@ -87,6 +87,10 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
         return response
 
     def update(self, request, *args, **kwargs):
+        if Trip.objects.get(pk=kwargs["pk"]).status == TripStatus.REJECTED:
+            return Response(
+                "Rejected trip cannot be changed",
+                status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, args, kwargs)
         return response
 
