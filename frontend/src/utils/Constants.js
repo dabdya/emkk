@@ -23,6 +23,9 @@ export const KINDOFTOURISM = {
 
 export const STATUS = {
 	"on_review": "На ревью",
+	"Отклонить": "rejected",
+	"Одобрить": "accepted",
+	"На доработку": "on_rework",
 }
 
 export const GLOBALAREA = [

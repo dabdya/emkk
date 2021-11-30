@@ -1,5 +1,5 @@
 import React from 'react';
-import { getToken, getUser } from '../utils/Common';
+import { getEmkk, getToken, getUser } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KINDOFTOURISM } from '../utils/Constants';
 import review from '../fonts/review.png';
@@ -88,12 +88,39 @@ export default class Dashboard extends React.Component {
 	}
 
 	async componentDidMount() {
+		const request = new Requests();
 		const config = getToken() ? {
 			headers: {
 				Authorization: 'Token ' + getToken()
 			}
 		} : {};
-		const request = new Requests();
+
+		if (this.props.isMyReview) {
+			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=0`, config)
+				.then(result => {
+					this.setState({
+						trips: result.data.map(item => {
+							item.status = this.renderImage(item.status);
+							return item;
+						})
+					});
+				})
+			return;
+		}
+
+		if (this.props.isReview) {
+			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=1`, config)
+				.then(result => {
+					this.setState({
+						trips: result.data.map(item => {
+							item.status = this.renderImage(item.status);
+							return item;
+						})
+					});
+				})
+			return;
+		}
+
 		await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
 			.then(
 				(result) => {
@@ -123,22 +150,31 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		if (!getToken()) {
+		if (!getEmkk()) {
 			return;
 		}
 
-		this.props.history.push({
-			pathname: '/home/application',
-			state: target.id,
-		});
+		if (this.props.isReview) {
+			this.props.history.push({
+				pathname: '/home/application',
+				state: { id: target.id, isReview: this.props.isReview },
+			});
+		} if (this.props.isMyReview) {
+			this.props.history.push({
+				pathname: '/home/application',
+				state: { id: target.id, isMyReview: this.props.isMyReview },
+			});
+		} else {
+			this.props.history.push({
+				pathname: '/home/application',
+				state: { id: target.id },
+			});
+		}
+
+
 	};
 
-	// onClickOnRowReview(target) {
-	// 	this.props.history.push({
-	// 		pathname: '/home/application',
-	// 		state: "review",
-	// 	});
-	// };
+
 
 	renderImage(status) {
 		if (status === "on_review") {

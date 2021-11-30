@@ -1,10 +1,10 @@
 import React from 'react';
-import { KINDOFTOURISM, GLOBALAREA } from '../utils/Constants';
+import { KINDOFTOURISM, GLOBALAREA, STATUS } from '../utils/Constants';
 import { ScrollContainer, Button, Select, ComboBox } from '@skbkontur/react-ui'
 import Requests from '../utils/requests';
-import { getToken } from '../utils/Common';
+import { getReviewer, getToken, getUser } from '../utils/Common';
 import axios from 'axios';
-import { Grid } from '@mui/material'
+import { Grid, Autocomplete, TextField } from '@mui/material'
 import icon from "../fonts/delete.ico"
 import { width } from '@mui/system';
 
@@ -19,6 +19,8 @@ export default class Application extends React.Component {
 			isEditing: false,
 			files: [],
 			reviews: [],
+			result_comment: "",
+			result: "",
 		};
 
 		this.changeEditing = this.changeEditing.bind(this);
@@ -29,6 +31,9 @@ export default class Application extends React.Component {
 		this.deleteDocument = this.deleteDocument.bind(this);
 		this.addDocument = this.addDocument.bind(this);
 		this.config = this.config.bind(this);
+		this.takeOnReview = this.takeOnReview.bind(this);
+		this.writeReview = this.writeReview.bind(this);
+		this.handleChange = this.handleChange.bind(this);
 	}
 
 	config() {
@@ -39,8 +44,9 @@ export default class Application extends React.Component {
 		}
 	};
 
+
 	async componentDidMount() {
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}`, this.config())
 			.then(response => {
 				this.setState({
 					id: response.data.id,
@@ -64,7 +70,7 @@ export default class Application extends React.Component {
 			})
 			.catch(err => console.error(err));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(file => {
 					this.setState(prevState => ({
@@ -73,11 +79,32 @@ export default class Application extends React.Component {
 				});
 			});
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/reviews`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
 			.catch(err => console.error(err));
+	};
+
+	async takeOnReview() {
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/work`, { trip: this.state.id }, this.config())
+			.then(resp => {
+				console.log(resp);
+			});
+	}
+
+	async writeReview(e) {
+		e.preventDefault()
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
+			{ result: STATUS[this.state.result], result_comment: this.state.result_comment, trip: this.state.id },
+			this.config())
+			.then(resp => {
+				console.log(resp);
+			});
+	}
+
+	handleChange(e) {
+		this.setState({ [e.target.name]: e.target.value });
 	};
 
 	changeTourismKind(value) {
@@ -139,7 +166,7 @@ export default class Application extends React.Component {
 			form.append("file", file);
 		}
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state}/documents`, form,
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, form,
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
@@ -164,7 +191,7 @@ export default class Application extends React.Component {
 					<form onSubmit={this.onSubmit}>
 						<div style={{ display: "inline-block", marginLeft: 15 }}>
 							<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block" }}>Заявка №{this.state.id}</h1>
-							{!isEditing && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+							{!isEditing && getUser() == this.state.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 							{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						</div>
 						<div style={{
@@ -193,7 +220,7 @@ export default class Application extends React.Component {
 							<div className="cell-app"><div>Локальный район:</div><div>{isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</div></div>
 							<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</div></div>
 							<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</div></div>
-							<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select width="207px" items={tourismVariants} value={KINDOFTOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</div></div>
+							<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KINDOFTOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</div></div>
 							<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</div></div>
 							<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
 								<>
@@ -253,9 +280,37 @@ export default class Application extends React.Component {
 					<div style={{ marginLeft: 25, marginRight: 50 }}>
 						<hr />
 					</div>
-					<div style={{ marginTop: 15, marginLeft: 15, height: "500px" }}>
+					<div style={{ marginTop: 15, marginLeft: 15, height: "fit-content" }}>
 						Рецензии ({this.state.reviews.length}/2)
 					</div>
+					{!this.props.location.state.isMyReview && getReviewer() && <Button onClick={() => this.takeOnReview()}>Взять заявку в рецензию</Button>}
+					{this.props.location.state.isMyReview &&
+						<form onSubmit={this.writeReview}>
+							<Autocomplete
+								openOnFocus
+								options={["Отклонить", "Принять", "На доработку"]}
+								onSelect={(event) => this.handleChange(event)}
+								renderInput={(params) =>
+									<TextField {...params}
+										variant="filled"
+										name="result"
+										inputProps={{ ...params.inputProps }}
+										label="Статус"
+										required />}
+
+							/>
+							<TextField
+								style={{ width: "100%" }}
+								name="result_comment"
+								placeholder="Рецензия"
+								multiline
+								rows={5}
+								rowsMax={Infinity}
+								onChange={(event) => this.handleChange(event)}
+								required
+							/>
+							<button type="submit">Отправить</button>
+						</form>}
 				</ScrollContainer >
 			</div >
 		)
