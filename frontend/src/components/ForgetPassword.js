@@ -13,7 +13,6 @@ export default class ForgetPass extends React.Component {
 
 	onSubmit(e) {
 		e.preventDefault();
-		//Бэкенд как обычно отстаёт...
 		this.props.history.push("/");
 	}
 

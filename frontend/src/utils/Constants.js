@@ -27,6 +27,7 @@ export const STATUS = {
 	"Одобрить": "accepted",
 	"На доработку": "on_rework",
 	"on_rework": "На доработке",
+	"rejected": "Отклонено"
 }
 
 export const GLOBALAREA = [

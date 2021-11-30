@@ -16,7 +16,7 @@ export default class ReviewContent extends React.Component {
 				<div className="status">
 					{STATUS[this.result]}
 				</div>
-				<div className="content">
+				<div className="comment">
 					{this.comment}
 				</div>
 				<div className="signature">

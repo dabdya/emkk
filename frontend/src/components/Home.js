@@ -24,7 +24,7 @@ export default class Home extends React.Component {
 					<div className="header-home" style={{ boxShadow: "2px 2px 2px grey" }}>
 						<NavLink exact activeClassName="active" to="/home/dashboard">
 							<div className="cell">
-								<img src={hiking_dashboard} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+								<img alt="" src={hiking_dashboard} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 								<span style={{ display: "block", color: "white" }}>Табло походов</span>
 							</div>
 						</NavLink>
@@ -32,13 +32,13 @@ export default class Home extends React.Component {
 							<>
 								<NavLink exact activeClassName="active" to="/home/applications">
 									<div className="cell">
-										<img src={my_application} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<img alt="" src={my_application} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 										<span style={{ display: "block", color: "white" }}>Мои заявки</span>
 									</div>
 								</NavLink>
 								<NavLink activeClassName="active" to="/home/form">
 									<div className="cell">
-										<img src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<img alt="" src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 										<span style={{ display: "block", color: "white" }}>Подать заявку</span>
 									</div>
 								</NavLink>
@@ -47,13 +47,13 @@ export default class Home extends React.Component {
 							<>
 								<NavLink activeClassName="active" to="/home/reviews">
 									<div className="cell">
-										<img src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<img alt="" src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 										<span style={{ display: "block", color: "white" }}>Взять на рецензию</span>
 									</div>
 								</NavLink>
 								<NavLink activeClassName="active" to="/home/my_reviews">
 									<div className="cell">
-										<img src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<img alt="" src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 										<span style={{ display: "block", color: "white" }}>Заявки в работе</span>
 									</div>
 								</NavLink>

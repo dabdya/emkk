@@ -180,7 +180,9 @@ export default class Dashboard extends React.Component {
 		if (status === "on_review") {
 			return review;
 		} else if (status === "rejected") {
-			return rejected
+			return rejected;
+		} else if (status === "at_issuer") {
+			return review;
 		}
 		return accepted;
 	}

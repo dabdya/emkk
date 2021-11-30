@@ -172,6 +172,7 @@ export default class ApplicationForm extends React.Component {
 						placeholder="+7(999)99999999"
 						style={{ width: '100%' }}
 						variant="filled"
+						//eslint-disable-next-line
 						InputProps={{ inputProps: { tabIndex: 13, pattern: "\+?[0-9\s\-\(\)]+", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
