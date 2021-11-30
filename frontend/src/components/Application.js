@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Grid, Autocomplete, TextField } from '@mui/material'
 import icon from "../fonts/delete.ico"
 import { width } from '@mui/system';
+import ReviewContent from './ReviewContent';
 
 
 export default class Application extends React.Component {
@@ -96,7 +97,7 @@ export default class Application extends React.Component {
 	async writeReview(e) {
 		e.preventDefault()
 		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
-			{ result: STATUS[this.state.result], result_comment: this.state.result_comment, trip: this.state.id },
+			{ result: STATUS[this.state.result], result_comment: this.state.result_comment },
 			this.config())
 			.then(resp => {
 				console.log(resp);
@@ -282,8 +283,14 @@ export default class Application extends React.Component {
 					</div>
 					<div style={{ marginTop: 15, marginLeft: 15, height: "fit-content" }}>
 						Рецензии ({this.state.reviews.length}/2)
+						{this.state.reviews.map(review =>
+							<ReviewContent result={review.result} comment={review.result_comment}
+								reviewer={review.reviewer} key={review.id} />
+						)}
 					</div>
-					{!this.props.location.state.isMyReview && getReviewer() && <Button onClick={() => this.takeOnReview()}>Взять заявку в рецензию</Button>}
+					{!this.props.location.state.isMyReview && getReviewer() &&
+					 this.reviewer?.username === getUser()
+					&& <Button onClick={() => this.takeOnReview()}>Взять заявку в рецензию</Button>}
 					{this.props.location.state.isMyReview &&
 						<form onSubmit={this.writeReview}>
 							<Autocomplete
