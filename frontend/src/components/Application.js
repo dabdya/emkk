@@ -1,11 +1,12 @@
 import React from 'react';
-import { KINDOFTOURISM, GLOBALAREA, STATUS } from '../utils/Constants';
 import { Button, Select, ComboBox } from '@skbkontur/react-ui'
+import { Grid, Autocomplete, TextField } from '@mui/material'
+import ReviewContent from './ReviewContent';
+import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
 import Requests from '../utils/requests';
 import { getReviewer, getToken, getUser } from '../utils/Common';
-import { Grid, Autocomplete, TextField } from '@mui/material'
-import icon from "../fonts/delete.ico"
-import ReviewContent from './ReviewContent';
+import icon from "../images/delete.ico"
+
 
 
 export default class Application extends React.Component {
@@ -34,6 +35,7 @@ export default class Application extends React.Component {
 		this.writeReview = this.writeReview.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
+		console.log(this.props.location.state)
 	}
 
 	config() {
@@ -101,7 +103,7 @@ export default class Application extends React.Component {
 			this.config())
 			.then(resp => {
 				const form = new FormData()
-					form.append("file", file);
+				form.append("file", file);
 				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews/${resp.data.id}/documents`,
 					form,
 					this.config())
@@ -126,7 +128,7 @@ export default class Application extends React.Component {
 		this.setState((prev) => {
 			return {
 				...prev,
-				kind: KINDOFTOURISM[value]
+				kind: KIND_OF_TOURISM[value]
 			}
 		})
 	};
@@ -157,7 +159,7 @@ export default class Application extends React.Component {
 		const { id, isEditing, files, reviews, ...data } = this.state;
 		await this.requests.patch(`${process.env.REACT_APP_URL}/api/trips/${id}`, data, this.config())
 			.then(resp => {
-				this.setState({});
+				this.setState({ last_modified_at: resp.data.last_modified_at });
 				this.changeEditing();
 			})
 	}
@@ -197,7 +199,7 @@ export default class Application extends React.Component {
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		const getItems = query =>
 			Promise.resolve(
-				GLOBALAREA.map(item => { return { value: item, label: item } })
+				GLOBAL_AREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
 			);
 
@@ -236,7 +238,7 @@ export default class Application extends React.Component {
 						<div className="cell-app"><div>Локальный район:</div><div>{isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</div></div>
 						<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</div></div>
 						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</div></div>
-						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KINDOFTOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KINDOFTOURISM[this.state.kind]}</div></div>
+						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KIND_OF_TOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.state.kind]}</div></div>
 						<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</div></div>
 						<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
 							<>
@@ -311,46 +313,50 @@ export default class Application extends React.Component {
 							reviewer={review.reviewer} key={review.id} />
 					)}
 				</div>
-				{!this.props.location.state.isMyReview && getReviewer() &&
-					this.state.reviews.filter(review => review.username === getUser())
+				{!this.props.location.state.isMyReview &&
+					getReviewer() &&
+					this.props.location.state.isReview
 					&& <Button onClick={() => this.takeOnReview()}>Взять заявку в рецензию</Button>}
 				{this.props.location.state.isMyReview &&
-					<form onSubmit={this.writeReview}>
-						<Autocomplete
-							openOnFocus
-							options={["Отклонить", "Принять", "На доработку"]}
-							onSelect={(event) => this.handleChange(event)}
-							renderInput={(params) =>
-								<TextField {...params}
-									variant="filled"
-									name="result"
-									inputProps={{ ...params.inputProps }}
-									label="Статус"
-									required />}
+					<>
+						<form onSubmit={this.writeReview}>
+							<Autocomplete
+								openOnFocus
+								options={["Отклонить", "Принять", "На доработку"]}
+								onSelect={(event) => this.handleChange(event)}
+								renderInput={(params) =>
+									<TextField {...params}
+										variant="filled"
+										name="result"
+										inputProps={{ ...params.inputProps }}
+										label="Статус"
+										required />}
 
-						/>
-						<TextField
-							style={{ width: "100%" }}
-							name="result_comment"
-							placeholder="Рецензия"
-							multiline
-							rows={7}
-							rowsMax={Infinity}
-							onChange={(event) => this.handleChange(event)}
-							required
-						/>
-						<button type="submit">Отправить</button>
-					</form>}
-				<div className="cell-file">
-					<label className="custom-file-upload" style={{ backgroundColor: "#136DAB", color: "white" }} >
-						<input type="file"
-							onChange={(event) => {
-								this.uploadReview(event);
-							}}
-							style={{ display: "none" }} />
-						Отправить рецензию файлом со статусом {this.state.result}
-					</label>
-				</div>
+							/>
+							<TextField
+								style={{ width: "100%" }}
+								name="result_comment"
+								placeholder="Рецензия"
+								multiline
+								rows={7}
+								rowsMax={Infinity}
+								onChange={(event) => this.handleChange(event)}
+								required
+							/>
+							<button type="submit">Отправить</button>
+						</form>
+						<div className="cell-file">
+							<label className="custom-file-upload" style={{ backgroundColor: "#136DAB", color: "white" }} >
+								<input type="file"
+									onChange={(event) => {
+										this.uploadReview(event);
+									}}
+									style={{ display: "none" }} />
+								Отправить рецензию файлом со статусом {this.state.result}
+							</label>
+
+						</div>
+					</>}
 			</div >
 		)
 	}

@@ -1,15 +1,15 @@
 import React from 'react';
-import { BrowserRouter, Switch, Route, NavLink, Link } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, NavLink, Link,Redirect } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
 import Home from './Home';
-import { Redirect } from 'react-router-dom';
 import Registration from "./Registration";
 import ApplicationForm from './ApplicationForm';
-import PublicRoute from '../utils/PublicRoute';
 import NotFound from './NotFound';
-import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 import ForgetPass from './ForgetPassword';
+import PublicRoute from '../utils/PublicRoute';
+import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
+
 
 export default class App extends React.Component {
 

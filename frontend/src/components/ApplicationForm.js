@@ -1,12 +1,12 @@
 import React from 'react';
-import { GLOBALAREA, KINDOFTOURISM } from '../utils/Constants';
-import { Autocomplete, TextField, Button } from '@mui/material'
+import ShowModal from "./ShowModal"
+import { GLOBAL_AREA, KIND_OF_TOURISM } from '../utils/Constants';
 import { getToken } from '../utils/Common';
 import Requests from '../utils/requests'
-import ShowModal from "./ShowModal"
 import HelpIcon from '@mui/icons-material/Help';
 import Tooltip from '@mui/material/Tooltip';
 import IconButton from '@mui/material/IconButton';
+import { Autocomplete, TextField, Button } from '@mui/material'
 
 
 export default class ApplicationForm extends React.Component {
@@ -88,7 +88,7 @@ export default class ApplicationForm extends React.Component {
 	handleTag({ target }, fieldName) {
 		const { value } = target;
 		if (fieldName === "kind") {
-			this.setState({ [fieldName]: KINDOFTOURISM[value] });
+			this.setState({ [fieldName]: KIND_OF_TOURISM[value] });
 
 		} else {
 			this.setState({ [fieldName]: value });
@@ -151,7 +151,7 @@ export default class ApplicationForm extends React.Component {
 					<Autocomplete
 						openOnFocus
 						id="combo-box-demo"
-						options={GLOBALAREA}
+						options={GLOBAL_AREA}
 						style={{ width: '100%' }}
 						onSelect={(event) => this.handleTag(event, "global_region")}
 						renderInput={(params) =>

@@ -1,18 +1,14 @@
 import React from 'react';
-import {
-	Switch, Route, NavLink
-} from 'react-router-dom';
+import { Switch, Route, NavLink } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import NotFound from './NotFound';
-import PublicRoute from '../utils/PublicRoute'
 import Application from "./Application";
-import PrivateRoute from '../utils/PrivateRoute'
 import ApplicationForm from './ApplicationForm';
 import { getEmkk, getReviewer } from '../utils/Common';
-import my_application from '../fonts/my_application.png'
-import application_form from '../fonts/application_form.png'
-import take_application_in_work from '../fonts/take_application_in_work.png'
-import hiking_dashboard from '../fonts/hiking_dashboard.png'
+import my_application from '../images/my_application.png'
+import application_form from '../images/application_form.png'
+import take_application_in_work from '../images/take_application_in_work.png'
+import hiking_dashboard from '../images/hiking_dashboard.png'
 
 
 export default class Home extends React.Component {
@@ -61,8 +57,8 @@ export default class Home extends React.Component {
 					</div>
 					<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 						<Switch>
-							<PublicRoute path="/home/application" component={Application} />
-							<PrivateRoute path="/home/form" component={ApplicationForm} />
+							<Route path="/home/application" component={Application} />
+							<Route path="/home/form" component={ApplicationForm} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
 							<Route exact path="/home/applications" component={() => <Dashboard isMyApps={true} {...this.props} />} />
 							<Route exact path="/home/reviews" component={() => <Dashboard isReview={true} {...this.props} />} />

@@ -1,10 +1,10 @@
 import React from 'react';
 import { getEmkk, getToken, getUser } from '../utils/Common';
 import Requests from '../utils/requests';
-import { KINDOFTOURISM } from '../utils/Constants';
-import review from '../fonts/review.png';
-import rejected from '../fonts/rejected.png';
-import accepted from '../fonts/accepted.png';
+import { KIND_OF_TOURISM } from '../utils/Constants';
+import review from '../images/review.png';
+import rejected from '../images/rejected.png';
+import accepted from '../images/accepted.png';
 import DataTable from 'react-data-table-component';
 
 export default class Dashboard extends React.Component {
@@ -42,7 +42,7 @@ export default class Dashboard extends React.Component {
 			name: 'Вид туризма',
 			selector: row => row.kind,
 			sortable: true,
-			cell: row => KINDOFTOURISM[row.kind],
+			cell: row => KIND_OF_TOURISM[row.kind],
 
 		},
 		{
@@ -95,8 +95,8 @@ export default class Dashboard extends React.Component {
 			}
 		} : {};
 
-		if (this.props.isMyReview) {
-			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=0`, config)
+		if (this.props.isMyReview || this.props.isReview) {
+			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=${this.props.isReview ? 1 : 0}`, config)
 				.then(result => {
 					this.setState({
 						trips: result.data.map(item => {
@@ -105,72 +105,57 @@ export default class Dashboard extends React.Component {
 						})
 					});
 				})
-			return;
+		} else {
+			await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
+				.then(
+					(result) => {
+						if (this.isMyApps) {
+							this.setState({
+								trips: result.data.filter(trip => trip.leader.username === this.user).map(item => {
+									item.status = this.renderImage(item.status);
+									return item;
+								})
+							});
+						} else {
+							this.setState({
+								trips: result.data.map(item => {
+									item.status = this.renderImage(item.status);
+									return item;
+								})
+							});
+						}
+
+					},
+					(error) => {
+						this.setState({
+							isLoaded: true,
+							error
+						});
+					});
 		}
 
-		if (this.props.isReview) {
-			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=1`, config)
-				.then(result => {
-					this.setState({
-						trips: result.data.map(item => {
-							item.status = this.renderImage(item.status);
-							return item;
-						})
-					});
-				})
-			return;
-		}
 
-		await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
-			.then(
-				(result) => {
-					if (this.isMyApps) {
-						this.setState({
-							trips: result.data.filter(trip => trip.leader.username === this.user).map(item => {
-								item.status = this.renderImage(item.status);
-								return item;
-							})
-						});
-					} else {
-						this.setState({
-							trips: result.data.map(item => {
-								item.status = this.renderImage(item.status);
-								return item;
-							})
-						});
-					}
 
-				},
-				(error) => {
-					this.setState({
-						isLoaded: true,
-						error
-					});
-				});
 	}
 
 	onClickOnRow(target) {
 		if (!getEmkk()) {
 			return;
 		}
-
+		let state = {};
+		const id = target.id
 		if (this.props.isReview) {
-			this.props.history.push({
-				pathname: '/home/application',
-				state: { id: target.id, isReview: this.props.isReview },
-			});
-		} if (this.props.isMyReview) {
-			this.props.history.push({
-				pathname: '/home/application',
-				state: { id: target.id, isMyReview: this.props.isMyReview },
-			});
+			state = { id: id, isReview: this.props.isReview }
+		} else if (this.props.isMyReview) {
+			state = { id: id, isMyReview: this.props.isMyReview }
 		} else {
-			this.props.history.push({
-				pathname: '/home/application',
-				state: { id: target.id },
-			});
-		}
+			state = { id: id }
 
+		}
+		this.props.history.push({
+			pathname: '/home/application',
+			state: state,
+		});
 
 	};
 
