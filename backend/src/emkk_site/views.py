@@ -245,15 +245,15 @@ class ReviewView(generics.ListCreateAPIView):
         if serializer.is_valid():
             user = request.user
 
-            if not WorkRegister.objects.filter(trip=trip, user=user).count():
-                return Response(
-                    "Reviewer should take trip on work before create review",
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-            if Review.objects.filter(trip=trip, reviewer=user):
-                return Response(
-                    "Reviewer can't create several reviewers for one trip",
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            if isinstance(context_class, ReviewerList):
+                if not WorkRegister.objects.filter(trip=trip, user=user).count():
+                    return Response(
+                        "Reviewer should take trip on work before create review",
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+                if Review.objects.filter(trip=trip, reviewer=user):
+                    return Response(
+                        "Reviewer can't create several reviewers for one trip",
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
             serializer.save()
 
