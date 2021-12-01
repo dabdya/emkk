@@ -57,10 +57,13 @@ class ReviewSerializer(BaseReviewSerializer):
 
 
 class ReviewFromIssuerSerializer(BaseReviewSerializer):
+    reviewer = UserSerializer(read_only=True)
+
     class Meta:
         model = ReviewFromIssuer
+        depth = 1
         fields = '__all__'
-        read_only_fields = ['reviewer', ]
+        read_only_fields = ['reviewer', 'trip', ]
 
 
 class WorkRegisterSerializer(serializers.ModelSerializer):

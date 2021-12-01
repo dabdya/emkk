@@ -111,8 +111,6 @@ class WorkRegisterTestForIssuer(TestCase):
                          "result_comment": "Все плохо"}
 
         response = self.env.client_post(f'/api/trips/{trip.id}/reviews-from-issuer', issuer_review)
-        print("RESPONSE:")
-        print(response.data)
         self.assertEqual(response.status_code, 201)
         review_count = ReviewFromIssuer.objects.filter(trip=trip).count()
         self.assertEqual(review_count, 1)
