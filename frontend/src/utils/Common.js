@@ -56,4 +56,19 @@ const setUserSession = (accessToken, refreshToken, user) => {
 	localStorage.setItem('secretary', decoded['secretary']);
 }
 
-export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken, getEmkk, getReviewer, getSecretary, getIssuer };
+const caseInsensitiveSort = (rowA, rowB) => {
+	const fname = rowA.leader.first_name + rowA.leader.last_name[0] + rowA.leader.patronymic;
+	const sname = rowB.leader.first_name + rowB.leader.last_name[0] + rowB.leader.patronymic;
+
+	if (fname > sname) {
+		return 1;
+	}
+
+	if (sname > fname) {
+		return -1;
+	}
+
+	return 0;
+};
+
+export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken, getEmkk, getReviewer, getSecretary, getIssuer, caseInsensitiveSort };

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEmkk, getToken, getUser } from '../utils/Common';
+import { getEmkk, getToken, getUser, caseInsensitiveSort } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
@@ -7,14 +7,17 @@ import rejected from '../images/rejected.png';
 import accepted from '../images/accepted.png';
 import DataTable from 'react-data-table-component';
 
+
 export default class Dashboard extends React.Component {
+
 	addedCoumns = [
 		{
 			name: 'Руководитель',
 			selector: row => row.leader,
-			sortable: false,
 			center: true,
 			wrap: true,
+			sortable: true,
+			sortFunction: caseInsensitiveSort,
 			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
 		},
 		{
@@ -22,8 +25,10 @@ export default class Dashboard extends React.Component {
 			selector: row => row.local_region,
 			sortable: false,
 			wrap: true,
+			sortable: true,
 		}
 	]
+
 	columns = [
 		{
 			name: 'Название спорт. организации',
@@ -31,12 +36,13 @@ export default class Dashboard extends React.Component {
 			sortable: false,
 			center: true,
 			wrap: true,
+			sortable: true,
 		},
 		{
 			name: 'Общий регион',
 			selector: row => row.global_region,
-			sortable: false,
 			wrap: true,
+			sortable: true,
 		},
 		{
 			name: 'Вид туризма',
@@ -49,12 +55,13 @@ export default class Dashboard extends React.Component {
 			name: 'Категория сложности',
 			selector: row => row.difficulty_category,
 			center: true,
-			width: "100px"
+			width: "100px",
+			sortable: true,
 		},
 		{
 			name: 'Статус',
 			selector: row => row.status,
-			sortable: false,
+			sortable: true,
 			center: true,
 			cell: row => <img height="50px" src={row.status} alt="status" />,
 		},
@@ -66,7 +73,7 @@ export default class Dashboard extends React.Component {
 		{
 			name: 'Дата завершения',
 			selector: row => row.end_date,
-			sortable: false,
+			sortable: true,
 		},
 	];
 
@@ -139,19 +146,19 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		if (!getEmkk()) {
-			return;
-		}
+		// if (!getEmkk() || (target.leader.username !== getUser() && !this.props.isReview && !this.props.isMyReview)) {
+		// 	return;
+		// }
 		let state = {};
-		const id = target.id
+		const id = target.id;
 		if (this.props.isReview) {
 			state = { id: id, isReview: this.props.isReview }
 		} else if (this.props.isMyReview) {
 			state = { id: id, isMyReview: this.props.isMyReview }
 		} else {
 			state = { id: id }
-
 		}
+
 		this.props.history.push({
 			pathname: '/home/application',
 			state: state,
@@ -162,12 +169,10 @@ export default class Dashboard extends React.Component {
 
 
 	renderImage(status) {
-		if (status === "on_review") {
+		if (status === "on_review" || status == "at_issuer") {
 			return review;
 		} else if (status === "rejected") {
 			return rejected;
-		} else if (status === "at_issuer") {
-			return review;
 		}
 		return accepted;
 	}

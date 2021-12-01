@@ -4,7 +4,7 @@ import { Grid, Autocomplete, TextField } from '@mui/material'
 import ReviewContent from './ReviewContent';
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
 import Requests from '../utils/requests';
-import { getReviewer, getToken, getUser } from '../utils/Common';
+import { getIssuer, getReviewer, getToken, getUser } from '../utils/Common';
 import icon from "../images/delete.ico"
 
 
@@ -21,6 +21,8 @@ export default class Application extends React.Component {
 			reviews: [],
 			result_comment: "",
 			result: "",
+			result_comment_issue: "",
+			result_issue: "",
 		};
 
 		this.changeEditing = this.changeEditing.bind(this);
@@ -35,7 +37,7 @@ export default class Application extends React.Component {
 		this.writeReview = this.writeReview.bind(this);
 		this.handleChange = this.handleChange.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
-		console.log(this.props.location.state)
+		this.writeIssue = this.writeIssue.bind(this);
 	}
 
 	config() {
@@ -119,6 +121,17 @@ export default class Application extends React.Component {
 				console.log(resp);
 			});
 	}
+
+	async writeIssue(e) {
+		e.preventDefault()
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews-from-issuer`,
+			{ result: STATUS[this.state.result_issue], result_comment: this.state.result_comment_issue },
+			this.config())
+			.then(resp => {
+				console.log(resp);
+			});
+	}
+
 
 	handleChange(e) {
 		this.setState({ [e.target.name]: e.target.value });
@@ -357,6 +370,38 @@ export default class Application extends React.Component {
 							</label>
 
 						</div>
+					</>
+				}
+				{getIssuer()
+					&&
+					<>
+						<form onSubmit={this.writeIssue}>
+							<Autocomplete
+								openOnFocus
+								options={["Отклонить", "Принять", "На доработку"]}
+								onSelect={(event) => this.handleChange(event)}
+								renderInput={(params) =>
+									<TextField {...params}
+										variant="filled"
+										name="result_issue"
+										inputProps={{ ...params.inputProps }}
+										label="Статус"
+										required />}
+
+							/>
+							<TextField
+								style={{ width: "100%" }}
+								name="result_comment_issue"
+								placeholder="Выпуск"
+								multiline
+								rows={7}
+								rowsMax={Infinity}
+								onChange={(event) => this.handleChange(event)}
+								required
+							/>
+							<button type="submit">Выпустить</button>
+						</form>
+
 					</>
 				}
 			</div >
