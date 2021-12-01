@@ -231,12 +231,20 @@ class ReviewView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context.update({"reviewer": self.request.user})
+        context.update({
+            "reviewer": self.request.user,
+            "trip_id": self.kwargs["pk"],
+        })
         return context
 
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
-        trip = Trip.objects.get(pk=trip_id)
+        try:
+            trip = Trip.objects.get(pk=trip_id)
+        except Trip.DoesNotExist:
+            msg = f"Trip with {trip_id} not found"
+            return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
 
