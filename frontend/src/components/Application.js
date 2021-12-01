@@ -316,8 +316,9 @@ export default class Application extends React.Component {
 				{!this.props.location.state.isMyReview &&
 					getReviewer() &&
 					this.props.location.state.isReview
-					&& <Button onClick={() => this.takeOnReview()}>Взять заявку в рецензию</Button>}
-				{this.props.location.state.isMyReview &&
+					&& <Button onClick={() => this.takeOnReview()} style={{ marginLeft: "40px" }}>Взять заявку в рецензию</Button>}
+				{
+					this.props.location.state.isMyReview &&
 					<>
 						<form onSubmit={this.writeReview}>
 							<Autocomplete
@@ -356,7 +357,8 @@ export default class Application extends React.Component {
 							</label>
 
 						</div>
-					</>}
+					</>
+				}
 			</div >
 		)
 	}
