@@ -52,13 +52,13 @@ class WorkRegisterTest(TestCase):
         for i in range(on_review_count):
             self.env.eg.generate_instance_by_model(Trip, status=TripStatus.ON_REVIEW).save()
 
-        r = self.env.client_get('/api/trips/work?available=1&role=issuer')
+        r = self.env.client_get('/api/trips/work?available=issuer')
         self.assertEqual(at_issuer_count, len(r.data))
 
-        r = self.env.client_get('/api/trips/work?available=1&role=reviewer')
+        r = self.env.client_get('/api/trips/work?available=reviewer')
         self.assertEqual(on_review_count, len(r.data))
 
-        r = self.env.client_get('/api/trips/work?available=1')
+        r = self.env.client_get('/api/trips/work?available=all')
         self.assertEqual(on_review_count + at_issuer_count, len(r.data))
 
 
@@ -102,7 +102,7 @@ class WorkRegisterTestForReviewer(TestCase):
             if actual_reviews + in_work_reviews >= needed_reviews_count:
                 should_filtered += 1
 
-        trips_for_review = len(self.env.client_get(f'/api/trips/work?available=1').data)
+        trips_for_review = len(self.env.client_get(f'/api/trips/work?available=reviewer').data)
         self.assertEqual(trips_for_review, self.trips_count - should_filtered)
 
 
@@ -124,7 +124,7 @@ class WorkRegisterTestForIssuer(TestCase):
             trips[i].status = TripStatus.AT_ISSUER
             trips[i].save()
 
-        available_trips_count_real = len(self.env.client_get(f'/api/trips/work?available=1').data)
+        available_trips_count_real = len(self.env.client_get(f'/api/trips/work?available=issuer').data)
         self.assertEqual(available_trips_count_expect, available_trips_count_real)
 
     def test_issuer_can_create_issuer_review_without_taking_in_work(self):
