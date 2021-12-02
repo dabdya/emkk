@@ -104,7 +104,7 @@ class Base(Configuration):
         "PUT",
     ]
 
-    CORS_ALLOW_CREDENTIALS = 'True'
+    CORS_ALLOW_CREDENTIALS = True
 
     ROOT_URLCONF = 'config.urls'
 
