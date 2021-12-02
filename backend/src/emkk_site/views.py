@@ -2,7 +2,9 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import HttpResponse
+
 from typing import Union
+from functools import partial
 
 from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner)
@@ -21,9 +23,10 @@ from src.emkk_site.models import (
     ReviewFromIssuer, Document, ReviewDocument,
     ReviewFromIssuerDocument)
 
+from src.emkk_site.services import get_trips_available_for_work
+
 
 class TripList(generics.ListCreateAPIView):
-    queryset = Trip.objects.all()
     permission_classes = [IsAuthenticated | ReadOnly, ]
 
     def get_serializer_context(self):
@@ -35,6 +38,17 @@ class TripList(generics.ListCreateAPIView):
         if self.request.user.is_authenticated:
             return TripSerializer
         return TripForAnonymousSerializer
+
+    def get_queryset(self):
+        f = self.request.query_params.get('filter', 'all')
+
+        filters = {
+            "all": Trip.objects.all,
+            "my": partial(Trip.objects.filter, leader=self.request.user),
+            "work": partial(get_trips_available_for_work, self.request.user),
+        }
+
+        return filters[f]()
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, args, kwargs)

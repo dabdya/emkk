@@ -1,4 +1,4 @@
-from src.emkk_site.models import Trip, TripStatus, Review
+from src.emkk_site.models import Trip, TripStatus, Review, ReviewFromIssuer
 
 
 def get_reviewers_count_by_difficulty(difficulty):
@@ -23,15 +23,12 @@ def try_change_trip_status_to_issuer_result(trip, result):
         trip.save()
 
 
-def get_trips_available_for_work(user, available):
+def get_trips_available_for_work(user):
     for_issue = _get_trips_available_for_issuers(user)
     for_review = _get_trips_available_for_reviewers(user)
 
     if user.ISSUER and user.REVIEWER:
-        if available == "all":
-            return for_review + for_issue
-        return for_review if available == "reviewer" else for_issue
-
+        return for_review + for_issue
     elif user.ISSUER:
         return for_issue
     elif user.REVIEWER:
@@ -59,7 +56,7 @@ def _get_trips_available_for_issuers(user):
     trips_for_issuer = []
 
     for trip in trips:
-        issues_count_for_trip = Review.objects.filter(trip=trip, reviewer=user).count()
+        issues_count_for_trip = ReviewFromIssuer.objects.filter(trip=trip, reviewer=user).count()
         if issues_count_for_trip == 0:
             trips_for_issuer.append(trip)
 
