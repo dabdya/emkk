@@ -1,4 +1,4 @@
-from src.emkk_site.models import Trip, TripStatus, Review, WorkRegister
+from src.emkk_site.models import Trip, TripStatus, Review
 
 
 def get_reviewers_count_by_difficulty(difficulty):
@@ -38,22 +38,17 @@ def get_trips_available_for_work(user, available):
         return for_review
 
 
-def get_trip_in_work_by_user(user):
-    return [record.trip for record in WorkRegister.objects.filter(user=user)]
-
-
 def _get_trips_available_for_reviewers(user):
     trips = Trip.objects.filter(status=TripStatus.ON_REVIEW)
     trips_available_for_review = []
 
     for trip in trips:
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-        in_work_reviews = len(WorkRegister.objects.filter(trip=trip))
         actual_reviews = len(Review.objects.filter(trip=trip))
 
         reviews_count_for_trip = Review.objects.filter(trip=trip, reviewer=user).count()
 
-        if in_work_reviews + actual_reviews < needed_reviews_count and reviews_count_for_trip == 0:
+        if actual_reviews < needed_reviews_count and reviews_count_for_trip == 0:
             trips_available_for_review.append(trip)
 
     return trips_available_for_review
