@@ -2,7 +2,7 @@ from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.models import (
-    Review, ReviewResult, WorkRegister, TripStatus, ReviewFromIssuer)
+    Review, ReviewResult, WorkRegister, TripStatus, ReviewFromIssuer, Trip)
 from src.emkk_site.services import get_reviewers_count_by_difficulty
 
 import random
@@ -40,6 +40,27 @@ class WorkRegisterTest(TestCase):
         in_work_count = WorkRegister.objects.filter(user=self.env.user, trip=trip).count()
         self.assertEqual(in_work_count, 0)
 
+    def test_if_user_reviewer_and_issuer_when_available_works_can_be_partitioned_by_role_param(self):
+        self.env.trips[0].status = TripStatus.ACCEPTED
+        self.env.trips[0].save()
+
+        at_issuer_count = 4
+        on_review_count = 6
+
+        for i in range(at_issuer_count):
+            self.env.eg.generate_instance_by_model(Trip, status=TripStatus.AT_ISSUER).save()
+        for i in range(on_review_count):
+            self.env.eg.generate_instance_by_model(Trip, status=TripStatus.ON_REVIEW).save()
+
+        r = self.env.client_get('/api/trips/work?available=1&role=issuer')
+        self.assertEqual(at_issuer_count, len(r.data))
+
+        r = self.env.client_get('/api/trips/work?available=1&role=reviewer')
+        self.assertEqual(on_review_count, len(r.data))
+
+        r = self.env.client_get('/api/trips/work?available=1')
+        self.assertEqual(on_review_count + at_issuer_count, len(r.data))
+
 
 class WorkRegisterTestForReviewer(TestCase):
     """Tests check available trips for reviewers"""
@@ -51,6 +72,10 @@ class WorkRegisterTestForReviewer(TestCase):
             .with_trips(self.trips_count)
 
     def test_trips_with_needed_reviews_count_should_filtered(self):
+
+        for trip in self.env.trips:
+            trip.status = TripStatus.ON_REVIEW
+            trip.save()
 
         reviewers = self.env.create_reviewers(self.trips_count)
         """Create reviews for random trips"""
