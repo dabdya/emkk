@@ -3,7 +3,6 @@ import { STATUS } from "../utils/Constants";
 import review from '../images/review.png';
 import accepted from '../images/accepted.png';
 import rejected from '../images/rejected.png';
-
 export default class ReviewContent extends React.Component {
 	constructor(props) {
 		super(props);
@@ -26,28 +25,27 @@ export default class ReviewContent extends React.Component {
 
 	render() {
 		return (
-			<div className="wrapper" style={{ backgroundColor: "#CFCFCF", border: "1.5px solid", marginRight: "49px" }}>
+			<div className="wrapper" style={{ backgroundColor: "#D4D4D4", borderRadius:10, marginRight: "49px" }}>
 				<div className="status" style={{
-					marginLeft: "10px",
-					paddingTop: "10px",
+					marginLeft: "37px",
+					paddingTop: "22px",
 					display: "flex",
 					alignItems: "center"
 				}}>
 					<img alt="" src={this.getImage()} height="50px" width="50px" />
-					<span style={{ marginLeft: "3px" }}>{STATUS[this.result]}</ span>
+					<div style={{ marginLeft:"13.02px", height:"50"}}>
+						<span style={{ marginLeft: "3px", fontSize:18 }}>{this.reviewer.first_name} {this.reviewer.last_name} {this.reviewer.patronymic}</ span> < br/>
+						<span style={{ marginLeft: "3px", fontSize:16 }}>Рецензент</ span> < br/>
+						<span style={{ marginLeft: "3px", fontSize:14 }}>статус: {STATUS[this.result]}</ span> < br/>
+					</div>
 				</div>
 				<div className="comment" style={{
-					backgroundColor: "#FFFFFF",
 					height: "fit-content",
 					minHeight: "150px",
 					margin: "20px 30px 10px 30px",
-					border: "1.5px solid",
 					padding: "10px 10px"
 				}}>
 					{this.comment}
-				</div>
-				<div className="signature" style={{ marginLeft: "28px", marginBottom: "10px" }}>
-					{`${this.reviewer.first_name} ${this.reviewer.last_name}`}
 				</div>
 			</div >
 		);

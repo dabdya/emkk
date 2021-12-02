@@ -2,7 +2,9 @@ from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
 from django.http import HttpResponse
+
 from typing import Union
+from functools import partial
 
 from src.jwt_auth.permissions import (
     IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner)
@@ -10,56 +12,21 @@ from src.jwt_auth.permissions import (
 from src.emkk_site.serializers import (
     TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
     ReviewSerializer, ReviewFromIssuerSerializer,
-    WorkRegisterSerializer, ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
+    ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
 
 from src.emkk_site.services import (
-    get_trips_available_for_work,
     try_change_status_from_review_to_at_issuer,
-    try_change_trip_status_to_issuer_result, get_trip_in_work_by_user, )
+    try_change_trip_status_to_issuer_result, )
 
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, TripStatus, WorkRegister, ReviewFromIssuer, Document, ReviewDocument,
+    TripDocument, Trip, Review, TripStatus,
+    ReviewFromIssuer, Document, ReviewDocument,
     ReviewFromIssuerDocument)
 
-
-class WorkRegisterView(generics.ListCreateAPIView):
-    permission_classes = [IsReviewer | IsIssuer, ]
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"user": self.request.user})
-        return context
-
-    def get_serializer_class(self):
-        if self.request.method == 'GET':
-            return TripSerializer
-        return WorkRegisterSerializer
-
-    def get_queryset(self):
-        available = self.request.query_params.get("available")
-        if available and available not in ["reviewer", "issuer", "all", ]:
-            return []
-
-        if available:
-            return get_trips_available_for_work(self.request.user, available)
-        return get_trip_in_work_by_user(self.request.user)
-
-    def create(self, request, *args, **kwargs):
-
-        trip = self.request.data.get('trip', None)
-        if not trip:
-            return Response('Trip required', status=status.HTTP_400_BAD_REQUEST)
-
-        if Review.objects.filter(reviewer=self.request.user, trip=trip):
-            return Response(
-                'Review already exist for this trip. Cant take trip in work again',
-                status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
-        return super().create(request, *args, **kwargs)
+from src.emkk_site.services import get_trips_available_for_work
 
 
 class TripList(generics.ListCreateAPIView):
-    queryset = Trip.objects.all()
     permission_classes = [IsAuthenticated | ReadOnly, ]
 
     def get_serializer_context(self):
@@ -71,6 +38,17 @@ class TripList(generics.ListCreateAPIView):
         if self.request.user.is_authenticated:
             return TripSerializer
         return TripForAnonymousSerializer
+
+    def get_queryset(self):
+        f = self.request.query_params.get('filter', 'all')
+
+        filters = {
+            "all": Trip.objects.all,
+            "my": partial(Trip.objects.filter, leader=self.request.user),
+            "work": partial(get_trips_available_for_work, self.request.user),
+        }
+
+        return filters[f]()
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, args, kwargs)
@@ -249,12 +227,6 @@ class ReviewView(generics.ListCreateAPIView):
         if serializer.is_valid():
             user = request.user
 
-            if isinstance(context_class, ReviewerList):
-                if not WorkRegister.objects.filter(trip=trip, user=user).count():
-                    return Response(
-                        "Reviewer should take trip on work before create review",
-                        status=status.HTTP_422_UNPROCESSABLE_ENTITY)
-
             if self.model_class.objects.filter(trip=trip, reviewer=user):
                 return Response(
                     "Reviewer can't create several reviewers for one trip",
@@ -267,8 +239,6 @@ class ReviewView(generics.ListCreateAPIView):
             elif isinstance(context_class, IssuerList):
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
-
-            WorkRegister.objects.filter(trip=trip, user=user).delete()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

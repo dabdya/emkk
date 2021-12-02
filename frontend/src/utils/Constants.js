@@ -22,10 +22,10 @@ export const KIND_OF_TOURISM = {
 }
 
 export const STATUS = {
-	"on_review": "На ревью",
-	"accepted": "Принято",
-	"on_rework": "На доработке",
-	"rejected": "Отклонено",
+	"on_review": "на ревью",
+	"accepted": "принято",
+	"on_rework": "на доработке",
+	"rejected": "отклонено",
 	"Отклонить": "rejected",
 	"Принять": "accepted",
 	"На доработку": "on_rework",

@@ -144,11 +144,3 @@ class UserExperience(models.Model):
     kind = models.CharField(choices=TripKind.choices, max_length=30)
     difficulty_category = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
-
-
-class WorkRegister(models.Model):
-    class Meta:
-        unique_together = (('trip', 'user'),)
-
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)

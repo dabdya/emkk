@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Switch, Route, NavLink, Link,Redirect } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, NavLink, Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
 import Home from './Home';
@@ -7,7 +7,6 @@ import Registration from "./Registration";
 import ApplicationForm from './ApplicationForm';
 import NotFound from './NotFound';
 import ForgetPass from './ForgetPassword';
-import PublicRoute from '../utils/PublicRoute';
 import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 
 
@@ -69,10 +68,10 @@ export default class App extends React.Component {
 									<Redirect to="/home/dashboard" />
 								)} />
 								<Route exact path="/home/*" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
-								<PublicRoute path="/reset-password" component={ForgetPass} />
+								<Route path="/reset-password" component={ForgetPass} />
 								<Route path="/login" component={Login} />
 								<Route path="/signup" component={Registration} />
-								<PublicRoute path="/form" component={ApplicationForm} />
+								<Route path="/form" component={ApplicationForm} />
 								<Route path="*" component={NotFound} />
 							</Switch>
 						</div>
