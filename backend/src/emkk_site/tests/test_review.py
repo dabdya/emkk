@@ -1,8 +1,7 @@
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import (
-    Review, TripStatus, ReviewResult, WorkRegister)
+from src.emkk_site.models import Review, TripStatus, ReviewResult
 from src.emkk_site.services import get_reviewers_count_by_difficulty
 
 
@@ -70,40 +69,6 @@ class ReviewTest(TestCase):
 
         trip = self.env.client_get(f'/api/trips/{trip.id}').data
         self.assertNotEqual(trip.get('status'), issuer_result)
-
-    def test_reviewer_cant_create_review_if_trip_not_in_work(self):
-
-        trip = self.env.trips[0]
-        reviewer = self.env.create_reviewers(1)[0]
-
-        """Trip not in work"""
-        self.assertEqual(WorkRegister.objects.filter(trip=trip).count(), 0)
-
-        """Try create review. Expected fail"""
-        self.env.client_post(
-            f'/api/trips/{trip.id}/reviews',
-            data=self.get_review_data(trip.id), user=reviewer)
-        self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
-
-    def test_reviewer_cant_create_review_if_trip_in_work_but_not_belong_him(self):
-
-        trip = self.env.trips[0]
-        reviewer_which_take_in_work = self.env.create_reviewers(1)[0]
-
-        """Other reviewer take review in work, but not create review"""
-        self.env.client_post(
-            f'/api/trips/work',
-            data=self.get_review_data(trip.id), user=reviewer_which_take_in_work)
-
-        self.assertEqual(WorkRegister.objects.filter(user=reviewer_which_take_in_work, trip=trip).count(), 1)
-
-        reviewer_which_not_take = self.env.create_reviewers(1)[0]
-        """Leader which didnt take review in work try create review on trip.
-           But trip in table TripsOnReviewByUser. Expected fail."""
-        self.env.client_post(
-            f'/api/trips/{trip.id}/reviews',
-            data=self.get_review_data(trip.id), user=reviewer_which_not_take)
-        self.assertEqual(Review.objects.filter(trip=trip).count(), 0)
 
     def test_reviewer_can_create_only_one_review_for_one_trip(self):
 
