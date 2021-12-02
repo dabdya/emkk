@@ -59,7 +59,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'password', 'email', 'username', 'first_name', 'last_name', 'gender',
-            'access_token', 'refresh_token',
+            'access_token', 'refresh_token', 'patronymic',
         ]
         extra_kwargs = {'patronymic': {'required': False}}
 

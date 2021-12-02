@@ -23,12 +23,15 @@ def try_change_trip_status_to_issuer_result(trip, result):
         trip.save()
 
 
-def get_trips_available_for_work(user):
+def get_trips_available_for_work(user, role):
     for_issue = _get_trips_available_for_issuers(user)
     for_review = _get_trips_available_for_reviewers(user)
 
     if user.ISSUER and user.REVIEWER:
-        return for_review + for_issue
+        if not role:
+            return for_review + for_issue
+        return for_review if role == "reviewer" else for_issue
+
     elif user.ISSUER:
         return for_issue
     elif user.REVIEWER:
@@ -40,7 +43,7 @@ def get_trip_in_work_by_user(user):
 
 
 def _get_trips_available_for_reviewers(user):
-    trips = Trip.objects.all()
+    trips = Trip.objects.filter(status=TripStatus.ON_REVIEW)
     trips_available_for_review = []
 
     for trip in trips:

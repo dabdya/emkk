@@ -38,21 +38,32 @@ class BaseReviewSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         reviewer = self.context['reviewer']
         validated_data['reviewer'] = reviewer
+
+        trip_id = self.context["trip_id"]
+        trip = Trip.objects.get(pk=trip_id)
+        validated_data['trip'] = trip
+
         return super(BaseReviewSerializer, self).create(validated_data)
 
 
 class ReviewSerializer(BaseReviewSerializer):
+    reviewer = UserSerializer(read_only=True)
+
     class Meta:
         model = Review
+        depth = 1
         fields = '__all__'
-        read_only_fields = ['reviewer', ]
+        read_only_fields = ['reviewer', 'trip', ]
 
 
 class ReviewFromIssuerSerializer(BaseReviewSerializer):
+    reviewer = UserSerializer(read_only=True)
+
     class Meta:
         model = ReviewFromIssuer
+        depth = 1
         fields = '__all__'
-        read_only_fields = ['reviewer', ]
+        read_only_fields = ['reviewer', 'trip', ]
 
 
 class WorkRegisterSerializer(serializers.ModelSerializer):

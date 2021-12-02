@@ -36,10 +36,14 @@ class WorkRegisterView(generics.ListCreateAPIView):
         return WorkRegisterSerializer
 
     def get_queryset(self):
-        if self.request.method == 'GET':
-            if self.request.query_params.get("available") and int(self.request.query_params.get("available")):
-                return get_trips_available_for_work(self.request.user)
-            return get_trip_in_work_by_user(self.request.user)
+        available = self.request.query_params.get("available")
+        role = self.request.query_params.get("role")
+        if role and role not in ["reviewer", "issuer"]:
+            return []
+
+        if available and int(available):
+            return get_trips_available_for_work(self.request.user, role)
+        return get_trip_in_work_by_user(self.request.user)
 
     def create(self, request, *args, **kwargs):
 
@@ -147,13 +151,6 @@ class DocumentList(generics.ListCreateAPIView):
         except Document.DoesNotExist:
             pass
 
-    def list(self, request, *args, **kwargs):
-        trip = self.get_related_trip()
-        if not trip:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-        response_data = []
-
     def __init__(self, model_class,  # TripDocument or ReviewDocument
                  related_model_class):  # Trip or Review
         super().__init__()
@@ -231,12 +228,20 @@ class ReviewView(generics.ListCreateAPIView):
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context.update({"reviewer": self.request.user})
+        context.update({
+            "reviewer": self.request.user,
+            "trip_id": self.kwargs["pk"],
+        })
         return context
 
     def create(self, request, *args, **kwargs):
         trip_id = kwargs["pk"]
-        trip = Trip.objects.get(pk=trip_id)
+        try:
+            trip = Trip.objects.get(pk=trip_id)
+        except Trip.DoesNotExist:
+            msg = f"Trip with {trip_id} not found"
+            return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
 
@@ -245,12 +250,13 @@ class ReviewView(generics.ListCreateAPIView):
         if serializer.is_valid():
             user = request.user
 
-            if not WorkRegister.objects.filter(trip=trip, user=user).count():
-                return Response(
-                    "Reviewer should take trip on work before create review",
-                    status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            if isinstance(context_class, ReviewerList):
+                if not WorkRegister.objects.filter(trip=trip, user=user).count():
+                    return Response(
+                        "Reviewer should take trip on work before create review",
+                        status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-            if Review.objects.filter(trip=trip, reviewer=user):
+            if self.model_class.objects.filter(trip=trip, reviewer=user):
                 return Response(
                     "Reviewer can't create several reviewers for one trip",
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY)

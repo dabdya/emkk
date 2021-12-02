@@ -124,3 +124,23 @@ class ReviewTest(TestCase):
 
         reviews_count = Review.objects.filter(reviewer=self.env.user, trip=trip).count()
         self.assertEqual(reviews_count, 1)
+
+    def test_issuer_cant_create_review_twice_for_one_trip(self):
+        trip = self.env.trips[0]
+        trip.status = TripStatus.AT_ISSUER
+        trip.save()
+
+        self.env.user.ISSUER = True
+        self.env.user.save()
+
+        r = self.env.client_post(
+            f'/api/trips/{trip.id}/reviews-from-issuer',
+            data=self.get_review_data(trip.id), user=self.env.user)
+
+        self.assertEqual(r.status_code, 201)
+
+        r = self.env.client_post(
+            f'/api/trips/{trip.id}/reviews-from-issuer',
+            data=self.get_review_data(trip.id), user=self.env.user)
+
+        self.assertEqual(r.status_code, 422)
