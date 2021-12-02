@@ -19,6 +19,7 @@ class Base(Configuration):
     # Build paths inside the project like this: BASE_DIR / 'subdir'.
     BASE_DIR = Path(__file__).resolve().parent.parent
 
+    DEPLOY_HOST_WWW = os.environ.get('DEPLOY_HOST_WWW')
     DEPLOY_HOST = os.environ.get('DEPLOY_HOST')
 
     EMAIL_HOST = os.environ.get('EMAIL_HOST')
@@ -54,7 +55,7 @@ class Base(Configuration):
     # SECURITY WARNING: keep the secret key used in production secret!
     SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4'
 
-    ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST]
+    ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST, DEPLOY_HOST_WWW]
 
     MEDIA_URL = "media/"
     MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
@@ -89,8 +90,21 @@ class Base(Configuration):
 
     CORS_ALLOWED_ORIGINS = [
         'http://localhost',
-        f'http://{DEPLOY_HOST}'
+        'http://localhost:3000',
+        f'http://{DEPLOY_HOST}',
+        f'http://{DEPLOY_HOST_WWW}',
     ]
+
+    CORS_ALLOW_METHODS = [
+        "DELETE",
+        "GET",
+        "OPTIONS",
+        "PATCH",
+        "POST",
+        "PUT",
+    ]
+
+    CORS_ALLOW_CREDENTIALS = 'True'
 
     ROOT_URLCONF = 'config.urls'
 
