@@ -1,10 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import { setUserSession } from '../utils/Common';
-import WarningSign from '@skbkontur/react-icons/Warning'
-import { Button, Center, Gapped, Link } from '@skbkontur/react-ui';
 import { GoogleLogin } from 'react-google-login';
-
+import { TextField, Button } from '@mui/material'
 
 
 export default class Login extends React.Component {
@@ -14,7 +12,6 @@ export default class Login extends React.Component {
 
 		this.state = { login: '', password: '', error: null };
 		this.onSubmit = this.onSubmit.bind(this);
-		this.renderInput = this.renderInput.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
 	}
 
@@ -43,58 +40,44 @@ export default class Login extends React.Component {
 		})
 	};
 
-	renderInput(text, type, className, id, name, value, onChange) {
-		return (
-			<div style={{ marginTop: "15px" }}>
-				<label htmlFor={name}>{text}</label><br />
-				<input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required />
-			</div>
-		);
-	}
-
 	render() {
 		return (
-			<Center style={{ height: '80vh' }}>
-				<div style={{ height: "40vh", width: "45vh", border: "0.5px solid gray", borderRadius: 15 }}>
-					<Center>
-						<form onSubmit={this.onSubmit}>
-							<Gapped gap={0}>
-								{this.renderInput("Логин", "text", "inputField",
-									"login", "login", this.state.login, this.changeInputRegister)}
-								{this.state.error && <><small style={{ color: 'red', position: "absolute" }}><WarningSign /></small><br /></>}<br />
-							</Gapped>
-							<Gapped gap={0}>
-								{this.renderInput("Пароль", "password", "inputField",
-									"password", "password", this.state.password, this.changeInputRegister)}
-								{this.state.error && <><small style={{ color: 'red', position: "absolute" }}><WarningSign /></small><br /></>}<br />
-							</Gapped>
-							<Link href="/reset-password">Забыли пароль?</Link>
-							<Center>
-								<div style={{ marginTop: 80 }}>
-									<Gapped gap={20}>
-										<Link href="/signup">Зарегистрироваться</Link>
-										<Button style={{ marginTop: 20 }} width="10vw" size="medium" type="submit">
-											Войти
-										</Button>
-									</Gapped>
-									<GoogleLogin
-										clientId={process.env.REACT_APP_CLIENT_ID}
-										buttonText=""
-										onSuccess={(response) => {
-											axios.post(`${process.env.REACT_APP_URL}/googleauth`, response)
-										}}
-										onFailure={(response) => {
-											console.log(response);
-										}}
-
-									/>
-								</div>
-							</Center>
-						</form>
-					</Center>
-				</div>
-			</Center>
-
+			<div className="box" style={{
+				padding: "3rem 1rem",
+				display: "flex",
+				width: "35%",
+				border: "0.5px solid gray",
+				borderRadius: 15,
+				position: "fixed",
+				top: "50%",
+				left: "50%", transform: "translate(-50%, -50%)",
+				justifyContent: "center"
+			}}>
+				<form style={{ width: "80%", display: "flex", flexFlow: "column wrap", height: "fit-content" }} onSubmit={this.onSubmit}>
+					<TextField fullWidth error={this.state.error} id="outlined-required" name="login"
+						required margin="normal" label="Логин" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
+					<TextField fullWidth error={this.state.error} id="outlined-password-input" name="password"
+						required margin="normal" label="Пароль" type="password" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
+					<div>
+						<Button variant="outlined" size="small" href="/reset-password">
+							Забыли пароль?
+						</Button>
+					</div>
+					<div style={{ marginTop: 20, display: "flex", justifyContent: "space-between" }}>
+						<Button size="medium" variant="contained" href="/signup">
+							Зарегистрироваться
+						</Button>
+						<Button size="medium" variant="contained"
+							type="submit"
+							style={{
+								height: "2.3rem",
+								width: "40%",
+							}}>
+							Войти
+						</Button>
+					</div>
+				</form>
+			</div>
 		);
 	}
 }
