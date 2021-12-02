@@ -37,12 +37,11 @@ class WorkRegisterView(generics.ListCreateAPIView):
 
     def get_queryset(self):
         available = self.request.query_params.get("available")
-        role = self.request.query_params.get("role")
-        if role and role not in ["reviewer", "issuer"]:
+        if available and available not in ["reviewer", "issuer", "all", ]:
             return []
 
-        if available and int(available):
-            return get_trips_available_for_work(self.request.user, role)
+        if available:
+            return get_trips_available_for_work(self.request.user, available)
         return get_trip_in_work_by_user(self.request.user)
 
     def create(self, request, *args, **kwargs):
