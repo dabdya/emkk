@@ -1,4 +1,4 @@
-export const KINDOFTOURISM = {
+export const KIND_OF_TOURISM = {
 	"Лыжный": "ski",
 	"Пеший": "pedestrian",
 	"Велосипедный": "cycling",
@@ -23,9 +23,17 @@ export const KINDOFTOURISM = {
 
 export const STATUS = {
 	"on_review": "На ревью",
+	"accepted": "Принято",
+	"on_rework": "На доработке",
+	"rejected": "Отклонено",
+	"Отклонить": "rejected",
+	"Принять": "accepted",
+	"На доработку": "on_rework",
+	
+	
 }
 
-export const GLOBALAREA = [
+export const GLOBAL_AREA = [
 	"Алтай",
 	"Альпы",
 	"Архангельская область",

@@ -1,16 +1,15 @@
 import React from 'react';
-import { BrowserRouter, Switch, Route, NavLink, Link } from 'react-router-dom';
+import { BrowserRouter, Switch, Route, NavLink, Link,Redirect } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
 import Home from './Home';
-import { Redirect } from 'react-router-dom';
 import Registration from "./Registration";
 import ApplicationForm from './ApplicationForm';
-import PublicRoute from '../utils/PublicRoute';
 import NotFound from './NotFound';
-import { getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
-import logo from "../fonts/logo.png"
 import ForgetPass from './ForgetPassword';
+import PublicRoute from '../utils/PublicRoute';
+import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
+
 
 export default class App extends React.Component {
 
@@ -52,12 +51,12 @@ export default class App extends React.Component {
 					<div style={{ height: "100%" }}>
 						<div className="header" style={{ boxShadow: "2px 2px 2px grey" }}>
 							<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
-							{!this.state.token &&
+							{!getEmkk() &&
 								<>
 									<NavLink className="link" activeClassName="active" to="/login">Логин</NavLink>
 									<NavLink className="link" activeClassName="active" to="/signup">Регистрация</NavLink>
 								</>}
-							{this.state.token &&
+							{getEmkk() &&
 								<>
 									<div>{getUser()} </div>
 									<Link className="link" style={{ padding: "0 35px" }} onClick={this.onLogout} to="/home/dashboard" >Выйти</Link>
@@ -69,14 +68,10 @@ export default class App extends React.Component {
 								<Route exact path="/" render={() => (
 									<Redirect to="/home/dashboard" />
 								)} />
-								<Route exact path="/home/dashboard" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
-								<Route exact path="/home/applications" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
-								<Route exact path="/home/form" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+								<Route exact path="/home/*" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
 								<PublicRoute path="/reset-password" component={ForgetPass} />
-								<PublicRoute path="/home/reviews" component={Home} />
-								<PublicRoute path="/home/application" component={Home} />
-								<PublicRoute path="/login" component={Login} />
-								<PublicRoute path="/signup" component={Registration} />
+								<Route path="/login" component={Login} />
+								<Route path="/signup" component={Registration} />
 								<PublicRoute path="/form" component={ApplicationForm} />
 								<Route path="*" component={NotFound} />
 							</Switch>
