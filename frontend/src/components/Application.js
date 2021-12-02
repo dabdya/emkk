@@ -70,7 +70,8 @@ export default class Application extends React.Component {
 					control_start_region: response.data.control_start_region,
 					insurance_company_name: response.data.insurance_company_name,
 					insurance_policy_validity_duration: response.data.insurance_policy_validity_duration,
-					last_modified_at: response.data.last_modified_at
+					last_modified_at: response.data.last_modified_at,
+					status: response.data.status
 				})
 			})
 			.catch(err => console.error(err));
@@ -112,9 +113,9 @@ export default class Application extends React.Component {
 			});
 	}
 
-	async writeReview(e) {
+	writeReview(e) {
 		e.preventDefault()
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
 			{ result: STATUS[this.state.result], result_comment: this.state.result_comment },
 			this.config())
 			.then(resp => {
@@ -122,9 +123,9 @@ export default class Application extends React.Component {
 			});
 	}
 
-	async writeIssue(e) {
+	writeIssue(e) {
 		e.preventDefault()
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews-from-issuer`,
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews-from-issuer`,
 			{ result: STATUS[this.state.result_issue], result_comment: this.state.result_comment_issue },
 			this.config())
 			.then(resp => {
@@ -234,7 +235,10 @@ export default class Application extends React.Component {
 					}}>
 						<div className="cell-app"><div>ФИО руководителя:</div><div>{`${this.state.leader?.first_name} ${this.state.leader?.last_name} ${this.state.leader?.patronymic}`}</div></div>
 						<div className="cell-app"><div>Спортивная организация:</div><div>{isEditing ? <input defaultValue={this.state.group_name} onChange={e => this.setState({ group_name: e.target.value })} /> : this.state.group_name}</div></div>
+						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</div></div>
 						<div className="cell-app"><div>Страховая компания:</div><div>{isEditing ? <input type="text" defaultValue={this.state.insurance_company_name} onChange={e => this.setState({ insurance_company_name: e.target.value })} /> : this.state.insurance_company_name}</div></div>
+						<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</div></div>
+						<div className="cell-app"><div>Срок действия страхового полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</div></div>
 						<div className="cell-app"><div>Район:</div><div>{isEditing ?
 							<>
 								<ComboBox drawArrow={true}
@@ -247,12 +251,9 @@ export default class Application extends React.Component {
 									onChange={e => this.setState({ local_region: e.target.value })}
 								/>
 							</> : `${this.state.global_region}, ${this.state.local_region}`}</div></div>
-						<div className="cell-app"><div>Срок действия страхового полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</div></div>
-						<div className="cell-app"><div>Локальный район:</div><div>{isEditing ? <input defaultValue={this.state.local_region} onChange={e => this.setState({ local_region: e.target.value })} /> : this.state.local_region}</div></div>
-						<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</div></div>
-						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</div></div>
-						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KIND_OF_TOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.state.kind]}</div></div>
 						<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.state.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.state.participants_count}</div></div>
+						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KIND_OF_TOURISM[this.state.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.state.kind]}</div></div>
+						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.state.difficulty_category} onChange={e => this.setState({ difficulty_category: e.target.value })} /> : this.state.difficulty_category}</div></div>
 						<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
 							<>
 								<input defaultValue={this.state.control_start_region}
@@ -263,8 +264,8 @@ export default class Application extends React.Component {
 									onChange={e => this.setState({ control_start_date: e.target.value })}
 								/>
 							</> : `${this.state.control_start_region}, ${this.state.control_start_date}`}</div></div>
-						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</div></div>
-						<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</div></div>
+						<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.state.coordinator} onChange={e => this.setState({ coordinator: e.target.value })} /> : this.state.coordinator}</div></div>
+
 						<div className="cell-app"><div>Контрольные сроки конца:</div><div>{isEditing ?
 							<>
 								<input defaultValue={this.state.control_end_region}
@@ -326,10 +327,6 @@ export default class Application extends React.Component {
 							reviewer={review.reviewer} key={review.id} />
 					)}
 				</div>
-				{!this.props.location.state.isMyReview &&
-					getReviewer() &&
-					this.props.location.state.isReview
-					&& <Button onClick={() => this.takeOnReview()} style={{ marginLeft: "40px" }}>Взять заявку в рецензию</Button>}
 				{
 					this.props.location.state.isMyReview &&
 					<>
@@ -372,8 +369,8 @@ export default class Application extends React.Component {
 						</div>
 					</>
 				}
-				{getIssuer()
-					&&
+				{getIssuer() &&
+					this.state.status == "at_issuer" &&
 					<>
 						<form onSubmit={this.writeIssue}>
 							<Autocomplete

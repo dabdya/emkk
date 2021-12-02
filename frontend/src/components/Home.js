@@ -41,16 +41,10 @@ export default class Home extends React.Component {
 							</>}
 						{getReviewer() &&
 							<>
-								<NavLink activeClassName="active" to="/home/reviews">
-									<div className="cell">
-										<img alt="" src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
-										<span style={{ display: "block", color: "white" }}>Взять на рецензию</span>
-									</div>
-								</NavLink>
 								<NavLink activeClassName="active" to="/home/my_reviews">
 									<div className="cell">
-										<img alt="" src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
-										<span style={{ display: "block", color: "white" }}>Заявки в работе</span>
+										<img alt="" src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<span style={{ display: "block", color: "white" }}>Заявки</span>
 									</div>
 								</NavLink>
 							</>}
@@ -61,7 +55,6 @@ export default class Home extends React.Component {
 							<Route path="/home/form" component={ApplicationForm} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
 							<Route exact path="/home/applications" component={() => <Dashboard isMyApps={true} {...this.props} />} />
-							<Route exact path="/home/reviews" component={() => <Dashboard isReview={true} {...this.props} />} />
 							<Route exact path="/home/my_reviews" component={() => getReviewer() ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
 							<Route path="*" component={NotFound} />
 						</Switch>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEmkk, getToken, getUser, caseInsensitiveSort } from '../utils/Common';
+import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer, getIssuer, getSecretary } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
@@ -18,12 +18,11 @@ export default class Dashboard extends React.Component {
 			wrap: true,
 			sortable: true,
 			sortFunction: caseInsensitiveSort,
-			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic}.`
+			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader?.patronymic && row.leader.patronymic[0]}.`
 		},
 		{
 			name: 'Локальный район',
 			selector: row => row.local_region,
-			sortable: false,
 			wrap: true,
 			sortable: true,
 		}
@@ -33,7 +32,6 @@ export default class Dashboard extends React.Component {
 		{
 			name: 'Название спорт. организации',
 			selector: row => row.group_name,
-			sortable: false,
 			center: true,
 			wrap: true,
 			sortable: true,
@@ -80,6 +78,7 @@ export default class Dashboard extends React.Component {
 
 	constructor(props) {
 		super(props);
+		this._isMounted = false;
 		this.user = getUser();
 		this.state = {
 			error: null,
@@ -94,7 +93,7 @@ export default class Dashboard extends React.Component {
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
 
-	async componentDidMount() {
+	componentDidMount() {
 		const request = new Requests();
 		const config = getToken() ? {
 			headers: {
@@ -102,10 +101,12 @@ export default class Dashboard extends React.Component {
 			}
 		} : {};
 
-		if (this.props.isMyReview || this.props.isReview) {
-			await request.get(`${process.env.REACT_APP_URL}/api/trips/work?available=${this.props.isReview ? 1 : 0}`, config)
+		this._isMounted = true;
+
+		if (this.props.isMyReview) {
+			request.get(`${process.env.REACT_APP_URL}/api/trips?filter=work`, config)
 				.then(result => {
-					this.setState({
+					this._isMounted && this.setState({
 						trips: result.data.map(item => {
 							item.status = this.renderImage(item.status);
 							return item;
@@ -113,51 +114,35 @@ export default class Dashboard extends React.Component {
 					});
 				})
 		} else {
-			await request.get(`${process.env.REACT_APP_URL}/api/trips`, config)
+			request.get(`${process.env.REACT_APP_URL}/api/trips${this.isMyApps ? "?filter=my" : ""}`, config)
 				.then(
 					(result) => {
-						if (this.isMyApps) {
-							this.setState({
-								trips: result.data.filter(trip => trip.leader.username === this.user).map(item => {
-									item.status = this.renderImage(item.status);
-									return item;
-								})
-							});
-						} else {
-							this.setState({
-								trips: result.data.map(item => {
-									item.status = this.renderImage(item.status);
-									return item;
-								})
-							});
-						}
-
+						this._isMounted && this.setState({
+							trips: result.data.map(item => {
+								item.status = this.renderImage(item.status);
+								return item;
+							})
+						});
 					},
 					(error) => {
-						this.setState({
+						this._isMounted && this.setState({
 							isLoaded: true,
 							error
 						});
 					});
 		}
+	}
 
-
-
+	componentWillUnmount() {
+		this._isMounted = false;
 	}
 
 	onClickOnRow(target) {
-		// if (!getEmkk() || (target.leader.username !== getUser() && !this.props.isReview && !this.props.isMyReview)) {
-		// 	return;
-		// }
-		let state = {};
-		const id = target.id;
-		if (this.props.isReview) {
-			state = { id: id, isReview: this.props.isReview }
-		} else if (this.props.isMyReview) {
-			state = { id: id, isMyReview: this.props.isMyReview }
-		} else {
-			state = { id: id }
+		if ((!getEmkk() || target.leader.username !== getUser()) && !getReviewer()) {
+			return;
 		}
+		const id = target.id;
+		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview } : { id: id };
 
 		this.props.history.push({
 			pathname: '/home/application',
@@ -169,10 +154,12 @@ export default class Dashboard extends React.Component {
 
 
 	renderImage(status) {
-		if (status === "on_review" || status == "at_issuer") {
+		if (status === "on_review") {
 			return review;
 		} else if (status === "rejected") {
 			return rejected;
+		} else if (status === "at_issuer") {
+			return "На выпуск";
 		}
 		return accepted;
 	}
