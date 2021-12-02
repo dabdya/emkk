@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, ReviewFromIssuer, WorkRegister, ReviewDocument, ReviewFromIssuerDocument)
+    TripDocument, Trip, Review, ReviewFromIssuer, ReviewDocument, ReviewFromIssuerDocument)
 from src.jwt_auth.serializers import UserSerializer
 
 
@@ -64,24 +64,6 @@ class ReviewFromIssuerSerializer(BaseReviewSerializer):
         depth = 1
         fields = '__all__'
         read_only_fields = ['reviewer', 'trip', ]
-
-
-class WorkRegisterSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = WorkRegister
-        fields = '__all__'
-        read_only_fields = ['user', ]
-
-    def validate(self, attrs):
-        user = self.context['user']
-        if WorkRegister.objects.filter(user=user, trip=attrs['trip']):
-            raise serializers.ValidationError("Unique constraint violated")
-        return attrs
-
-    def create(self, validated_data):
-        user = self.context['user']
-        validated_data['user'] = user
-        return super().create(validated_data)
 
 
 class TripSerializer(serializers.ModelSerializer):
