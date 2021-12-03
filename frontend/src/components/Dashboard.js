@@ -1,5 +1,5 @@
 import React from 'react';
-import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer, getIssuer, getSecretary } from '../utils/Common';
+import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
@@ -174,8 +174,8 @@ export default class Dashboard extends React.Component {
 				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
-				highlightOnHover
-				pointerOnHover
+				highlightOnHover={getEmkk()}
+				pointerOnHover={getEmkk()}
 				subHeaderAlign="left"
 				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{

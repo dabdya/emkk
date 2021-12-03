@@ -10,7 +10,7 @@ export default class Login extends React.Component {
 	constructor(props) {
 		super(props);
 
-		this.state = { login: '', password: '', error: null };
+		this.state = { login: '', password: '', error: "" };
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
 	}
@@ -54,9 +54,9 @@ export default class Login extends React.Component {
 				justifyContent: "center"
 			}}>
 				<form style={{ width: "80%", display: "flex", flexFlow: "column wrap", height: "fit-content" }} onSubmit={this.onSubmit}>
-					<TextField fullWidth error={this.state.error} id="outlined-required" name="login"
+					<TextField fullWidth error={this.state.error.length > 0} id="outlined-required" name="login"
 						required margin="normal" label="Логин" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
-					<TextField fullWidth error={this.state.error} id="outlined-password-input" name="password"
+					<TextField fullWidth error={this.state.error.length > 0} id="outlined-password-input" name="password"
 						required margin="normal" label="Пароль" type="password" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
 					<div>
 						<Button variant="outlined" size="small" href="/reset-password">

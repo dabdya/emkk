@@ -10,23 +10,18 @@ export default class Registration extends React.Component {
 
 		this.state =
 		{
-			register:
-			{
-				username: "",
-				email: "",
-				password: "",
-				password2: "",
-				firstName: "",
-				secondName: "",
-				patronymic: "",
-			},
-			errors:
-			{
-				email: "",
-				login: "",
-				passwordValidity: "",
-				serverIssue: "",
-			}
+			username: "",
+			email: "",
+			password: "",
+			password2: "",
+			firstName: "",
+			secondName: "",
+			patronymic: "",
+
+			emailError: "",
+			loginError: "",
+			passwordValidityError: "",
+			serverIssueError: "",
 		};
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
@@ -36,44 +31,16 @@ export default class Registration extends React.Component {
 	changeEmail(event) {
 		event.persist();
 		if (validator.isEmail(event.target.value)) {
-			this.setState(prev => {
-				return {
-					register: {
-						...prev.register,
-						[event.target.name]: event.target.value
-					}
-				}
-			})
-			this.setState(prev => {
-				return {
-					errors: {
-						...prev.errors,
-						[event.target.name]: ""
-					}
-				}
-			})
+			this.setState({ [event.target.name]: event.target.value });
+			this.setState({ emailError: "" });
 		} else {
-			this.setState(prev => {
-				return {
-					errors: {
-						...prev.errors,
-						[event.target.name]: "Введите валидный Email"
-					}
-				}
-			})
+			this.setState({ emailError: "Введите валидный Email" });
 		}
 	}
 
 	changeInputRegister(event) {
 		event.persist();
-		this.setState(prev => {
-			return {
-				register: {
-					...prev.register,
-					[event.target.name]: event.target.value
-				}
-			}
-		})
+		this.setState({ [event.target.name]: event.target.value });
 	};
 
 	close() {
@@ -83,66 +50,26 @@ export default class Registration extends React.Component {
 
 	async onSubmit(event) {
 		event.preventDefault();
-		if (this.state.register.password !== this.state.register.password2) {
-			this.setState(prev => {
-				return {
-					errors: {
-						...prev.errors,
-						passwordValidity: "Пароли не совпадают"
-					}
-				}
-			})
-		} else if (!validator.isStrongPassword(this.state.register.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
-			this.setState(prev => {
-				return {
-					errors: {
-						...prev.errors,
-						passwordValidity: "Пароль должен состоять из шести маленьких латинских букв"
-					}
-				}
-			})
+		if (this.state.password !== this.state.password2) {
+			this.setState({ passwordValidityError: "Пароли не совпадают" })
+		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
+			this.setState({ passwordValidityError: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
-			const config = {
-				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-			};
-			console.log('0000000000000000000')
-			await axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
+			axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
 				user: {
-					username: this.state.register.username,
-					email: this.state.register.email,
-					password: this.state.register.password,
-					first_name: this.state.register.firstName,
-					last_name: this.state.register.secondName,
-					patronymic: this.state.register.patronymic,
+					username: this.state.username,
+					email: this.state.email,
+					password: this.state.password,
+					first_name: this.state.firstName,
+					last_name: this.state.secondName,
+					patronymic: this.state.patronymic,
 				}
-			}, config).then(res => {
-				if (res.data) {
-					console.log('0000000000000000000')
-					alert('Registration complete!'); // делать не аллертами
-					this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
-				} else {
-					console.log('------------------------------')
-					this.setState(prev => {
-						return {
-							errors: {
-								...prev.errors,
-								email: "Такой Email уже зарегестрирован"
-							}
-						}
-					})
-				}
+			}).then(res => {
+				alert('Registration complete!'); // делать не аллертами
+				this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
+
 			}).catch(err => {
-				console.log(err)
-				console.log("######################")
-				this.setState(prev => {
-					return {
-						errors: {
-							...prev.errors,
-							serverIssue: "Возникли проблемы на сервере :("
-						}
-					}
-				})
+				this.setState({ serverIssueError: err.response.data.user.username || err.response.data.user.email });
 			})
 		}
 	};
@@ -164,52 +91,50 @@ export default class Registration extends React.Component {
 				<form style={{
 					width: "80%",
 					display: "inline-block"
-					 }} onSubmit={this.onSubmit}>
+				}} onSubmit={this.onSubmit}>
 					<TextField fullWidth id="outlined-required" size="small" name="username" required
-							   margin="normal" label="Логин"
-							   variant="outlined" onChange={this.changeInputRegister} />
-					<TextField error={this.state.errors.email} helperText={this.state.errors.email} fullWidth id="outlined-required" size="small" name="email" required
-							   margin="normal" label="Email"
-							   variant="outlined" onChange={this.changeEmail} />
-					<div style={{ display:"flex", justifyContent:"space-between"}}>
-					   <TextField id="outlined-required" size="small" name="firstName" required
-								  margin="normal" label="Имя"
-								  variant="outlined" onChange={this.changeInputRegister} />
-					   <TextField id="outlined-required" size="small" name="secondName" required
-								  margin="normal" label="Фамилия"
-								  variant="outlined" onChange={this.changeInputRegister} />
-				   </div>
+						margin="normal" label="Логин"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.emailError.length > 0} helperText={this.state.emailError} fullWidth id="outlined-required" size="small" name="email" required
+						margin="normal" label="Email"
+						variant="outlined" onChange={this.changeEmail} />
+					<div style={{ display: "flex", justifyContent: "space-between" }}>
+						<TextField id="outlined-required" size="small" name="firstName" required
+							margin="normal" label="Имя"
+							variant="outlined" onChange={this.changeInputRegister} />
+						<TextField id="outlined-required" size="small" name="secondName" required
+							margin="normal" label="Фамилия"
+							variant="outlined" onChange={this.changeInputRegister} />
+					</div>
 					<TextField fullWidth id="outlined" size="small" name="patronymic"
-							   margin="normal" label="Отчество"
-							   variant="outlined" onChange={this.changeInputRegister} />
-					<TextField error={this.state.errors.passwordValidity} helperText={this.state.errors.passwordValidity}
-							   fullWidth id="outlined-required" size="small" type="password" name="password" required
-							   margin="normal" label="Пароль"
-							   variant="outlined" onChange={this.changeInputRegister} />
-					<TextField error={this.state.errors.passwordValidity} fullWidth id="outlined-required" size="small" type="password" name="password2" required
-							   margin="normal" label="Повторите пароль"
-							   variant="outlined" onChange={this.changeInputRegister} />
+						margin="normal" label="Отчество"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.passwordValidityError.length > 0}
+						fullWidth id="outlined-required" size="small" type="password" name="password" required
+						margin="normal" label="Пароль"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.passwordValidityError.length > 0} fullWidth id="outlined-required" size="small"
+						helperText={this.state.passwordValidityError}
+						type="password" name="password2" required
+						margin="normal" label="Повторите пароль"
+						variant="outlined" onChange={this.changeInputRegister} />
 					<Button fullWidth size="medium" variant="contained"
-							type="submit"
-							style={{
-								marginTop: 20
-							}}>
-						Зарегестрироваться
+						type="submit"
+						style={{
+							marginTop: 20
+						}}>
+						Зарегистрироваться
 					</Button>
-					<div style={{display:"flex", justifyContent:"center"}}>
-						<span style={{ marginTop:5, color:"gray" }}>ЭМКК</span>
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						<span style={{ marginTop: 5, color: "gray" }}>ЭМКК</span>
 					</div>
-					{this.state.errors.serverIssue &&
-					<><div style={{display:"flex", justifyContent:"center"}}>
-						<span style={{color:"darkred"}}>
-							Сервер упаль :(
-						</span>
-					</div>
-					<div style={{display:"flex", justifyContent:"center"}}>
-						<span style={{color:"darkred"}}>
-							Попробуйте через некоторое время!
-						</span>
-					</div></>}
+					{this.state.serverIssueError &&
+						<div style={{ display: "flex", justifyContent: "center" }}>
+							<span style={{ color: "darkred" }}>
+								{this.state.serverIssueError}
+							</span>
+						</div>
+					}
 
 				</form>
 			</div>
