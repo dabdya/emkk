@@ -63,19 +63,13 @@ export default class Login extends React.Component {
 							Забыли пароль?
 						</Button>
 					</div>
-					<div style={{ marginTop: 20, display: "flex", justifyContent: "space-between" }}>
-						<Button size="medium" variant="contained" href="/signup">
-							Зарегистрироваться
-						</Button>
-						<Button size="medium" variant="contained"
-							type="submit"
-							style={{
-								height: "2.3rem",
-								width: "40%",
-							}}>
-							Войти
-						</Button>
-					</div>
+					<Button size="large" variant="contained"
+						type="submit"
+						style={{
+							marginTop: 20
+						}}>
+						Войти
+					</Button>
 				</form>
 			</div>
 		);

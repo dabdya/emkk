@@ -103,6 +103,7 @@ code {
 	width: 40vh;
 }
 
+
 .inputField:focus {
 	outline: none;
 }

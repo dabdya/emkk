@@ -5,12 +5,13 @@ import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
 import rejected from '../images/rejected.png';
 import accepted from '../images/accepted.png';
+import at_issuer from '../images/at_issuer.png';
 import DataTable from 'react-data-table-component';
 
 
 export default class Dashboard extends React.Component {
 
-	addedCoumns = [
+	addedColumns = [
 		{
 			name: 'Руководитель',
 			selector: row => row.leader,
@@ -87,8 +88,8 @@ export default class Dashboard extends React.Component {
 		};
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
-			this.columns.splice(0, 0, this.addedCoumns[0]);
-			this.columns.splice(2, 0, this.addedCoumns[1]);
+			this.columns.splice(0, 0, this.addedColumns[0]);
+			this.columns.splice(2, 0, this.addedColumns[1]);
 		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
@@ -159,7 +160,7 @@ export default class Dashboard extends React.Component {
 		} else if (status === "rejected") {
 			return rejected;
 		} else if (status === "at_issuer") {
-			return "На выпуск";
+			return at_issuer;
 		}
 		return accepted;
 	}

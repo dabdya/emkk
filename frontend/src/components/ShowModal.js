@@ -11,7 +11,7 @@ export default class ShowModal extends React.Component {
             <Modal onClose={this.props.close}>
                 <Modal.Header>ЭМКК</Modal.Header>
                 <Modal.Body>
-                    <p>Заявка была подана!</p>
+                    <p>{this.props.message}</p>
                 </Modal.Body>
                 <Modal.Footer panel={true}>
                     <Button onClick={this.props.close}>Закрыть</Button>

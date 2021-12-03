@@ -1,7 +1,7 @@
 import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
-import { Button, Center } from '@skbkontur/react-ui';
+import { TextField, Button } from '@mui/material'
 
 export default class Registration extends React.Component {
 
@@ -18,17 +18,54 @@ export default class Registration extends React.Component {
 				password2: "",
 				firstName: "",
 				secondName: "",
-				patronymic: ""
+				patronymic: "",
+			},
+			errors:
+			{
+				email: "",
+				login: "",
+				passwordValidity: "",
+				serverIssue: "",
 			}
 		};
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
-		this.renderInput = this.renderInput.bind(this);
+		this.changeEmail = this.changeEmail.bind(this);
+		this.close = this.close.bind(this);
+	}
+	changeEmail(event) {
+		event.persist();
+		if (validator.isEmail(event.target.value)) {
+			this.setState(prev => {
+				return {
+					register: {
+						...prev.register,
+						[event.target.name]: event.target.value
+					}
+				}
+			})
+			this.setState(prev => {
+				return {
+					errors: {
+						...prev.errors,
+						[event.target.name]: ""
+					}
+				}
+			})
+		} else {
+			this.setState(prev => {
+				return {
+					errors: {
+						...prev.errors,
+						[event.target.name]: "Введите валидный Email"
+					}
+				}
+			})
+		}
 	}
 
 	changeInputRegister(event) {
 		event.persist();
-
 		this.setState(prev => {
 			return {
 				register: {
@@ -39,19 +76,37 @@ export default class Registration extends React.Component {
 		})
 	};
 
+	close() {
+		this.setState(() => ({ buttonIsPressed: false }))
+		window.location.href = '/signup';
+	}
+
 	async onSubmit(event) {
 		event.preventDefault();
-		if (!validator.isEmail(this.state.register.email)) {
-			alert("You did not enter email") // делать не аллертами
-		} else if (this.state.register.password !== this.state.register.password2) {
-			alert("Repeated password incorrectly") // делать не аллертами
+		if (this.state.register.password !== this.state.register.password2) {
+			this.setState(prev => {
+				return {
+					errors: {
+						...prev.errors,
+						passwordValidity: "Пароли не совпадают"
+					}
+				}
+			})
 		} else if (!validator.isStrongPassword(this.state.register.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
-			alert("Password must consist of one lowercase letter, at least 6 characters") // делать не аллертами
+			this.setState(prev => {
+				return {
+					errors: {
+						...prev.errors,
+						passwordValidity: "Пароль должен состоять из шести маленьких латинских букв"
+					}
+				}
+			})
 		} else {
 			const config = {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
 			};
+			console.log('0000000000000000000')
 			await axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
 				user: {
 					username: this.state.register.username,
@@ -63,61 +118,101 @@ export default class Registration extends React.Component {
 				}
 			}, config).then(res => {
 				if (res.data) {
+					console.log('0000000000000000000')
 					alert('Registration complete!'); // делать не аллертами
 					this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
 				} else {
-					alert("There is already a user with this email") // делать не аллертами
+					console.log('------------------------------')
+					this.setState(prev => {
+						return {
+							errors: {
+								...prev.errors,
+								email: "Такой Email уже зарегестрирован"
+							}
+						}
+					})
 				}
-			}).catch(() => {
-				alert("An error occurred on the server") // делать не аллертами
+			}).catch(err => {
+				console.log(err)
+				console.log("######################")
+				this.setState(prev => {
+					return {
+						errors: {
+							...prev.errors,
+							serverIssue: "Возникли проблемы на сервере :("
+						}
+					}
+				})
 			})
 		}
 	};
 
-	renderInput(text, type, className, id, name, value, onChange) {
-		return (
-			<div style={{ marginTop: "15px" }}>
-				<label htmlFor={name}>{text}</label><br />
-				<input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required />
-			</div>
-		);
-	}
-
 	render() {
 		return (
-			<Center style={{ height: '80vh' }}>
-				<div style={{ height: "65vh", width: "60vh", border: "0.5px solid gray", borderRadius: 15 }}>
-					<Center>
-						<form onSubmit={this.onSubmit}>
-							{this.renderInput("Логин", "username", "inputField",
-								"username", "username", this.state.register.username, this.changeInputRegister)}
-							{this.renderInput("Email", "email", "inputField",
-								"email", "email", this.state.register.email, this.changeInputRegister)}
-							{this.renderInput("Фамилия", "secondName", "inputField",
-								"secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
-							{this.renderInput("Имя", "firstName", "inputField",
-								"firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
-							{this.renderInput("Отчество", "patronymic", "inputField",
-								"patronymic", "patronymic", this.state.register.patronymic, this.changeInputRegister)}
-							{this.renderInput("Пароль", "password", "inputField",
-								"password", "password", this.state.register.password, this.changeInputRegister)}
-							{this.renderInput("Повторите пароль", "password", "inputField",
-								"password2", "password2", this.state.register.password2, this.changeInputRegister)}
-							<Center>
-								<Button style={{ marginTop: 20 }} size="large" type="submit">
-									Зарегистрироваться
-								</Button>
-							</Center>
-						</form>
-						<Center>
-							<h1 style={{ fontSize: 20, color: "gray" }}>ЭМКК</h1>
-						</Center>
-						<Center>
-							<h1 style={{ fontSize: 13, color: "gray" }}>©Электронная Маршрутно-Квалификационная комиссия</h1>
-						</Center>
-					</Center>
-				</div>
-			</Center>
+			<div className="box" style={{
+				padding: "3rem 2rem 1rem 2rem",
+				display: "flex",
+				width: "35%",
+				border: "0.1rem outset gray",
+				borderRadius: 15,
+				position: "fixed",
+				top: "55%",
+				left: "50%", transform: "translate(-50%, -50%)",
+				justifyContent: "center",
+				maxHeight: "75%",
+			}}>
+				<form style={{
+					width: "80%",
+					display: "inline-block"
+					 }} onSubmit={this.onSubmit}>
+					<TextField fullWidth id="outlined-required" size="small" name="username" required
+							   margin="normal" label="Логин"
+							   variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.errors.email} helperText={this.state.errors.email} fullWidth id="outlined-required" size="small" name="email" required
+							   margin="normal" label="Email"
+							   variant="outlined" onChange={this.changeEmail} />
+					<div style={{ display:"flex", justifyContent:"space-between"}}>
+					   <TextField id="outlined-required" size="small" name="firstName" required
+								  margin="normal" label="Имя"
+								  variant="outlined" onChange={this.changeInputRegister} />
+					   <TextField id="outlined-required" size="small" name="secondName" required
+								  margin="normal" label="Фамилия"
+								  variant="outlined" onChange={this.changeInputRegister} />
+				   </div>
+					<TextField fullWidth id="outlined" size="small" name="patronymic"
+							   margin="normal" label="Отчество"
+							   variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.errors.passwordValidity} helperText={this.state.errors.passwordValidity}
+							   fullWidth id="outlined-required" size="small" type="password" name="password" required
+							   margin="normal" label="Пароль"
+							   variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.errors.passwordValidity} fullWidth id="outlined-required" size="small" type="password" name="password2" required
+							   margin="normal" label="Повторите пароль"
+							   variant="outlined" onChange={this.changeInputRegister} />
+					<Button fullWidth size="medium" variant="contained"
+							type="submit"
+							style={{
+								marginTop: 20
+							}}>
+						Зарегестрироваться
+					</Button>
+					<div style={{display:"flex", justifyContent:"center"}}>
+						<span style={{ marginTop:5, color:"gray" }}>ЭМКК</span>
+					</div>
+					{this.state.errors.serverIssue &&
+					<><div style={{display:"flex", justifyContent:"center"}}>
+						<span style={{color:"darkred"}}>
+							Сервер упаль :(
+						</span>
+					</div>
+					<div style={{display:"flex", justifyContent:"center"}}>
+						<span style={{color:"darkred"}}>
+							Попробуйте через некоторое время!
+						</span>
+					</div></>}
+
+				</form>
+			</div>
 		)
 	}
 }

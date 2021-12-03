@@ -452,7 +452,7 @@ export default class ApplicationForm extends React.Component {
 						style={{ width: "80%", backgroundColor: "#136DAB" }}
 					>Отправить заявку</Button>
 				</div>
-				{this.state.buttonIsPressed && <ShowModal close={this.close} />}
+				{this.state.buttonIsPressed && <ShowModal close={this.close} message="Заявка подана!"/>}
 			</form >
 		)
 	}
