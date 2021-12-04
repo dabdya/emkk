@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.core import mail
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.jwt_auth.models import User
@@ -21,18 +22,19 @@ class ResetPasswordTest(TestCase):
                                  data=data, set_auth_header=False)
 
         self.assertEqual(r.status_code, 200)
-        self.assertTrue("reset_token" in r.data)
-        self.assertTrue("access_token" in r.data)
+        self.assertTrue('reset_token' in r.data)
 
         new_password = "new_password"
         patch_data = {
             "user": {
                 "password": new_password,
-            }
+            },
+            "reset_token": f'Token {r.data["reset_token"]}'
         }
 
         old_password = self.env.user.password
-        r = self.env.client_patch('/auth/user', data=patch_data)
+        r = self.env.client_patch('/auth/user', data=patch_data, set_auth_header=False)
+
         self.assertEqual(r.status_code, 200)
 
         self.env.user = User.objects.get(email=self.env.user.email)
@@ -49,5 +51,4 @@ class ResetPasswordTest(TestCase):
                                  data=data, set_auth_header=False)
 
         self.assertEqual(r.status_code, 422)
-        self.assertFalse("reset_token" in r.data)
-        self.assertFalse("access_token" in r.data)
+
