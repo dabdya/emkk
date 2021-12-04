@@ -12,180 +12,166 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 from pathlib import Path
-from configurations import Configuration
 
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-class Base(Configuration):
-    # Build paths inside the project like this: BASE_DIR / 'subdir'.
-    BASE_DIR = Path(__file__).resolve().parent.parent
+DEPLOY_HOST_WWW = os.environ.get('DEPLOY_HOST_WWW')
+DEPLOY_HOST = os.environ.get('DEPLOY_HOST')
 
-    DEPLOY_HOST_WWW = os.environ.get('DEPLOY_HOST_WWW')
-    DEPLOY_HOST = os.environ.get('DEPLOY_HOST')
+EMAIL_HOST = os.environ.get('EMAIL_HOST')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+EMAIL_PORT = os.environ.get('EMAIL_PORT')
+EMAIL_USE_TLS = eval(os.environ.get('EMAIL_USE_TLS', 'True'))
 
-    EMAIL_HOST = os.environ.get('EMAIL_HOST')
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    EMAIL_PORT = os.environ.get('EMAIL_PORT')
-    EMAIL_USE_TLS = eval(os.environ.get('EMAIL_USE_TLS', 'True'))
-
-    # Database
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.environ.get('DB_NAME'),
-            'USER': os.environ.get('DB_USER'),
-            'PASSWORD': os.environ.get('DB_PASSWORD'),
-            'HOST': os.environ.get('DB_HOST'),
-            'PORT': os.environ.get('DB_PORT'),
-        },
-        'sqlite_db': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+# Database
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+    },
+    'sqlite_db': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
+}
 
-    # SECURITY WARNING: don't run with debug turned on in production!
-    
-    DEBUG = eval(os.environ.get('DEBUG', 'False'))
+# SECURITY WARNING: don't run with debug turned on in production!
 
-    # Quick-start development settings - unsuitable for production
-    # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
+DEBUG = eval(os.environ.get('DEBUG', 'False'))
 
-    # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4'
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
-    ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST, DEPLOY_HOST_WWW]
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4'
 
-    MEDIA_URL = "media/"
-    MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
+ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST, DEPLOY_HOST_WWW]
 
-    # Application definition
-    INSTALLED_APPS = [
-        'django.contrib.admin',
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.messages',
-        'django.contrib.staticfiles',
+MEDIA_URL = "media/"
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-        'rest_framework',
-        'corsheaders',
-        'drf_yasg',
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'gunicorn',
 
-        'src.emkk_site',
-        'src.jwt_auth'
-    ]
+    'rest_framework',
+    'corsheaders',
+    'drf_yasg',
 
-    MIDDLEWARE = [
-        'django.middleware.security.SecurityMiddleware',
-        'django.contrib.sessions.middleware.SessionMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'corsheaders.middleware.CorsMiddleware',
-    ]
+    'src.emkk_site',
+    'src.jwt_auth'
+]
 
-    CORS_ALLOWED_ORIGINS = [
-        'http://localhost',
-        'http://localhost:3000',
-        f'http://{DEPLOY_HOST}',
-        f'http://{DEPLOY_HOST_WWW}',
-    ]
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+]
 
-    CORS_ALLOW_METHODS = [
-        "DELETE",
-        "GET",
-        "OPTIONS",
-        "PATCH",
-        "POST",
-        "PUT",
-    ]
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost',
+    'http://localhost:3000',
+    f'http://{DEPLOY_HOST}',
+    f'http://{DEPLOY_HOST_WWW}',
+]
 
-    CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_METHODS = [
+    "DELETE",
+    "GET",
+    "OPTIONS",
+    "PATCH",
+    "POST",
+    "PUT",
+]
 
-    ROOT_URLCONF = 'config.urls'
+CORS_ALLOW_CREDENTIALS = True
 
-    TEMPLATES = [
-        {
-            'BACKEND': 'django.template.backends.django.DjangoTemplates',
-            'DIRS': [],
-            'APP_DIRS': True,
-            'OPTIONS': {
-                'context_processors': [
-                    'django.template.context_processors.debug',
-                    'django.template.context_processors.request',
-                    'django.contrib.auth.context_processors.auth',
-                    'django.contrib.messages.context_processors.messages',
-                ],
-            },
+ROOT_URLCONF = 'config.urls'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
         },
-    ]
+    },
+]
 
-    WSGI_APPLICATION = 'config.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
-    REST_FRAMEWORK = {
-        'DEFAULT_AUTHENTICATION_CLASSES': (
-            'src.jwt_auth.backends.JWTAuthentication',
-        ),
-    }
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'src.jwt_auth.backends.JWTAuthentication',
+    ),
+}
 
-    # Password validation
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
+# Password validation
+# https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
 
-    AUTH_PASSWORD_VALIDATORS = [
-        {
-            'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-        },
-        {
-            'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-        },
-    ]
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
-    AUTH_USER_MODEL = 'jwt_auth.User'
+AUTH_USER_MODEL = 'jwt_auth.User'
 
-    AUTHENTICATION_BACKENDS = (
-        'django.contrib.auth.backends.ModelBackend',
-    )
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',
+)
 
-    # Internationalization
-    # https://docs.djangoproject.com/en/3.2/topics/i18n/
+# Internationalization
+# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-    LANGUAGE_CODE = 'en-En'
+LANGUAGE_CODE = 'en-En'
 
-    TIME_ZONE = 'UTC'
+TIME_ZONE = 'UTC'
 
-    USE_I18N = True
+USE_I18N = True
 
-    USE_L10N = True
+USE_L10N = True
 
-    USE_TZ = True
+USE_TZ = True
 
-    # Static files (CSS, JavaScript, Images)
-    # https://docs.djangoproject.com/en/3.2/howto/static-files/
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-    STATIC_URL = '/static/'
+STATIC_URL = '/static/'
 
-    # Default primary key field type
-    # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+# Default primary key field type
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
-    DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-class Dev(Base):  # usage - python manage.py runserver --settings=config.settings --configuration=Dev
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(Base.BASE_DIR, 'db.sqlite3'),
-        }
-    }
-
-    DEBUG = True
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
