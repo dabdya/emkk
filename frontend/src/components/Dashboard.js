@@ -31,7 +31,7 @@ export default class Dashboard extends React.Component {
 
 	columns = [
 		{
-			name: 'Название спорт. организации',
+			name: 'Организация',
 			selector: row => row.group_name,
 			center: true,
 			wrap: true,

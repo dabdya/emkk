@@ -7,6 +7,7 @@ import Registration from "./Registration";
 import ApplicationForm from './ApplicationForm';
 import NotFound from './NotFound';
 import ForgetPass from './ForgetPassword';
+import ResetPassword from './ResetPassword';
 import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
 
 
@@ -68,10 +69,11 @@ export default class App extends React.Component {
 									<Redirect to="/home/dashboard" />
 								)} />
 								<Route exact path="/home/*" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
-								<Route path="/reset-password" component={ForgetPass} />
+								<Route path="/forget-password" component={ForgetPass} />
 								<Route path="/login" component={Login} />
 								<Route path="/signup" component={Registration} />
 								<Route path="/form" component={ApplicationForm} />
+								<Route path="/reset-password/:token" component={ResetPassword} />
 								<Route path="*" component={NotFound} />
 							</Switch>
 						</div>
