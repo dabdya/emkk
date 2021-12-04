@@ -370,7 +370,7 @@ export default class Application extends React.Component {
 					</>
 				}
 				{getIssuer() &&
-					this.state.status == "at_issuer" &&
+					this.state.status === "at_issuer" &&
 					<>
 						<form onSubmit={this.writeIssue}>
 							<Autocomplete

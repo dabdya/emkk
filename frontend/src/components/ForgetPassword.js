@@ -26,7 +26,7 @@ export default class ForgetPass extends React.Component {
 			})
 			.catch(err => {
 				console.log(err.response);
-				if (err.response?.status == 422) {
+				if (err.response?.status === 422) {
 					this.setState({ error: "Пользователь с таким адресом почты не найден." })
 				} else {
 					this.setState({ error: "Ошибка, попробуйте позже." })
@@ -39,24 +39,31 @@ export default class ForgetPass extends React.Component {
 		return (
 			<div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
 				<form onSubmit={this.onSubmit} style={{
-					display: "inline-grid",
+					display: "grid",
 					border: "0.5px solid gray",
 					borderRadius: 15,
-					padding: 35
+					padding: 35,
+					gridRowGap: 10,
 				}}>
 					<TextField
 						name="login" type="email"
 						required label="Почта" variant="outlined"
 						onChange={(e) => { this.setState({ login: e.target.value }); }} />
-					<Button type="submit" variant="contained" style={{ marginTop: 15, marginBottom: 3 }} disabled={this.state.isPressed}>
+					<Button type="submit" variant="contained" disabled={this.state.isPressed}>
 						Восстановить пароль
 					</Button>
-					<span style={{ whiteSpace: 'pre-wrap' }}>{this.state.success}</span>
+
 					{this.state.success &&
-						<Button variant="contained" href="/login" style={{ marginTop: 3 }}>
-							Войти
-						</Button>}
-					<span>{this.state.error}</span>
+						<>
+							<span style={{ whiteSpace: 'pre-wrap' }}>{this.state.success}</span>
+							<Button variant="contained" href="/login" >
+								Войти
+							</Button>
+						</>
+					}
+					{this.state.error &&
+						<span>{this.state.error}</span>
+					}
 				</form>
 			</div >
 		);

@@ -1,50 +1,65 @@
 import React from "react";
-import { Button } from "@skbkontur/react-ui";
-import jwt_decode from "jwt-decode";
-import Requests from "../utils/requests";
-import { getToken, setResetSession } from "../utils/Common";
+import axios from "axios";
+import { TextField, Button } from '@mui/material'
 
-export default class ResetPass extends React.Component {
+export default class ResetPassword extends React.Component {
 
 	constructor(props) {
 		super(props);
 		this.reset_token = this.props.match.params.token;
-		this.state = { password: "", second_password: "" };
+		this.state = { password: "", secondPassword: "", error: "" };
 		this.onSubmit = this.onSubmit.bind(this);
 
 	}
 
-	async onSubmit(e) {
+	onSubmit(e) {
 		e.preventDefault();
-		await new Requests().patch(`${process.env.REACT_APP_URL}/auth/user`,
-			{
-				user: {
-					password: this.state.password
-				},
-				reset_token: 'Token ' + this.reset_token
-			}
-		).then(resp => {
-			console.log(resp);
-		})
+		if (this.state.password !== this.state.secondPassword) {
+			this.setState({ error: "Пароли не совпадают" });
+		} else {
+			axios.patch(`${process.env.REACT_APP_URL}/auth/user`,
+				{
+					user: {
+						password: this.state.password
+					},
+					reset_token: 'Token ' + this.reset_token
+				}
+			).then(resp => {
+				this.setState({ error: "Пароль успешно поменян" });
+			})
+		}
+
 
 	}
 
 	render() {
 		return (
-			<div>
-				<form onSubmit={this.onSubmit}>
-					<div>
-						<label>Новый пароль:</label><br />
-						<input type="text" value={this.state.password}
-							onChange={(e) => { this.setState({ password: e.target.value }); }} />
-						<label>Новый пароль ещё раз:</label><br />
-						<input type="text" value={this.state.second_password}
-							onChange={(e) => { this.setState({ second_password: e.target.value }); }} />
-					</div>
-					<Button type="submit">
-						Восстановить пароль
+			<div style={{
+				height: "100%",
+				display: "flex",
+				alignItems: "center",
+				justifyContent: "center"
+			}}>
+				<form onSubmit={this.onSubmit}
+					style={{
+						display: "grid",
+						border: "0.5px solid gray",
+						borderRadius: 15,
+						padding: 35,
+						gridRowGap: 10,
+					}}>
+					<TextField
+						name="password" type="password"
+						required label="Новый пароль" variant="outlined"
+						onChange={(e) => { this.setState({ password: e.target.value }); }} />
+					<TextField
+						name="secondPassword" type="password"
+						required label="Новый пароль" variant="outlined"
+						onChange={(e) => { this.setState({ secondPassword: e.target.value }); }} />
+					<Button type="submit" variant="contained">
+						Сменить пароль
 					</Button>
-					{/* Ошибку обработать */}
+					{this.state.error}
 				</form>
 			</div>
 		);
