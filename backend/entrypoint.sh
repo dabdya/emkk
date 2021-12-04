@@ -12,4 +12,4 @@ echo "Database started"
 python manage.py makemigrations
 python manage.py migrate
 apt-get install gunicorn
-exec gunicorn --bind 0.0.0.0:9000 config.wsgi --reload
+gunicorn --certfile=server.crt --keyfile=server.key --bind 0.0.0.0:443 config.wsgi

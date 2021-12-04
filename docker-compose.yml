@@ -21,6 +21,7 @@ services:
       - ./backend/.env
     ports:
       - "9000:9000"
+      - "443:443"
     depends_on:
       - db
 
