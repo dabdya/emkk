@@ -9,8 +9,7 @@ done
 
 echo "Database started"
 
-
 python manage.py makemigrations
 python manage.py migrate
 apt-get install gunicorn
-gunicorn --bind 0.0.0.0:9000 config.wsgi
+exec gunicorn --bind 0.0.0.0:9000 config.wsgi --reload
