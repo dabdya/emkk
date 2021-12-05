@@ -6,7 +6,7 @@ from django.db import models
 from datetime import timedelta
 import jwt
 
-from config import settings
+from django.conf import settings
 
 
 class UserManager(BaseUserManager):
@@ -96,7 +96,7 @@ class User(AbstractBaseUser, PermissionsMixin):
             'issuer': self.ISSUER,
             'secretary': self.SECRETARY,
             'emkk_member': self.EMKK_MEMBER,
-        }, settings.Base.SECRET_KEY, algorithm='HS256')
+        }, settings.SECRET_KEY, algorithm='HS256')
 
         return token
 

@@ -18,7 +18,7 @@ services:
     volumes:
       - ./backend:/emkk/backend
     env_file:
-      - ./backend/.env
+      - ./backend/dev.env
     ports:
       - "9000:9000"
     depends_on:
@@ -30,11 +30,11 @@ services:
     build: ./frontend
     command: npm run start
     env_file:
-      - ./frontend/.env
+      - ./frontend/dev.env
     volumes:
       - /emkk/frontend/node_modules
       - ./frontend:/emkk/frontend
     ports:
-      - "443:443"
+      - "80:80"
     depends_on:
       - backend
