@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import ShowModal from "./ShowModal"
 import { GLOBAL_AREA, KIND_OF_TOURISM } from '../utils/Constants';
 import { getToken } from '../utils/Common';
@@ -9,7 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import { Autocomplete, TextField, Button } from '@mui/material'
 
 
-export default class ApplicationForm extends React.Component {
+class ApplicationForm extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -452,9 +453,10 @@ export default class ApplicationForm extends React.Component {
 						style={{ width: "80%", backgroundColor: "#136DAB" }}
 					>Отправить заявку</Button>
 				</div>
-				{this.state.buttonIsPressed && <ShowModal close={this.close} message="Заявка подана!"/>}
+				{this.state.buttonIsPressed && <ShowModal close={this.close} message="Заявка подана!" />}
 			</form >
 		)
 	}
-
 }
+
+export default withRouter(ApplicationForm);

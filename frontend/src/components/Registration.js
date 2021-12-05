@@ -2,8 +2,9 @@ import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
 import { TextField, Button } from '@mui/material'
+import { withRouter } from 'react-router-dom';
 
-export default class Registration extends React.Component {
+class Registration extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -141,3 +142,5 @@ export default class Registration extends React.Component {
 		)
 	}
 }
+
+export default withRouter(Registration);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, NavLink } from 'react-router-dom';
+import { Switch, Route, NavLink, withRouter } from 'react-router-dom';
 import Dashboard from './Dashboard';
 import NotFound from './NotFound';
 import Application from "./Application";
@@ -11,7 +11,7 @@ import take_application_in_work from '../images/take_application_in_work.png'
 import hiking_dashboard from '../images/hiking_dashboard.png'
 
 
-export default class Home extends React.Component {
+class Home extends React.Component {
 
 	render() {
 		return (
@@ -64,3 +64,5 @@ export default class Home extends React.Component {
 		);
 	}
 }
+
+export default withRouter(Home);

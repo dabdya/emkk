@@ -1,9 +1,9 @@
 import React from "react";
 import axios from "axios";
 import { TextField, Button } from '@mui/material'
+import { withRouter } from 'react-router-dom';
 
-
-export default class ForgetPass extends React.Component {
+class ForgetPass extends React.Component {
 
 	constructor(props) {
 		super(props);
@@ -69,3 +69,5 @@ export default class ForgetPass extends React.Component {
 		);
 	}
 }
+
+export default withRouter(ForgetPass);

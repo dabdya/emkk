@@ -1,4 +1,6 @@
 import React from 'react';
+import DataTable from 'react-data-table-component';
+import { withRouter } from 'react-router-dom';
 import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
@@ -6,10 +8,10 @@ import review from '../images/review.png';
 import rejected from '../images/rejected.png';
 import accepted from '../images/accepted.png';
 import at_issuer from '../images/at_issuer.png';
-import DataTable from 'react-data-table-component';
 
 
-export default class Dashboard extends React.Component {
+
+class Dashboard extends React.Component {
 
 	addedColumns = [
 		{
@@ -187,3 +189,5 @@ export default class Dashboard extends React.Component {
 		);
 	}
 }
+
+export default withRouter(Dashboard);
