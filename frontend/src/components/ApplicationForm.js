@@ -15,30 +15,33 @@ class ApplicationForm extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
+			buttonIsPressed: false,
+			routeBookCount: 0,
+			cartographicMaterialCount: 0,
+			participantsReferencesCount: 0,
+			insurancePolicyScansCount: 0,
+		};
+		this.app = {
 			group_name: "",
 			global_region: "",
 			local_region: "",
-			start_date: new Date(),
-			end_date: new Date(),
-			control_start_date: new Date(),
-			control_end_date: new Date(),
+			start_date: null,
+			end_date: null,
+			control_start_date: null,
+			control_end_date: null,
 			control_start_region: "",
 			control_end_region: "",
-			routeBook: 0,
-			cartographicMaterial: 0,
-			participantsReferences: 0,
-			insurancePolicyScans: 0,
-			difficulty_category: 1,
-			participants_count: 1,
+			difficulty_category: 0,
+			participants_count: 0,
 			kind: null,
 			coordinator_name: "",
 			coordinator_phone_number: "",
 			insurance_company_name: "",
-			insurance_number: 0,
-			insurance_policy_validity_duration: new Date(),
-			buttonIsPressed: false,
-			files: []
-		};
+			insurance_number: "",
+			insurance_policy_validity_duration: null,
+			files: "",
+		}
+
 
 		this.open = this.open.bind(this);
 		this.close = this.close.bind(this);
@@ -51,8 +54,7 @@ class ApplicationForm extends React.Component {
 
 	async onSubmit(event) {
 		event.preventDefault()
-		const { files, buttonIsPressed, routeBook, participantsReferences,
-			insurancePolicyScans, cartographicMaterial, ...rest } = this.state;
+		const { files, ...rest } = this.app;
 		const config = {
 			headers: {
 				Authorization: 'Token ' + getToken()
@@ -65,7 +67,7 @@ class ApplicationForm extends React.Component {
 				this.open();
 
 				const form = new FormData()
-				for (const file of this.state.files) {
+				for (const file of this.app.files) {
 					form.append("file", file);
 				}
 				request.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
@@ -77,22 +79,15 @@ class ApplicationForm extends React.Component {
 	changeInputRegister(event) {
 		event.persist();
 
-		this.setState(prev => {
-			return {
-				...prev,
-				[event.target.name]: event.target.value
-			}
-
-		})
+		this.app[event.target.name] = event.target.value;
 	};
 
 	handleTag({ target }, fieldName) {
 		const { value } = target;
 		if (fieldName === "kind") {
-			this.setState({ [fieldName]: KIND_OF_TOURISM[value] });
-
+			this.app[fieldName] = KIND_OF_TOURISM[value];
 		} else {
-			this.setState({ [fieldName]: value });
+			this.app[fieldName] = value;
 		}
 	};
 
@@ -103,9 +98,8 @@ class ApplicationForm extends React.Component {
 
 	uploadFile(event) {
 		const filesArr = Array.prototype.slice.call(event.target.files);
-		this.setState({ files: [...this.state.files, ...filesArr] });
+		this.app.files = [...this.app.files, ...filesArr]
 	}
-
 
 	open() {
 		this.setState(() => ({ buttonIsPressed: true }))
@@ -308,7 +302,7 @@ class ApplicationForm extends React.Component {
 							<input type="file" multiple
 								onChange={(event) => {
 									this.uploadFile(event);
-									this.setState({ routeBook: this.state.routeBook + event.target.files.length })
+									this.setState({ routeBookCount: this.state.routeBookCount + event.target.files.length })
 								}}
 								style={{ display: "none" }} />
 							Загрузить маршрутную книжку
@@ -323,7 +317,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.routeBook >= 1 && `Загружен(о) ${this.state.routeBook} файл/а/ов`}
+					{this.state.routeBookCount >= 1 && `Загружен(о) ${this.state.routeBookCount} файл/а/ов`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -343,7 +337,7 @@ class ApplicationForm extends React.Component {
 							<input type="file" multiple
 								onChange={(event) => {
 									this.uploadFile(event);
-									this.setState({ cartographicMaterial: this.state.cartographicMaterial + event.target.files.length })
+									this.setState({ cartographicMaterialCount: this.state.cartographicMaterialCount + event.target.files.length })
 								}}
 								style={{ display: "none" }} />
 							Загрузить картографический материал
@@ -358,7 +352,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.cartographicMaterial >= 1 && `Загружен(о) ${this.state.cartographicMaterial} файл/а/ов`}
+					{this.state.cartographicMaterialCount >= 1 && `Загружен(о) ${this.state.cartographicMaterialCount} файл/а/ов`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -378,7 +372,7 @@ class ApplicationForm extends React.Component {
 							<input type="file" multiple
 								onChange={(event) => {
 									this.uploadFile(event);
-									this.setState({ participantsReferences: this.state.participantsReferences + event.target.files.length })
+									this.setState({ participantsReferencesCount: this.state.participantsReferencesCount + event.target.files.length })
 								}}
 								style={{ display: "none" }} />
 							Загрузить справки участников
@@ -392,7 +386,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.participantsReferences >= 1 && `Загружен(о) ${this.state.participantsReferences} файл/а/ов`}
+					{this.state.participantsReferencesCount >= 1 && `Загружен(о) ${this.state.participantsReferencesCount} файл/а/ов`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -413,7 +407,7 @@ class ApplicationForm extends React.Component {
 							<input type="file" multiple
 								onChange={(event) => {
 									this.uploadFile(event);
-									this.setState({ insurancePolicyScans: this.state.insurancePolicyScans + event.target.files.length })
+									this.setState({ insurancePolicyScansCount: this.state.insurancePolicyScansCount + event.target.files.length })
 								}}
 								style={{ display: "none" }} />
 							Загрузить сканы страховых полисов
@@ -428,7 +422,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.insurancePolicyScans >= 1 && `Загружен(о) ${this.state.insurancePolicyScans} файл/а/ов`}
+					{this.state.insurancePolicyScansCount >= 1 && `Загружен(о) ${this.state.insurancePolicyScansCount} файл/а/ов`}
 				</div>
 				<div className="cell">
 					<TextField
