@@ -21,7 +21,6 @@ services:
       - ./backend/.env
     ports:
       - "9000:9000"
-      - "443:443"
     depends_on:
       - db
 
@@ -36,6 +35,6 @@ services:
       - /emkk/frontend/node_modules
       - ./frontend:/emkk/frontend
     ports:
-      - "80:80"
+      - "443:443"
     depends_on:
       - backend
