@@ -5,7 +5,7 @@ import { Grid, Autocomplete, TextField } from '@mui/material'
 import ReviewContent from './ReviewContent';
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
 import Requests from '../utils/requests';
-import { getIssuer, getReviewer, getToken, getUser } from '../utils/Common';
+import { getToken, getUser } from '../utils/Common';
 import icon from "../images/delete.ico";
 
 
@@ -24,7 +24,7 @@ class Application extends React.Component {
 			result_comment_issue: "",
 			result_issue: "",
 		};
-
+		this.roles = this.props.location.state.roles;
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
 		this.changeComboBox = this.changeComboBox.bind(this);
@@ -369,7 +369,7 @@ class Application extends React.Component {
 						</div>
 					</>
 				}
-				{getIssuer() &&
+				{this.roles.issuer &&
 					this.state.status === "at_issuer" &&
 					<>
 						<form onSubmit={this.writeIssue}>

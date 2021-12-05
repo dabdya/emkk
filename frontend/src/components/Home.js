@@ -4,7 +4,6 @@ import Dashboard from './Dashboard';
 import NotFound from './NotFound';
 import Application from "./Application";
 import ApplicationForm from './ApplicationForm';
-import { getEmkk, getReviewer } from '../utils/Common';
 import my_application from '../images/my_application.png'
 import application_form from '../images/application_form.png'
 import take_application_in_work from '../images/take_application_in_work.png'
@@ -12,6 +11,9 @@ import hiking_dashboard from '../images/hiking_dashboard.png'
 
 
 class Home extends React.Component {
+	constructor(props) {
+		super(props);
+	}
 
 	render() {
 		return (
@@ -24,7 +26,7 @@ class Home extends React.Component {
 								<span style={{ display: "block", color: "white" }}>Табло походов</span>
 							</div>
 						</NavLink>
-						{getEmkk() &&
+						{this.props.roles.emkkMember &&
 							<>
 								<NavLink exact activeClassName="active" to="/home/applications">
 									<div className="cell">
@@ -39,7 +41,7 @@ class Home extends React.Component {
 									</div>
 								</NavLink>
 							</>}
-						{getReviewer() &&
+						{this.props.roles.reviewer &&
 							<>
 								<NavLink activeClassName="active" to="/home/my_reviews">
 									<div className="cell">
@@ -52,10 +54,10 @@ class Home extends React.Component {
 					<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 						<Switch>
 							<Route path="/home/application" component={Application} />
-							<Route path="/home/form" component={ApplicationForm} />
+							<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
-							<Route exact path="/home/applications" component={() => <Dashboard isMyApps={true} {...this.props} />} />
-							<Route exact path="/home/my_reviews" component={() => getReviewer() ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
+							<Route exact path="/home/applications" component={() => this.props.roles.emkkMember ? <Dashboard isMyApps={true} {...this.props} /> : <NotFound {...this.props} />} />
+							<Route exact path="/home/my_reviews" component={() => this.props.roles.reviewer ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>

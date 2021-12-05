@@ -1,7 +1,7 @@
 import React from 'react';
 import DataTable from 'react-data-table-component';
 import { withRouter } from 'react-router-dom';
-import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer } from '../utils/Common';
+import { getToken, getUser, caseInsensitiveSort } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
@@ -141,11 +141,11 @@ class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		if ((!getEmkk() || target.leader.username !== getUser()) && !getReviewer()) {
+		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
 		const id = target.id;
-		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview } : { id: id };
+		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview, roles: this.props.roles } : { id: id, roles: this.props.roles };
 
 		this.props.history.push({
 			pathname: '/home/application',
@@ -176,8 +176,8 @@ class Dashboard extends React.Component {
 				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
-				highlightOnHover={getEmkk()}
-				pointerOnHover={getEmkk()}
+				highlightOnHover={this.props.roles.emkkMember}
+				pointerOnHover={this.props.roles.emkkMember}
 				subHeaderAlign="left"
 				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{

@@ -1,14 +1,13 @@
 import React from 'react';
-import { BrowserRouter, Switch, Route, NavLink, Link, Redirect } from 'react-router-dom';
+import { Switch, Route, NavLink, Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
 import Home from './Home';
 import Registration from "./Registration";
-import ApplicationForm from './ApplicationForm';
 import NotFound from './NotFound';
 import ForgetPass from './ForgetPassword';
 import ResetPassword from './ResetPassword';
-import { getEmkk, getToken, getUser, removeUserSession, setUserSession } from '../utils/Common';
+import { getToken, getUser, removeUserSession, setUserSession, getRoles } from '../utils/Common';
 import { withRouter } from 'react-router-dom';
 
 
@@ -16,15 +15,18 @@ class App extends React.Component {
 
 	constructor(props) {
 		super(props)
-		this.state = { token: null };
+		this.state = { token: null, isLogined: false };
 		this.onLogout = this.onLogout.bind(this);
 		this.onChangeLogin = this.onChangeLogin.bind(this);
+		this.roles = {}
 	}
 	//DEBUG
-	async componentDidMount() {
+	componentDidMount() {
 		this.setState({ token: getToken() })
 		if (getToken()) {
+			const roles = getRoles(getToken());
 			this.setState({ isLogined: true });
+			this.roles = roles;
 		} else {
 			this.setState({ isLogined: false });
 		}
@@ -34,7 +36,7 @@ class App extends React.Component {
 				Authorization: 'Token ' + this.state.token
 			}
 		};
-		await axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
+		axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
 			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
 			this.setState({ isLogined: true });
 			console.log('im here')
@@ -47,10 +49,12 @@ class App extends React.Component {
 	onLogout() {
 		removeUserSession();
 		this.setState({ isLogined: false });
+		this.roles = {};
 	}
 
-	onChangeLogin(value) {
+	onChangeLogin(value, roles) {
 		this.setState({ isLogined: value });
+		this.roles = roles;
 	}
 
 
@@ -78,9 +82,8 @@ class App extends React.Component {
 								<Redirect to="/home/dashboard" />
 							)} />
 							<Route path="/signup" component={Registration} />
-							<Route path="/form" component={ApplicationForm} />
 							<Route path="/reset-password/:token" component={ResetPassword} />
-							<Route exact path="/home/*" render={(props) => <Home isLogined={this.state.isLogined} {...props} />} />
+							<Route exact path="/home/*" render={(props) => <Home roles={this.roles} {...props} />} />
 							<Route path="/forget-password" component={ForgetPass} />
 							<Route path="/login">
 								<Login onChangeLogin={this.onChangeLogin} {...this.props} />

@@ -1,6 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-import { setUserSession } from '../utils/Common';
+import { getToken, setUserSession, getRoles } from '../utils/Common';
 import { GoogleLogin } from 'react-google-login';
 import { TextField, Button } from '@mui/material'
 import { withRouter } from 'react-router-dom';
@@ -21,7 +21,7 @@ class Login extends React.Component {
 		axios.post(`${process.env.REACT_APP_URL}/auth/users/login`, { user: { username: this.state.login, password: this.state.password } })
 			.then(response => {
 				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
-				this.props.onChangeLogin(true);
+				this.props.onChangeLogin(true, getRoles(getToken()));
 				this.props.history.push("/home/dashboard");
 			}).catch(err => {
 				if (err.response?.data?.user) this.setState({ error: 'Неправильный логин или пароль' });
