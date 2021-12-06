@@ -82,6 +82,10 @@ class Review(models.Model):
         return f"trip: {self.trip}, result: {self.result}"
 
 
+class ReviewFromReviewer(Review):
+    """Рецензия от рецензента"""
+
+
 class ReviewFromIssuer(Review):
     """Рецензия от выпускающего"""
 
