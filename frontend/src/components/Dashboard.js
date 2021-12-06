@@ -1,16 +1,19 @@
 import React from 'react';
-import { getEmkk, getToken, getUser, caseInsensitiveSort, getReviewer, getIssuer, getSecretary } from '../utils/Common';
+import DataTable from 'react-data-table-component';
+import { withRouter } from 'react-router-dom';
+import { getToken, getUser, caseInsensitiveSort } from '../utils/Common';
 import Requests from '../utils/requests';
 import { KIND_OF_TOURISM } from '../utils/Constants';
 import review from '../images/review.png';
 import rejected from '../images/rejected.png';
 import accepted from '../images/accepted.png';
-import DataTable from 'react-data-table-component';
+import at_issuer from '../images/at_issuer.png';
 
 
-export default class Dashboard extends React.Component {
 
-	addedCoumns = [
+class Dashboard extends React.Component {
+
+	addedColumns = [
 		{
 			name: 'Руководитель',
 			selector: row => row.leader,
@@ -30,7 +33,7 @@ export default class Dashboard extends React.Component {
 
 	columns = [
 		{
-			name: 'Название спорт. организации',
+			name: 'Организация',
 			selector: row => row.group_name,
 			center: true,
 			wrap: true,
@@ -87,8 +90,8 @@ export default class Dashboard extends React.Component {
 		};
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
-			this.columns.splice(0, 0, this.addedCoumns[0]);
-			this.columns.splice(2, 0, this.addedCoumns[1]);
+			this.columns.splice(0, 0, this.addedColumns[0]);
+			this.columns.splice(2, 0, this.addedColumns[1]);
 		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 	}
@@ -138,11 +141,11 @@ export default class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		if ((!getEmkk() || target.leader.username !== getUser()) && !getReviewer()) {
+		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
 		const id = target.id;
-		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview } : { id: id };
+		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview, roles: this.props.roles } : { id: id, roles: this.props.roles };
 
 		this.props.history.push({
 			pathname: '/home/application',
@@ -159,7 +162,7 @@ export default class Dashboard extends React.Component {
 		} else if (status === "rejected") {
 			return rejected;
 		} else if (status === "at_issuer") {
-			return "На выпуск";
+			return at_issuer;
 		}
 		return accepted;
 	}
@@ -173,8 +176,8 @@ export default class Dashboard extends React.Component {
 				fixedHeader={true}
 				onRowClicked={row => { this.onClickOnRow(row); }}
 				pagination
-				highlightOnHover
-				pointerOnHover
+				highlightOnHover={this.props.roles.emkkMember}
+				pointerOnHover={this.props.roles.emkkMember}
 				subHeaderAlign="left"
 				noDataComponent="Таблица пустая"
 				paginationComponentOptions={{
@@ -186,3 +189,5 @@ export default class Dashboard extends React.Component {
 		);
 	}
 }
+
+export default withRouter(Dashboard);

@@ -10,23 +10,6 @@ const getToken = () => {
 	return localStorage.getItem('access_token');
 }
 
-const getEmkk = () => {
-	return JSON.parse(localStorage.getItem('emkk_member'));
-}
-
-const getReviewer = () => {
-	return JSON.parse(localStorage.getItem('reviewer'));
-}
-
-const getIssuer = () => {
-	return JSON.parse(localStorage.getItem('issuer'));
-}
-
-const getSecretary = () => {
-	return JSON.parse(localStorage.getItem('secretary'));
-}
-
-
 const getRefreshToken = () => {
 	return localStorage.getItem('refresh_token');
 }
@@ -49,11 +32,16 @@ const setUserSession = (accessToken, refreshToken, user) => {
 	localStorage.setItem('refresh_token', refreshToken);
 	localStorage.setItem('access_token', accessToken);
 	localStorage.setItem('user', JSON.stringify(user));
+}
+
+const getRoles = (accessToken) => {
 	const decoded = jwt_decode(accessToken);
-	localStorage.setItem('issuer', decoded['issuer']);
-	localStorage.setItem('emkk_member', decoded['emkk_member']);
-	localStorage.setItem('reviewer', decoded['reviewer']);
-	localStorage.setItem('secretary', decoded['secretary']);
+	return {
+		issuer: JSON.parse(decoded['issuer']),
+		emkkMember: JSON.parse(decoded['emkk_member']),
+		reviewer: JSON.parse(decoded['reviewer']),
+		secretary: JSON.parse(decoded['secretary'])
+	}
 }
 
 const caseInsensitiveSort = (rowA, rowB) => {
@@ -71,4 +59,4 @@ const caseInsensitiveSort = (rowA, rowB) => {
 	return 0;
 };
 
-export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken, getEmkk, getReviewer, getSecretary, getIssuer, caseInsensitiveSort };
+export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken, caseInsensitiveSort, getRoles };

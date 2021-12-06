@@ -1,16 +1,16 @@
 import React from 'react';
 import axios from 'axios';
-import { setUserSession } from '../utils/Common';
+import { getToken, setUserSession, getRoles } from '../utils/Common';
 import { GoogleLogin } from 'react-google-login';
 import { TextField, Button } from '@mui/material'
+import { withRouter } from 'react-router-dom';
 
-
-export default class Login extends React.Component {
+class Login extends React.Component {
 
 	constructor(props) {
 		super(props);
 
-		this.state = { login: '', password: '', error: null };
+		this.state = { login: '', password: '', error: "" };
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
 	}
@@ -21,8 +21,8 @@ export default class Login extends React.Component {
 		axios.post(`${process.env.REACT_APP_URL}/auth/users/login`, { user: { username: this.state.login, password: this.state.password } })
 			.then(response => {
 				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
-
-				window.location.href = "/";
+				this.props.onChangeLogin(true, getRoles(getToken()));
+				this.props.history.push("/home/dashboard");
 			}).catch(err => {
 				if (err.response?.data?.user) this.setState({ error: 'Неправильный логин или пароль' });
 				else this.setState({ error: 'Ошибка. Попробуйте позже' });
@@ -54,30 +54,26 @@ export default class Login extends React.Component {
 				justifyContent: "center"
 			}}>
 				<form style={{ width: "80%", display: "flex", flexFlow: "column wrap", height: "fit-content" }} onSubmit={this.onSubmit}>
-					<TextField fullWidth error={this.state.error} id="outlined-required" name="login"
-						required margin="normal" label="Логин" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
-					<TextField fullWidth error={this.state.error} id="outlined-password-input" name="password"
+					<TextField fullWidth error={this.state.error.length > 0} id="outlined-required" name="login"
+						required margin="normal" label="Логин или Email" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
+					<TextField fullWidth error={this.state.error.length > 0} id="outlined-password-input" name="password"
 						required margin="normal" label="Пароль" type="password" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
 					<div>
-						<Button variant="outlined" size="small" href="/reset-password">
+						<Button variant="outlined" size="small" href="/forget-password">
 							Забыли пароль?
 						</Button>
 					</div>
-					<div style={{ marginTop: 20, display: "flex", justifyContent: "space-between" }}>
-						<Button size="medium" variant="contained" href="/signup">
-							Зарегистрироваться
-						</Button>
-						<Button size="medium" variant="contained"
-							type="submit"
-							style={{
-								height: "2.3rem",
-								width: "40%",
-							}}>
-							Войти
-						</Button>
-					</div>
+					<Button size="large" variant="contained"
+						type="submit"
+						style={{
+							marginTop: 20
+						}}>
+						Войти
+					</Button>
 				</form>
 			</div>
 		);
 	}
 }
+
+export default withRouter(Login);

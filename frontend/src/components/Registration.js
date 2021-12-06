@@ -1,123 +1,146 @@
 import React from 'react'
 import axios from 'axios';
 import validator from 'validator';
-import { Button, Center } from '@skbkontur/react-ui';
+import { TextField, Button } from '@mui/material'
+import { withRouter } from 'react-router-dom';
 
-export default class Registration extends React.Component {
+class Registration extends React.Component {
 
 	constructor(props) {
 		super(props);
 
 		this.state =
 		{
-			register:
-			{
-				username: "",
-				email: "",
-				password: "",
-				password2: "",
-				firstName: "",
-				secondName: "",
-				patronymic: ""
-			}
+			username: "",
+			email: "",
+			password: "",
+			password2: "",
+			firstName: "",
+			secondName: "",
+			patronymic: "",
+
+			emailError: "",
+			loginError: "",
+			passwordValidityError: "",
+			serverIssueError: "",
 		};
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
-		this.renderInput = this.renderInput.bind(this);
+		this.changeEmail = this.changeEmail.bind(this);
+		this.close = this.close.bind(this);
+	}
+	changeEmail(event) {
+		event.persist();
+		if (validator.isEmail(event.target.value)) {
+			this.setState({ [event.target.name]: event.target.value });
+			this.setState({ emailError: "" });
+		} else {
+			this.setState({ emailError: "Введите валидный Email" });
+		}
 	}
 
 	changeInputRegister(event) {
 		event.persist();
-
-		this.setState(prev => {
-			return {
-				register: {
-					...prev.register,
-					[event.target.name]: event.target.value
-				}
-			}
-		})
+		this.setState({ [event.target.name]: event.target.value });
 	};
+
+	close() {
+		this.setState(() => ({ buttonIsPressed: false }))
+		window.location.href = '/signup';
+	}
 
 	async onSubmit(event) {
 		event.preventDefault();
-		if (!validator.isEmail(this.state.register.email)) {
-			alert("You did not enter email") // делать не аллертами
-		} else if (this.state.register.password !== this.state.register.password2) {
-			alert("Repeated password incorrectly") // делать не аллертами
-		} else if (!validator.isStrongPassword(this.state.register.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
-			alert("Password must consist of one lowercase letter, at least 6 characters") // делать не аллертами
+		if (this.state.password !== this.state.password2) {
+			this.setState({ passwordValidityError: "Пароли не совпадают" })
+		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
+			this.setState({ passwordValidityError: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
-			const config = {
-				"Access-Control-Allow-Origin": "*",
-				"Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-			};
-			await axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
+			axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
 				user: {
-					username: this.state.register.username,
-					email: this.state.register.email,
-					password: this.state.register.password,
-					first_name: this.state.register.firstName,
-					last_name: this.state.register.secondName,
-					patronymic: this.state.register.patronymic,
+					username: this.state.username,
+					email: this.state.email,
+					password: this.state.password,
+					first_name: this.state.firstName,
+					last_name: this.state.secondName,
+					patronymic: this.state.patronymic,
 				}
-			}, config).then(res => {
-				if (res.data) {
-					alert('Registration complete!'); // делать не аллертами
-					this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
-				} else {
-					alert("There is already a user with this email") // делать не аллертами
-				}
-			}).catch(() => {
-				alert("An error occurred on the server") // делать не аллертами
+			}).then(res => {
+				alert('Registration complete!'); // делать не аллертами
+				this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
+
+			}).catch(err => {
+				this.setState({ serverIssueError: err.response.data.user.username || err.response.data.user.email });
 			})
 		}
 	};
 
-	renderInput(text, type, className, id, name, value, onChange) {
-		return (
-			<div style={{ marginTop: "15px" }}>
-				<label htmlFor={name}>{text}</label><br />
-				<input autoComplete="new-password" type={type} className={className} id={id} name={name} value={value} onChange={onChange} required />
-			</div>
-		);
-	}
-
 	render() {
 		return (
-			<Center style={{ height: '80vh' }}>
-				<div style={{ height: "65vh", width: "60vh", border: "0.5px solid gray", borderRadius: 15 }}>
-					<Center>
-						<form onSubmit={this.onSubmit}>
-							{this.renderInput("Логин", "username", "inputField",
-								"username", "username", this.state.register.username, this.changeInputRegister)}
-							{this.renderInput("Email", "email", "inputField",
-								"email", "email", this.state.register.email, this.changeInputRegister)}
-							{this.renderInput("Фамилия", "secondName", "inputField",
-								"secondName", "secondName", this.state.register.secondName, this.changeInputRegister)}
-							{this.renderInput("Имя", "firstName", "inputField",
-								"firstName", "firstName", this.state.register.firstName, this.changeInputRegister)}
-							{this.renderInput("Отчество", "patronymic", "inputField",
-								"patronymic", "patronymic", this.state.register.patronymic, this.changeInputRegister)}
-							{this.renderInput("Пароль", "password", "inputField",
-								"password", "password", this.state.register.password, this.changeInputRegister)}
-							{this.renderInput("Повторите пароль", "password", "inputField",
-								"password2", "password2", this.state.register.password2, this.changeInputRegister)}
-							<Center>
-								<Button style={{ marginTop: 20 }} size="large" type="submit">
-									Зарегистрироваться
-								</Button>
-							</Center>
-						</form>
-						<Center>
-							<h1 style={{ fontSize: 20, color: "gray" }}>ЭМКК</h1>
-						</Center>
-						<Center>
-							<h1 style={{ fontSize: 13, color: "gray" }}>©Электронная Маршрутно-Квалификационная комиссия</h1>
-						</Center>
-					</Center>
-				</div>
-			</Center>
+			<div className="box" style={{
+				padding: "3rem 2rem 1rem 2rem",
+				display: "flex",
+				width: "35%",
+				border: "0.1rem outset gray",
+				borderRadius: 15,
+				position: "fixed",
+				top: "55%",
+				left: "50%", transform: "translate(-50%, -50%)",
+				justifyContent: "center",
+				maxHeight: "75%",
+			}}>
+				<form style={{
+					width: "80%",
+					display: "inline-block"
+				}} onSubmit={this.onSubmit}>
+					<TextField fullWidth id="outlined-required" size="small" name="username" required
+						margin="normal" label="Логин"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.emailError.length > 0} helperText={this.state.emailError} fullWidth id="outlined-required" size="small" name="email" required
+						margin="normal" label="Email"
+						variant="outlined" onChange={this.changeEmail} />
+					<div style={{ display: "flex", justifyContent: "space-between" }}>
+						<TextField id="outlined-required" size="small" name="firstName" required
+							margin="normal" label="Имя"
+							variant="outlined" onChange={this.changeInputRegister} />
+						<TextField id="outlined-required" size="small" name="secondName" required
+							margin="normal" label="Фамилия"
+							variant="outlined" onChange={this.changeInputRegister} />
+					</div>
+					<TextField fullWidth id="outlined" size="small" name="patronymic"
+						margin="normal" label="Отчество"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.passwordValidityError.length > 0}
+						fullWidth id="outlined-required" size="small" type="password" name="password" required
+						margin="normal" label="Пароль"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<TextField error={this.state.passwordValidityError.length > 0} fullWidth id="outlined-required" size="small"
+						helperText={this.state.passwordValidityError}
+						type="password" name="password2" required
+						margin="normal" label="Повторите пароль"
+						variant="outlined" onChange={this.changeInputRegister} />
+					<Button fullWidth size="medium" variant="contained"
+						type="submit"
+						style={{
+							marginTop: 20
+						}}>
+						Зарегистрироваться
+					</Button>
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						<span style={{ marginTop: 5, color: "gray" }}>ЭМКК</span>
+					</div>
+					{this.state.serverIssueError &&
+						<div style={{ display: "flex", justifyContent: "center" }}>
+							<span style={{ color: "darkred" }}>
+								{this.state.serverIssueError}
+							</span>
+						</div>
+					}
+
+				</form>
+			</div>
 		)
 	}
 }
+
+export default withRouter(Registration);

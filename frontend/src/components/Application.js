@@ -1,15 +1,15 @@
 import React from 'react';
+import { withRouter } from 'react-router-dom';
 import { Button, Select, ComboBox } from '@skbkontur/react-ui'
 import { Grid, Autocomplete, TextField } from '@mui/material'
 import ReviewContent from './ReviewContent';
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
 import Requests from '../utils/requests';
-import { getIssuer, getReviewer, getToken, getUser } from '../utils/Common';
-import icon from "../images/delete.ico"
+import { getToken, getUser } from '../utils/Common';
+import icon from "../images/delete.ico";
 
 
-
-export default class Application extends React.Component {
+class Application extends React.Component {
 
 	requests = new Requests();
 	constructor(props) {
@@ -24,7 +24,7 @@ export default class Application extends React.Component {
 			result_comment_issue: "",
 			result_issue: "",
 		};
-
+		this.roles = this.props.location.state.roles;
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
 		this.changeComboBox = this.changeComboBox.bind(this);
@@ -238,7 +238,7 @@ export default class Application extends React.Component {
 						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.start_date} onChange={e => this.setState({ start_date: e.target.value })} /> : this.state.start_date}</div></div>
 						<div className="cell-app"><div>Страховая компания:</div><div>{isEditing ? <input type="text" defaultValue={this.state.insurance_company_name} onChange={e => this.setState({ insurance_company_name: e.target.value })} /> : this.state.insurance_company_name}</div></div>
 						<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.state.end_date} onChange={e => this.setState({ end_date: e.target.value })} /> : this.state.end_date}</div></div>
-						<div className="cell-app"><div>Срок действия страхового полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</div></div>
+						<div className="cell-app"><div>Срок действия полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.state.insurance_policy_validity_duration} onChange={e => this.setState({ insurance_policy_validity_duration: e.target.value })} /> : this.state.insurance_policy_validity_duration}</div></div>
 						<div className="cell-app"><div>Район:</div><div>{isEditing ?
 							<>
 								<ComboBox drawArrow={true}
@@ -369,8 +369,8 @@ export default class Application extends React.Component {
 						</div>
 					</>
 				}
-				{getIssuer() &&
-					this.state.status == "at_issuer" &&
+				{this.roles.issuer &&
+					this.state.status === "at_issuer" &&
 					<>
 						<form onSubmit={this.writeIssue}>
 							<Autocomplete
@@ -405,3 +405,5 @@ export default class Application extends React.Component {
 		)
 	}
 }
+
+export default withRouter(Application);
