@@ -6,7 +6,7 @@ from rest_framework import status
 
 from rest_framework.parsers import JSONParser
 from django.core.mail import send_mail
-from config import settings
+from django.conf import settings
 
 from django.utils import timezone
 
@@ -15,8 +15,10 @@ from src.jwt_auth.schemas import refresh_token_schema
 
 from src.jwt_auth.serializers import (
     RegistrationSerializer, LoginSerializer, UserSerializer,
-    RefreshTokenSerializer
+    RefreshTokenSerializer,
 )
+
+from src.jwt_auth.permissions import ResetPassword
 
 from src.jwt_auth.models import User
 from src.jwt_auth.renderers import UserJSONRenderer
@@ -40,7 +42,7 @@ class RefreshTokenView(APIView):
 
 
 class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [IsAuthenticated | ResetPassword, ]
     renderer_classes = [UserJSONRenderer, ]
     serializer_class = UserSerializer
 
@@ -49,9 +51,21 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def update(self, request, *args, **kwargs):
-        user = request.data.get('user', {})
+        user_data = request.data.get('user', {})
+
+        if request.user.is_anonymous:
+            prefix, token = request.data.get('reset_token').split()
+            payload = jwt.decode(token, settings.RESET_KEY, algorithms=["HS256"])
+            user = User.objects.get(username=payload['username'])
+            password = user_data.get('password')
+            if not password:
+                return Response("Password is required", status=status.HTTP_400_BAD_REQUEST)
+            user.set_password(password)
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+
         serializer = self.serializer_class(
-            request.user, data=user, partial=True
+            request.user, data=user_data, partial=True
         )
 
         if not serializer.is_valid():
@@ -77,7 +91,7 @@ class RegistrationAPIView(APIView):
                 "Регистрация нового пользователя",
                 """Здравствуйте! Вы успешно зарегистрировались на сайте маршрутно-квалификационной комиссии.
                    Используйте логин и пароль указанные при регистрации для входа на сайт.""",
-                settings.Base.EMAIL_HOST_USER, [user.email, ])
+                settings.EMAIL_HOST_USER, [user.email, ])
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -116,20 +130,16 @@ class ResetPasswordView(APIView):
             dt = timezone.now() + timedelta(minutes=60)
 
             token = jwt.encode({
-                'username': user.email,
+                'username': user.username,
                 'exp': dt.timestamp(),
-            }, settings.Base.SECRET_KEY, algorithm='HS256')
+            }, settings.RESET_KEY, algorithm='HS256')
 
             send_mail(
                 "Запрос на сброс пароля",
                 f"""Здравствуйте! Для вашего аккаунта был запрошен сброс пароля. 
                     Это можно сделать перейдя по ссылке {reset_url}/{token}""",
-                settings.Base.EMAIL_HOST_USER, [user.email, ])
-
-            return Response({
-                "reset_token": token,
-                "access_token": user.access_token,
-            }, status=status.HTTP_200_OK)
+                settings.EMAIL_HOST_USER, [user.email, ])
+            return Response({'reset_token': token}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:
             msg = f"User with email {email} not found"

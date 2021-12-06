@@ -11,4 +11,10 @@ echo "Database started"
 
 python manage.py makemigrations
 python manage.py migrate
-python manage.py runserver 0.0.0.0:8000
+
+if [ $DEBUG -eq 0 ]
+then
+  gunicorn --certfile=certs/server.crt --keyfile=certs/server.key --bind 0.0.0.0:9000 config.wsgi
+else
+  python manage.py runserver 0.0.0.0:9000
+fi

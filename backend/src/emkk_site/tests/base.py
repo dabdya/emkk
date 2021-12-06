@@ -49,36 +49,32 @@ class TestEnvironment:
     def _get_auth_header(self, user):
         return {'HTTP_AUTHORIZATION': f'Token {user.access_token}'}
 
-    def client_post(self, url, data, set_auth_header=True, user=None):
+    def client_post(self, url, data, set_auth_header=True, user=None, **headers):
         if not user:
             user = self.user
-        headers = {}
         if set_auth_header:
             headers.update(self._get_auth_header(user))
 
         return self.client.post(url, data, content_type='application/json', **headers)
 
-    def client_patch(self, url, data, set_auth_header=True, user=None):
+    def client_patch(self, url, data, set_auth_header=True, user=None, **headers):
         if not user:
             user = self.user
-        headers = {}
         if set_auth_header:
             headers.update(self._get_auth_header(user))
 
         return self.client.patch(url, data, content_type='application/json', **headers)
 
-    def client_delete(self, url, data=None, set_auth_header=True, user=None):
+    def client_delete(self, url, data=None, set_auth_header=True, user=None, **headers):
         if not user:
             user = self.user
-        headers = {}
         if set_auth_header:
             headers.update(self._get_auth_header(user))
         return self.client.delete(url, data, content_type='application/json', **headers)
 
-    def client_get(self, url, set_auth_header=True, user=None):
+    def client_get(self, url, set_auth_header=True, user=None, **headers):
         if not user:
             user = self.user
-        headers = {}
         if set_auth_header:
             headers.update(self._get_auth_header(user))
 
