@@ -38,6 +38,9 @@ DEBUG = bool(eval(os.environ.get('DEBUG', '0')))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4'
 
+# Forgot password key
+RESET_KEY = 'DZJyQpwPEK4Z+shP9r7XW8KOBvbY+L3qwXIA2ISMWEiXAblWrhALmbVZexfwkOYs55'
+
 ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST, DEPLOY_HOST_WWW]
 
 MEDIA_URL = "media/"
