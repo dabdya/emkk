@@ -181,7 +181,15 @@ class Application extends React.Component {
 			{ result: STATUS[this.issue.result_issue], result_comment: this.issue.result_comment_issue },
 			this.config())
 			.then(resp => {
-				// this.setState(prevState => ({ issues: [...prevState.issues, resp.data.review] }));
+				this.setState(prevState => ({
+					issues:
+						[...prevState.issues, {
+							id: resp.data.id,
+							result: resp.data.result,
+							result_comment: resp.data.result_comment,
+							reviewer: resp.data.reviewer,
+						}]
+				}));
 
 			});
 	}
@@ -298,7 +306,7 @@ class Application extends React.Component {
 								/>
 							</> : `${this.app.global_region}, ${this.app.local_region}`}</div></div>
 						<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.app.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.app.participants_count}</div></div>
-						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} value={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.app.kind]}</div></div>
+						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} defaultValue={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.app.kind]}</div></div>
 						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.app.difficulty_category} onChange={e => this.app.difficulty_category = e.target.value} /> : this.app.difficulty_category}</div></div>
 						<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
 							<>
@@ -374,7 +382,7 @@ class Application extends React.Component {
 				</div>
 				{
 					this.props.location.state.isMyReview &&
-					this.state.status !== "at_issuer" &&
+					this.state.status === "on_review" &&
 					<>
 						<form onSubmit={this.writeReview}>
 							<Autocomplete
