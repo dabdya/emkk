@@ -18,7 +18,7 @@ class ForgetPass extends React.Component {
 		this.setState({ isPressed: true });
 		const form = new FormData();
 		form.append("email", this.state.login);
-		form.append("reset_url", "reset-password");
+		form.append("reset_url", `${process.env.REACT_APP_RESET_URL}/reset-password`);
 		axios.post(`${process.env.REACT_APP_URL}/auth/users/reset-password`, form)
 			.then(resp => {
 				this.setState({ error: "" })
