@@ -62,7 +62,7 @@ class App extends React.Component {
 		return (
 			<div className="App">
 				<div style={{ height: "100%" }}>
-					<div className="header" style={{ boxShadow: "2px 2px 2px grey" }}>
+					<div className="header" style={{ width: "100%", boxShadow: "2px 2px 2px grey" }}>
 						<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
 						{!this.state.isLogined &&
 							<>

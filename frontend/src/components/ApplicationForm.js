@@ -108,6 +108,7 @@ class ApplicationForm extends React.Component {
 	render() {
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
+		const styleTextField = { width: "100%" };
 		return (
 			<form className="application"
 				onSubmit={this.onSubmit}
@@ -124,7 +125,7 @@ class ApplicationForm extends React.Component {
 						id="outlined"
 						name="group_name"
 						label="Название спортивной организации"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 1, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -136,7 +137,7 @@ class ApplicationForm extends React.Component {
 						id="outlined"
 						name="coordinator_name"
 						label="ФИО координатора"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 12, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -147,7 +148,7 @@ class ApplicationForm extends React.Component {
 						openOnFocus
 						id="combo-box-demo"
 						options={GLOBAL_AREA}
-						style={{ width: '100%' }}
+						style={styleTextField}
 						onSelect={(event) => this.handleTag(event, "global_region")}
 						renderInput={(params) =>
 							<TextField {...params}
@@ -165,7 +166,7 @@ class ApplicationForm extends React.Component {
 						name="coordinator_phone_number"
 						label="Контактный телефон координатора"
 						placeholder="+7(999)99999999"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						variant="filled"
 						//eslint-disable-next-line
 						InputProps={{ inputProps: { tabIndex: 13, pattern: "\+?[0-9\s\-\(\)]+", autoComplete: "off" } }}
@@ -178,7 +179,7 @@ class ApplicationForm extends React.Component {
 						id="outlined"
 						label="Локальный район"
 						name="local_region"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 3, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -190,7 +191,7 @@ class ApplicationForm extends React.Component {
 						id="outlined"
 						name="control_start_region"
 						label="Населённый пункт начала маршрута"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						variant="filled"
 						InputProps={{ inputProps: { tabIndex: 14, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
@@ -202,7 +203,7 @@ class ApplicationForm extends React.Component {
 						id="combo-box-demo"
 						options={["1", "2", "3", "4", "5", "6"]}
 						onSelect={(event) => this.handleTag(event, "difficulty_category")}
-						style={{ width: '100%' }}
+						style={styleTextField}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
@@ -217,7 +218,7 @@ class ApplicationForm extends React.Component {
 						label="Контрольный срок сообщения о начале маршрута"
 						name="control_start_date"
 						type="date"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 15 } }}
 						InputLabelProps={{ shrink: true }}
 						variant="filled"
@@ -229,7 +230,7 @@ class ApplicationForm extends React.Component {
 						openOnFocus
 						id="kind"
 						options={tourismVariants}
-						style={{ width: '100%' }}
+						style={styleTextField}
 						onSelect={(event) => this.handleTag(event, "kind")}
 						renderInput={(params) =>
 							<TextField {...params}
@@ -246,7 +247,7 @@ class ApplicationForm extends React.Component {
 						id="outlined"
 						label="Населённый пункт окончания маршрута"
 						name="control_end_region"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 16, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -259,7 +260,7 @@ class ApplicationForm extends React.Component {
 						label="Дата выхода на маршрут"
 						name="start_date"
 						type="date"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						variant="filled"
 						InputProps={{ inputProps: { tabIndex: 6 } }}
 						InputLabelProps={{ shrink: true }}
@@ -274,7 +275,7 @@ class ApplicationForm extends React.Component {
 						name="control_end_date"
 						type="date"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 17 } }}
 						InputLabelProps={{ shrink: true }}
 						onChange={this.changeInputRegister}
@@ -288,7 +289,7 @@ class ApplicationForm extends React.Component {
 						name="end_date"
 						type="date"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 7 }, autoComplete: "off" }}
 						InputLabelProps={{
 							shrink: true
@@ -326,7 +327,7 @@ class ApplicationForm extends React.Component {
 						name="participants_count"
 						label="Количество участников"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 8, pattern: "[0-9]+", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -361,7 +362,7 @@ class ApplicationForm extends React.Component {
 						label="Наименование страховой компании"
 						name="insurance_company_name"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 9, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -395,7 +396,7 @@ class ApplicationForm extends React.Component {
 						label="Номер полиса"
 						name="insurance_number"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 10, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -432,7 +433,7 @@ class ApplicationForm extends React.Component {
 						name="insurance_policy_validity_duration"
 						type="date"
 						variant="filled"
-						style={{ width: '100%' }}
+						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 11 } }}
 						InputLabelProps={{
 							shrink: true
