@@ -19,7 +19,7 @@ from src.emkk_site.services import (
     try_change_trip_status_to_issuer_result, )
 
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, TripStatus,
+    TripDocument, Trip, ReviewFromReviewer, TripStatus,
     ReviewFromIssuer, Document, ReviewDocument,
     ReviewFromIssuerDocument)
 
@@ -161,7 +161,7 @@ class DocumentList(generics.ListCreateAPIView):
         return Response([document.to_str_restricted() for document in self.get_queryset()],
                         status=status.HTTP_200_OK)
 
-    def get_related_model_obj(self) -> Union[Trip, Review]:
+    def get_related_model_obj(self) -> Union[Trip, ReviewFromReviewer]:
         obj_id = self.kwargs['pk']
         try:
             return self.related_model_class.objects.get(pk=obj_id)
@@ -174,7 +174,7 @@ class ReviewDocumentList(DocumentList):
     permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
 
     def __init__(self):
-        super().__init__(ReviewDocument, Review)
+        super().__init__(ReviewDocument, ReviewFromReviewer)
 
 
 class ReviewFromIssuerDocumentList(DocumentList):
@@ -232,13 +232,12 @@ class ReviewView(generics.ListCreateAPIView):
                     "Reviewer can't create several reviewers for one trip",
                     status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
-            serializer.save()
-
             if isinstance(context_class, ReviewerList):
                 try_change_status_from_review_to_at_issuer(trip)
             elif isinstance(context_class, IssuerList):
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -248,7 +247,7 @@ class ReviewerList(ReviewView):
     """Endpoint for creating reviews by reviewers"""
 
     def __init__(self):
-        super(ReviewerList, self).__init__(Review)
+        super(ReviewerList, self).__init__(ReviewFromReviewer)
 
     serializer_class = ReviewSerializer
     permission_classes = [IsReviewer | IsIssuer | IsAuthenticated & ReadOnly, ]

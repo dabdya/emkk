@@ -13,21 +13,32 @@ EMAIL_HOST = os.environ.get('EMAIL_HOST')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.environ.get('EMAIL_PORT')
-EMAIL_USE_TLS = eval(os.environ.get('EMAIL_USE_TLS', True))
+EMAIL_USE_TLS = bool(eval(os.environ.get('EMAIL_USE_TLS', '1')))
 
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME'),
-        'USER': os.environ.get('DB_USER'),
-        'PASSWORD': os.environ.get('DB_PASSWORD'),
-        'HOST': os.environ.get('DB_HOST'),
-        'PORT': os.environ.get('DB_PORT'),
-    }
+
+POSTGRES_SETTINGS = {
+    'ENGINE': 'django.db.backends.postgresql',
+    'NAME': os.environ.get('DB_NAME'),
+    'USER': os.environ.get('DB_USER'),
+    'PASSWORD': os.environ.get('DB_PASSWORD'),
+    'HOST': os.environ.get('DB_HOST'),
+    'PORT': os.environ.get('DB_PORT'),
 }
+
+SQLITE_SETTINGS = {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+}
+
+DATABASES = {
+    'default': POSTGRES_SETTINGS,
+}
+
+if os.environ.get("DEFAULT_DATABASE") == "sqlite":
+    DATABASES = {'default': SQLITE_SETTINGS, }
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = bool(eval(os.environ.get('DEBUG', '0')))
