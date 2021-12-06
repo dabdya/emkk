@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 
 from src.jwt_auth.models import User
-from config import settings
+from django.conf import settings
 import jwt
 
 
@@ -99,7 +99,7 @@ class RefreshTokenSerializer(serializers.Serializer):
             raise serializers.ValidationError("""Refresh token was not provided""")
 
         try:
-            payload = jwt.decode(refresh_token, settings.Base.SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=["HS256"])
             user = User.objects.get(username=payload['username'])
             return {
                 'access_token': user.access_token
