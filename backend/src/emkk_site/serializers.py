@@ -1,6 +1,9 @@
 from rest_framework import serializers
+
 from src.emkk_site.models import (
-    TripDocument, Trip, Review, ReviewFromIssuer, ReviewDocument, ReviewFromIssuerDocument)
+    TripDocument, Trip, ReviewFromReviewer, ReviewFromIssuer,
+    ReviewDocument, ReviewFromIssuerDocument)
+
 from src.jwt_auth.serializers import UserSerializer
 
 
@@ -50,7 +53,7 @@ class ReviewSerializer(BaseReviewSerializer):
     reviewer = UserSerializer(read_only=True)
 
     class Meta:
-        model = Review
+        model = ReviewFromReviewer
         depth = 1
         fields = '__all__'
         read_only_fields = ['reviewer', 'trip', ]

@@ -18,11 +18,7 @@ def main():
     execute_from_command_line(sys.argv)
 
 
-def reset_db(args):
-    if not args:
-        print('Database type not specified. Use Prod or Dev')
-        sys.exit(1)
-
+def reset_db():
     import os
     import glob
     import shutil
@@ -33,31 +29,24 @@ def reset_db(args):
     for migration in migrations:
         os.remove(migration)
 
-    db_type = args[0]
-    if db_type == 'Dev':
+    db_type = os.environ.get('DEFAULT_DATABASE')
+    if db_type == 'sqlite':
         try:
             os.remove('db.sqlite3')
         except FileNotFoundError as err:
             print('Database Dev was deleted early')
-        os.system('python manage.py makemigrations --configuration=Dev')
-        os.system('python manage.py migrate --configuration=Dev')
+        os.system('python manage.py makemigrations')
+        os.system('python manage.py migrate')
 
-    elif db_type == 'Prod':
+    else:
         try:
             shutil.rmtree('data')
         except FileNotFoundError as err:
-            print('Database Prod was deleted early')
+            print('Database prod was deleted early')
         print('New migrations apply when docker-compose up running')
 
-    else:
-        print('Database type only Prod or Dev')
-        sys.exit(2)
 
-
-def init_db(args):
-    if not args:
-        print('Need integer count samples')
-        sys.exit(3)
+def init_db(samples=5):
 
     import django
     django.setup()
@@ -66,8 +55,6 @@ def init_db(args):
     from src.emkk_site.models import Trip
 
     eg = EntityGenerator()
-    samples = int(args[0])
-
     if samples > 6:
         from src.emkk_site.utils import generate_3_trips_and_users
 
@@ -83,16 +70,16 @@ def init_db(args):
 
 if __name__ == "__main__":
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
-    # os.environ.setdefault('DJANGO_CONFIGURATION', 'Base')
 
-    # from configurations.management import execute_from_command_line
+    if 'dev' in sys.argv:
+        os.environ.setdefault('DEFAULT_DATABASE', 'sqlite')
+        sys.argv.remove('dev')
 
     if sys.argv[1] == 'reset_db':
-        reset_db(sys.argv[2:])
+        reset_db()
 
     elif sys.argv[1] == 'init_db':
-        init_db(sys.argv[2:])
+        init_db(samples=10)
 
     else:
         main()
-        # execute_from_command_line(sys.argv)

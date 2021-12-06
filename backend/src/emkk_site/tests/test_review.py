@@ -28,7 +28,6 @@ class ReviewTest(TestCase):
 
         reviewers = self.env.create_reviewers(needed_reviews_count)
         for i in range(needed_reviews_count):
-            self.env.client_post(f'/api/trips/work', data={'trip': trip.id}, user=reviewers[i])
             self.env.client_post(
                 f'/api/trips/{trip.id}/reviews',
                 data=self.get_review_data(trip.id), user=reviewers[i])
