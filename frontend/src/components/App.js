@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, NavLink, Link, Redirect } from 'react-router-dom';
+import { Switch, Route, NavLink, Link, Redirect, withRouter } from 'react-router-dom';
 import axios from 'axios';
 import Login from './Login';
 import Home from './Home';
@@ -8,7 +8,7 @@ import NotFound from './NotFound';
 import ForgetPass from './ForgetPassword';
 import ResetPassword from './ResetPassword';
 import { getToken, getUser, removeUserSession, setUserSession, getRoles } from '../utils/Common';
-import { withRouter } from 'react-router-dom';
+import logo from '../images/mainlogo.png';
 
 
 class App extends React.Component {
@@ -63,6 +63,9 @@ class App extends React.Component {
 			<div className="App">
 				<div style={{ height: "100%" }}>
 					<div className="header" style={{ width: "100%", boxShadow: "2px 2px 2px grey" }}>
+						<div style={{ marginLeft: 15 }}>
+							<img width="62px" height="62px" src={logo} alt="logo" />
+						</div>
 						<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
 						{!this.state.isLogined &&
 							<>

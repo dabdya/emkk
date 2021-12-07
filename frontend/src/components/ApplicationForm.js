@@ -39,7 +39,7 @@ class ApplicationForm extends React.Component {
 			insurance_company_name: "",
 			insurance_number: "",
 			insurance_policy_validity_duration: null,
-			files: "",
+			files: [],
 		}
 
 
