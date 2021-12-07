@@ -26,6 +26,15 @@ class Home extends React.Component {
 								<span style={{ display: "block", color: "white" }}>Табло походов</span>
 							</div>
 						</NavLink>
+						{this.props.roles.reviewer &&
+							<>
+								<NavLink activeClassName="active" to="/home/my_reviews">
+									<div className="cell">
+										<img alt="" src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
+										<span style={{ display: "block", color: "white" }}>Заявки</span>
+									</div>
+								</NavLink>
+							</>}
 						{this.props.roles.emkkMember &&
 							<>
 								<NavLink exact activeClassName="active" to="/home/applications">
@@ -38,15 +47,6 @@ class Home extends React.Component {
 									<div className="cell">
 										<img alt="" src={application_form} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
 										<span style={{ display: "block", color: "white" }}>Подать заявку</span>
-									</div>
-								</NavLink>
-							</>}
-						{this.props.roles.reviewer &&
-							<>
-								<NavLink activeClassName="active" to="/home/my_reviews">
-									<div className="cell">
-										<img alt="" src={take_application_in_work} className="img-home-navbar" style={{ display: "block", marginLeft: "auto", marginRight: "auto", height: 100, width: 100 }} />
-										<span style={{ display: "block", color: "white" }}>Заявки</span>
 									</div>
 								</NavLink>
 							</>}
