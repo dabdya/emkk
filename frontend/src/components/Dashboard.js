@@ -169,23 +169,43 @@ class Dashboard extends React.Component {
 
 	render() {
 		return (
-			<DataTable
-				columns={this.columns}
-				data={this.state.trips}
-				subHeaderWrap={false}
-				fixedHeader={true}
-				onRowClicked={row => { this.onClickOnRow(row); }}
-				pagination
-				highlightOnHover={this.props.roles.emkkMember}
-				pointerOnHover={this.props.roles.emkkMember}
-				subHeaderAlign="left"
-				noDataComponent="Таблица пустая"
-				paginationComponentOptions={{
-					rowsPerPageText: 'Страница: ',
-					rangeSeparatorText: 'из', noRowsPerPage: true,
-					selectAllRowsItem: false
-				}}
-			/>
+			<>
+				<DataTable
+					columns={this.columns}
+					data={this.state.trips}
+					subHeaderWrap={false}
+					fixedHeader={true}
+					onRowClicked={row => { this.onClickOnRow(row); }}
+					pagination
+					highlightOnHover={this.props.roles.emkkMember}
+					pointerOnHover={this.props.roles.emkkMember}
+					subHeaderAlign="left"
+					noDataComponent="Таблица пустая"
+					paginationComponentOptions={{
+						rowsPerPageText: 'Страница: ',
+						rangeSeparatorText: 'из', noRowsPerPage: true,
+						selectAllRowsItem: false
+					}}
+				/>
+				<div style={{ display: "flex", alignItems: "end", flexDirection: "column", marginRight: 40, marginTop: 40 }}>
+					<div style={{ display: "inherit" }}>
+						<img height="50px" width="50px" src={accepted} alt="accepted" />
+						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
+					</div>
+					<div style={{ display: "inherit" }}>
+						<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
+						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
+					</div>
+					<div style={{ display: "inherit" }}>
+						<img height="50px" width="50px" src={review} alt="review" />
+						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
+					</div>
+					<div style={{ display: "inherit" }}>
+						<img height="50px" width="50px" src={rejected} alt="rejected" />
+						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
+					</div >
+				</div >
+			</>
 		);
 	}
 }
