@@ -150,3 +150,6 @@ class UserExperience(models.Model):
     difficulty_as_for_reviewer = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
     is_issuer = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'trip_kind',)
