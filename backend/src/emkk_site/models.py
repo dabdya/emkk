@@ -143,8 +143,10 @@ class ReviewFromIssuerDocument(Document):
 
 
 class UserExperience(models.Model):
-    """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
+    """Пользователь может рецензировать заявки сложности `difficulty_as_for_reviewer` и меньшей.
+     категории сложности ~ [1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(
+    trip_kind = models.CharField(choices=TripKind.choices, max_length=30)
+    difficulty_as_for_reviewer = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
+    is_issuer = models.BooleanField(default=False)
