@@ -1,14 +1,14 @@
 from django.test import TestCase
-
+from django.db import IntegrityError
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import Review, TripStatus, ReviewResult
+from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience
 from src.emkk_site.services import get_reviewers_count_by_difficulty
 
 
 class ReviewTest(TestCase):
 
     def setUp(self):
-        self.trips_count = 1
+        self.trips_count = 2
         self.env = TestEnvironment().with_user(reviewer=True) \
             .with_trips(self.trips_count, status=TripStatus.ON_REVIEW)
 
@@ -75,7 +75,6 @@ class ReviewTest(TestCase):
 
         """Reviewer try create several reviews for one trip. Expected fail"""
         for _ in range(2):
-
             """Reviewer take trip in work"""
             self.env.client_post(
                 f'/api/trips/work',
@@ -108,3 +107,66 @@ class ReviewTest(TestCase):
             data=self.get_review_data(trip.id), user=self.env.user)
 
         self.assertEqual(r.status_code, 422)
+
+    def test_reviewer_can_take_trip_with_difficulty_less_than_reviewer_experience(self):
+        trip = self._get_cycling_trip(difficulty=2)
+        self.env.user.REVIEWER = True
+        self.env.user.save()
+        UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                       is_issuer=False).save()
+        available_to_writing_review = self.env.client_get(f'/api/trips?filter=work').data
+        self.assertIn(trip.id, [t.get("id") for t in available_to_writing_review])
+
+    def test_reviewer_cant_take_trip_with_difficulty_greater_than_reviewer_experience(self):
+        trip = self._get_cycling_trip(difficulty=6)
+        self.env.user.REVIEWER = True
+        self.env.user.save()
+        UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                       is_issuer=False).save()
+        available_to_writing_review = self.env.client_get(f'/api/trips?filter=work').data
+        self.assertNotIn(trip.id, [t.get("id") for t in available_to_writing_review])
+
+    def _get_cycling_trip(self, difficulty):
+        trip = self.env.trips[1]
+        trip.kind = TripKind.CYCLING
+        trip.difficulty_category = difficulty
+        trip.save()
+        return trip
+
+    def test_issuer_can_take_trips_if_he_is_issuer_for_trip_kind(self):
+        trip = self._get_cycling_at_issuer_trip()
+        self.env.user.ISSUER = True
+        self.env.user.save()
+        UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                       is_issuer=True).save()
+        available_to_writing_issuer_review = self.env.client_get(f'/api/trips?filter=work').data
+        self.assertIn(trip.id, [t.get("id") for t in available_to_writing_issuer_review])
+
+    def test_issuer_cant_take_trips_if_he_is_not_issuer_for_trip_kind(self):
+        trip = self._get_cycling_at_issuer_trip()
+        self.env.user.ISSUER = True
+        self.env.user.save()
+        UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                       is_issuer=False).save()
+        available_to_writing_issuer_review = self.env.client_get(f'/api/trips?filter=work').data
+        self.assertNotIn(trip.id, [t.get("id") for t in available_to_writing_issuer_review])
+
+    def _get_cycling_at_issuer_trip(self):
+        trip = self.env.trips[1]
+        trip.kind = TripKind.CYCLING
+        trip.status = TripStatus.AT_ISSUER
+        trip.save()
+        return trip
+
+    def test_experience_record_for_one_user_and_one_kind_is_uniq(self):
+        first_record = UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                                      is_issuer=False)
+        first_record.save()
+        second_record = UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=4,
+                                       is_issuer=False)
+        raised = False
+        try:
+            second_record.save()
+        except IntegrityError:
+            raised = True
+        self.assertTrue(raised)
