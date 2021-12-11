@@ -1,4 +1,4 @@
-from src.emkk_site.models import Trip, TripStatus, ReviewFromReviewer, ReviewFromIssuer
+from src.emkk_site.models import Trip, TripStatus, ReviewFromReviewer, ReviewFromIssuer, UserExperience
 
 
 def get_reviewers_count_by_difficulty(difficulty):
@@ -43,9 +43,9 @@ def _get_trips_available_for_reviewers(user):
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
         actual_reviews = len(ReviewFromReviewer.objects.filter(trip=trip))
 
-        reviews_count_for_trip = ReviewFromReviewer.objects.filter(trip=trip, reviewer=user).count()
+        reviews_count_from_user = ReviewFromReviewer.objects.filter(trip=trip, reviewer=user).count()
 
-        if actual_reviews < needed_reviews_count and reviews_count_for_trip == 0:
+        if actual_reviews < needed_reviews_count and reviews_count_from_user == 0 and _user_can_be_reviewer(user, trip):
             trips_available_for_review.append(trip)
 
     return trips_available_for_review
@@ -57,7 +57,17 @@ def _get_trips_available_for_issuers(user):
 
     for trip in trips:
         issues_count_for_trip = ReviewFromIssuer.objects.filter(trip=trip, reviewer=user).count()
-        if issues_count_for_trip == 0:
+        if _user_can_be_issuer(user, trip) and issues_count_for_trip == 0:
             trips_for_issuer.append(trip)
 
     return trips_for_issuer
+
+
+def _user_can_be_issuer(user, trip):
+    experience = UserExperience.objects.filter(user=user, trip_kind=trip.kind)
+    return bool(experience) and experience[0].is_issuer
+
+
+def _user_can_be_reviewer(user, trip):
+    experience = UserExperience.objects.filter(user=user, trip_kind=trip.kind)
+    return bool(experience) and experience[0].difficulty_as_for_reviewer >= trip.difficulty_category
