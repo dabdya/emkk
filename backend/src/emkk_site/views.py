@@ -3,6 +3,9 @@ from rest_framework import generics
 from rest_framework import status
 from django.http import HttpResponse
 
+from django.core.mail import send_mail
+from django.conf import settings
+
 from typing import Union
 from functools import partial
 
@@ -238,6 +241,13 @@ class ReviewView(generics.ListCreateAPIView):
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
             serializer.save()
+
+            send_mail(
+                f"Обновление по заявке {trip.id}: {trip.global_region}.{trip.local_region}",
+                """Здравствуйте. Поступила новая рецензия для вашей заявки. 
+                Подробности можно посмотреть в меню 'Мои заявки' на сайте.""",
+                settings.EMAIL_HOST_USER, [trip.leader.email, ])
+
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

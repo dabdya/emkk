@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.db import IntegrityError
+from django.core import mail
+
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience
 from src.emkk_site.services import get_reviewers_count_by_difficulty
@@ -75,12 +77,6 @@ class ReviewTest(TestCase):
 
         """Reviewer try create several reviews for one trip. Expected fail"""
         for _ in range(2):
-            """Reviewer take trip in work"""
-            self.env.client_post(
-                f'/api/trips/work',
-                data=self.get_review_data(trip.id), user=self.env.user)
-
-            """Create review"""
             self.env.client_post(
                 f'/api/trips/{trip.id}/reviews',
                 data=self.get_review_data(trip.id), user=self.env.user)
@@ -170,3 +166,12 @@ class ReviewTest(TestCase):
         except IntegrityError:
             raised = True
         self.assertTrue(raised)
+
+    def test_after_create_review_email_notify_should_sent_to_trip_leader(self):
+        trip = self.env.trips[0]
+        self.env.client_post(
+            f'/api/trips/{trip.id}/reviews',
+            data=self.get_review_data(trip.id), user=self.env.user)
+        email = trip.leader.email
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(email in mail.outbox[0].to)
