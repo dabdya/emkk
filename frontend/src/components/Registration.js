@@ -56,15 +56,18 @@ class Registration extends React.Component {
 		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
 			this.setState({ passwordValidityError: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
+			const data = {
+				username: this.state.username,
+				email: this.state.email,
+				password: this.state.password,
+				first_name: this.state.firstName,
+				last_name: this.state.secondName
+			}
+			if (this.state.patronymic) {
+				Object.assign(data, { patronymic: this.state.patronymic });
+			}
 			axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
-				user: {
-					username: this.state.username,
-					email: this.state.email,
-					password: this.state.password,
-					first_name: this.state.firstName,
-					last_name: this.state.secondName,
-					patronymic: this.state.patronymic,
-				}
+				user: data
 			}).then(res => {
 				alert('Registration complete!'); // делать не аллертами
 				this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
