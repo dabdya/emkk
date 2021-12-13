@@ -448,7 +448,7 @@ class ApplicationForm extends React.Component {
 						style={{ width: "80%", backgroundColor: "#136DAB" }}
 					>Отправить заявку</Button>
 				</div>
-				{this.state.buttonIsPressed && <ShowModal close={this.close} message="Заявка подана!" />}
+				{this.state.buttonIsPressed && <ShowModal header="ЭМКК" close={this.close} message="Заявка подана!" />}
 			</form >
 		)
 	}

@@ -374,7 +374,7 @@ class Application extends React.Component {
 					<hr />
 				</div>
 				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
-					Рецензии ({this.state.reviews.length}/2)
+					Рецензии
 					{this.state.reviews.map(review =>
 						<ReviewContent result={review.result} comment={review.result_comment}
 							reviewer={review.reviewer} key={review.id} />
