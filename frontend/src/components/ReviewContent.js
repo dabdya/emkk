@@ -1,6 +1,6 @@
 import React from "react";
 import { STATUS } from "../utils/Constants";
-import review from '../images/review.png';
+import rework from '../images/rework.png';
 import accepted from '../images/accepted.png';
 import rejected from '../images/rejected.png';
 import ShowModal from "./ShowModal";
@@ -26,7 +26,7 @@ export default class ReviewContent extends React.Component {
 		} else if (this.result === "rejected") {
 			return rejected;
 		}
-		return review;
+		return rework;
 	}
 
 	open(e) {
@@ -41,8 +41,7 @@ export default class ReviewContent extends React.Component {
 	render() {
 
 		const getText = (reviewer) => {
-			return `Почта: ${reviewer.email}
-			`;
+			return `Почта: ${reviewer.email}`;
 		}
 
 		return (
