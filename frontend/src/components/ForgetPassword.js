@@ -1,14 +1,14 @@
 import React from "react";
 import axios from "axios";
-import { TextField, Button } from '@mui/material'
-import { withRouter } from 'react-router-dom';
+import { TextField, Button } from "@mui/material"
+import { withRouter } from "react-router-dom";
 
 class ForgetPass extends React.Component {
 
 	constructor(props) {
 		super(props);
 
-		this.state = { login: '', error: "", success: "", isPressed: false };
+		this.state = { login: "", error: "", success: "", isPressed: false };
 		this.onSubmit = this.onSubmit.bind(this);
 
 	}
@@ -55,7 +55,7 @@ class ForgetPass extends React.Component {
 
 					{this.state.success &&
 						<>
-							<span style={{ whiteSpace: 'pre-wrap' }}>{this.state.success}</span>
+							<span style={{ whiteSpace: "pre-wrap" }}>{this.state.success}</span>
 							<Button variant="contained" href="/login" >
 								Войти
 							</Button>

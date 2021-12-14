@@ -4,12 +4,12 @@ body {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	background-color: #F7F7F7;
-	font-family: 'Montserrat', sans-serif;
+	font-family: "Montserrat", sans-serif;
 }
 
 * {
 	font-size: 18px;
-} 
+}
 
 #root {
 	height: 100vh;
@@ -203,4 +203,8 @@ code {
 
 .cell-app div:first-child {
 	width: 300px;
+}
+
+.flex {
+	display: flex;
 }

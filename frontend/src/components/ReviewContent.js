@@ -1,8 +1,8 @@
 import React from "react";
 import { STATUS } from "../utils/Constants";
-import rework from '../images/rework.png';
-import accepted from '../images/accepted.png';
-import rejected from '../images/rejected.png';
+import rework from "../images/rework.png";
+import accepted from "../images/accepted.png";
+import rejected from "../images/rejected.png";
 import ShowModal from "./ShowModal";
 export default class ReviewContent extends React.Component {
 	constructor(props) {

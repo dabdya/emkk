@@ -1,8 +1,8 @@
-import React from 'react'
-import axios from 'axios';
-import validator from 'validator';
-import { TextField, Button } from '@mui/material'
-import { withRouter } from 'react-router-dom';
+import React from "react"
+import axios from "axios";
+import validator from "validator";
+import { TextField, Button } from "@mui/material"
+import { withRouter } from "react-router-dom";
 
 class Registration extends React.Component {
 
@@ -48,7 +48,7 @@ class Registration extends React.Component {
 
 	close() {
 		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = '/signup';
+		window.location.href = "/signup";
 	}
 
 	async onSubmit(event) {

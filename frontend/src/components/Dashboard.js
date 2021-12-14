@@ -1,14 +1,14 @@
-import React from 'react';
-import DataTable from 'react-data-table-component';
-import { withRouter } from 'react-router-dom';
-import { getToken, getUser, caseInsensitiveSort } from '../utils/Common';
-import Requests from '../utils/requests';
-import { KIND_OF_TOURISM } from '../utils/Constants';
-import review from '../images/review.png';
-import rejected from '../images/rejected.png';
-import accepted from '../images/accepted.png';
-import at_issuer from '../images/at_issuer.png';
-import rework from '../images/rework.png';
+import React from "react";
+import DataTable from "react-data-table-component";
+import { withRouter } from "react-router-dom";
+import { getToken, getUser, caseInsensitiveSort } from "../utils/Common";
+import Requests from "../utils/requests";
+import { KIND_OF_TOURISM } from "../utils/Constants";
+import review from "../images/review.png";
+import rejected from "../images/rejected.png";
+import accepted from "../images/accepted.png";
+import at_issuer from "../images/at_issuer.png";
+import rework from "../images/rework.png";
 
 
 
@@ -16,7 +16,7 @@ class Dashboard extends React.Component {
 
 	addedColumns = [
 		{
-			name: 'Руководитель',
+			name: "Руководитель",
 			selector: row => row.leader,
 			center: true,
 			wrap: true,
@@ -25,7 +25,7 @@ class Dashboard extends React.Component {
 			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic && row.leader.patronymic[0]}.`
 		},
 		{
-			name: 'Локальный район',
+			name: "Локальный район",
 			selector: row => row.local_region,
 			wrap: true,
 			sortable: true,
@@ -34,46 +34,46 @@ class Dashboard extends React.Component {
 
 	columns = [
 		{
-			name: 'Организация',
+			name: "Организация",
 			selector: row => row.group_name,
 			center: true,
 			wrap: true,
 			sortable: true,
 		},
 		{
-			name: 'Общий регион',
+			name: "Общий регион",
 			selector: row => row.global_region,
 			wrap: true,
 			sortable: true,
 		},
 		{
-			name: 'Вид туризма',
+			name: "Вид туризма",
 			selector: row => row.kind,
 			sortable: true,
 			cell: row => KIND_OF_TOURISM[row.kind],
 
 		},
 		{
-			name: 'Категория сложности',
+			name: "Категория сложности",
 			selector: row => row.difficulty_category,
 			center: true,
 			width: "100px",
 			sortable: true,
 		},
 		{
-			name: 'Статус',
+			name: "Статус",
 			selector: row => row.status,
 			sortable: true,
 			center: true,
 			cell: row => <img height="50px" src={row.status} alt="status" />,
 		},
 		{
-			name: 'Дата начала',
+			name: "Дата начала",
 			selector: row => row.start_date,
 			sortable: true,
 		},
 		{
-			name: 'Дата завершения',
+			name: "Дата завершения",
 			selector: row => row.end_date,
 			sortable: true,
 		},
@@ -101,7 +101,7 @@ class Dashboard extends React.Component {
 		const request = new Requests();
 		const config = getToken() ? {
 			headers: {
-				Authorization: 'Token ' + getToken()
+				Authorization: "Token " + getToken()
 			}
 		} : {};
 
@@ -179,30 +179,30 @@ class Dashboard extends React.Component {
 					subHeaderAlign="left"
 					noDataComponent="Таблица пустая"
 					paginationComponentOptions={{
-						rowsPerPageText: 'Страница: ',
-						rangeSeparatorText: 'из', noRowsPerPage: true,
+						rowsPerPageText: "Страница: ",
+						rangeSeparatorText: "из", noRowsPerPage: true,
 						selectAllRowsItem: false
 					}}
 				/>
 				<div style={{ display: "flex", alignItems: "end", flexDirection: "column", marginRight: 40, marginTop: 40 }}>
 					<div >
-						<div style={{ display: "flex" }}>
+						<div className="flex">
 							<img height="50px" width="50px" src={accepted} alt="accepted" />
 							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка одобрена</p>
 						</div>
-						<div style={{ display: "flex" }}>
+						<div className="flex">
 							<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
 							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка у выпускающего</p>
 						</div>
-						<div style={{ display: "flex" }}>
+						<div className="flex">
 							<img height="50px" width="50px" src={review} alt="review" />
 							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка на рецензии</p>
 						</div>
-						<div style={{ display: "flex" }}>
+						<div className="flex">
 							<img height="50px" width="50px" src={rework} alt="rework" />
 							<p style={{ textAlign: "center", marginLeft: 3 }}>- Заявка на доработке</p>
 						</div >
-						<div style={{ display: "flex" }}>
+						<div className="flex">
 							<img height="50px" width="50px" src={rejected} alt="rejected" />
 							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка отклонена</p>
 						</div >

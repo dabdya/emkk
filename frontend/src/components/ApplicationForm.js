@@ -1,13 +1,13 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import React from "react";
+import { withRouter } from "react-router-dom";
 import ShowModal from "./ShowModal"
-import { GLOBAL_AREA, KIND_OF_TOURISM } from '../utils/Constants';
-import { getToken } from '../utils/Common';
-import Requests from '../utils/requests'
-import HelpIcon from '@mui/icons-material/Help';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import { Autocomplete, TextField, Button } from '@mui/material'
+import { GLOBAL_AREA, KIND_OF_TOURISM } from "../utils/Constants";
+import { getToken } from "../utils/Common";
+import Requests from "../utils/requests"
+import HelpIcon from "@mui/icons-material/Help";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import { Autocomplete, TextField, Button } from "@mui/material"
 
 
 class ApplicationForm extends React.Component {
@@ -57,7 +57,7 @@ class ApplicationForm extends React.Component {
 		const { files, ...rest } = this.app;
 		const config = {
 			headers: {
-				Authorization: 'Token ' + getToken()
+				Authorization: "Token " + getToken()
 			}
 		};
 		const request = new Requests();
@@ -93,7 +93,7 @@ class ApplicationForm extends React.Component {
 
 	close() {
 		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = '/';
+		window.location.href = "/";
 	}
 
 	uploadFile(event) {

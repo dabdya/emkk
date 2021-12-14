@@ -1,13 +1,13 @@
-import React from 'react';
-import { Switch, Route, NavLink, withRouter } from 'react-router-dom';
-import Dashboard from './Dashboard';
-import NotFound from './NotFound';
+import React from "react";
+import { Switch, Route, NavLink, withRouter } from "react-router-dom";
+import Dashboard from "./Dashboard";
+import NotFound from "./NotFound";
 import Application from "./Application";
-import ApplicationForm from './ApplicationForm';
-import my_application from '../images/my_application.png'
-import application_form from '../images/application_form.png'
-import take_application_in_work from '../images/take_application_in_work.png'
-import hiking_dashboard from '../images/hiking_dashboard.png'
+import ApplicationForm from "./ApplicationForm";
+import my_application from "../images/my_application.png"
+import application_form from "../images/application_form.png"
+import take_application_in_work from "../images/take_application_in_work.png"
+import hiking_dashboard from "../images/hiking_dashboard.png"
 
 
 class Home extends React.Component {

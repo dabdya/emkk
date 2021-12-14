@@ -1,11 +1,12 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { Button, Select, ComboBox } from '@skbkontur/react-ui'
-import { Autocomplete, TextField } from '@mui/material'
-import ReviewContent from './ReviewContent';
-import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
-import Requests from '../utils/requests';
-import { getToken, getUser } from '../utils/Common';
+import React from "react";
+import { withRouter } from "react-router-dom";
+import { Button, Select, ComboBox } from "@skbkontur/react-ui";
+import Autocomplete from "@mui/material/Autocomplete";
+import TextField from "@mui/material/TextField";
+import ReviewContent from "./ReviewContent";
+import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
+import Requests from "../utils/requests";
+import { getToken, getUser } from "../utils/Common";
 import icon from "../images/delete.ico";
 
 
@@ -76,7 +77,7 @@ class Application extends React.Component {
 	config() {
 		return {
 			headers: {
-				Authorization: 'Token ' + getToken()
+				Authorization: "Token " + getToken()
 			}
 		}
 	};
@@ -219,7 +220,7 @@ class Application extends React.Component {
 	async createBlob(e, file) {
 		e.preventDefault()
 		let mime;
-		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: 'arraybuffer' })
+		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: "arraybuffer" })
 			.then(resp => {
 				mime = resp.headers["content-type"];
 				return resp;

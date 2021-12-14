@@ -1,16 +1,16 @@
-import React from 'react';
-import axios from 'axios';
-import { getToken, setUserSession, getRoles } from '../utils/Common';
-import { GoogleLogin } from 'react-google-login';
-import { TextField, Button } from '@mui/material'
-import { withRouter } from 'react-router-dom';
+import React from "react";
+import axios from "axios";
+import { getToken, setUserSession, getRoles } from "../utils/Common";
+import { GoogleLogin } from "react-google-login";
+import { TextField, Button } from "@mui/material"
+import { withRouter } from "react-router-dom";
 
 class Login extends React.Component {
 
 	constructor(props) {
 		super(props);
 
-		this.state = { login: '', password: '', error: "" };
+		this.state = { login: "", password: "", error: "" };
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
 	}
@@ -24,8 +24,8 @@ class Login extends React.Component {
 				this.props.onChangeLogin(true, getRoles(getToken()));
 				this.props.history.push("/home/dashboard");
 			}).catch(err => {
-				if (err.response?.data?.user) this.setState({ error: 'Неправильный логин или пароль' });
-				else this.setState({ error: 'Ошибка. Попробуйте позже' });
+				if (err.response?.data?.user) this.setState({ error: "Неправильный логин или пароль" });
+				else this.setState({ error: "Ошибка. Попробуйте позже" });
 			});
 	}
 
