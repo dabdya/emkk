@@ -15,35 +15,33 @@ class App extends React.Component {
 
 	constructor(props) {
 		super(props)
-		this.state = { token: null, isLogined: false };
+		this.state = { isLogined: false };
 		this.onLogout = this.onLogout.bind(this);
 		this.onChangeLogin = this.onChangeLogin.bind(this);
 		this.roles = {}
 	}
-	//DEBUG
+
 	componentDidMount() {
-		this.setState({ token: getToken() })
 		if (getToken()) {
+			const config = {
+				headers: {
+					Authorization: 'Token ' + getToken()
+				}
+			};
+			axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
+				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
+				this.setState({ isLogined: true });
+			}).catch(error => {
+				console.error(error);
+				removeUserSession();
+			});
+
 			const roles = getRoles(getToken());
 			this.setState({ isLogined: true });
 			this.roles = roles;
 		} else {
 			this.setState({ isLogined: false });
 		}
-		return;
-		let config = {
-			headers: {
-				Authorization: 'Token ' + this.state.token
-			}
-		};
-		axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
-			setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
-			this.setState({ isLogined: true });
-			console.log('im here')
-		}).catch(error => {
-			console.error(error);
-			removeUserSession();
-		});
 	}
 
 	onLogout() {
@@ -64,7 +62,9 @@ class App extends React.Component {
 				<div style={{ height: "100%" }}>
 					<div className="header" style={{ width: "100%", boxShadow: "2px 2px 2px grey" }}>
 						<div style={{ marginLeft: 15 }}>
-							<img width="62px" height="62px" src={logo} alt="logo" />
+							<a href="/home/dashboard">
+								<img width="62px" height="62px" src={logo} alt="logo" />
+							</a>
 						</div>
 						<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
 						{!this.state.isLogined &&

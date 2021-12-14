@@ -23,6 +23,8 @@ class Registration extends React.Component {
 			loginError: "",
 			passwordValidityError: "",
 			serverIssueError: "",
+			successfullRegistration: "",
+			pendingServerResponse: "",
 		};
 		this.onSubmit = this.onSubmit.bind(this);
 		this.changeInputRegister = this.changeInputRegister.bind(this);
@@ -56,21 +58,35 @@ class Registration extends React.Component {
 		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
 			this.setState({ passwordValidityError: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
+			this.setState({
+				serverIssueError: "",
+				pendingServerResponse: "Подождите..."
+			})
+			const data = {
+				username: this.state.username,
+				email: this.state.email,
+				password: this.state.password,
+				first_name: this.state.firstName,
+				last_name: this.state.secondName
+			}
+			if (this.state.patronymic) {
+				Object.assign(data, { patronymic: this.state.patronymic });
+			}
 			axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
-				user: {
-					username: this.state.username,
-					email: this.state.email,
-					password: this.state.password,
-					first_name: this.state.firstName,
-					last_name: this.state.secondName,
-					patronymic: this.state.patronymic,
-				}
+				user: data
 			}).then(res => {
-				alert('Registration complete!'); // делать не аллертами
-				this.props.history.push("/login"); // можно автоматически задать поля в логин-форме после регистрации.
+				this.setState({
+					pendingServerResponse: "",
+					serverIssueError: "",
+					successfullRegistration: "Регистрация прошла успешно. \n \
+					Сейчас вы будете перенаправлены на страницу логина"});
+				window.setTimeout(() => this.props.history.push("/login"), 2500);
 
 			}).catch(err => {
-				this.setState({ serverIssueError: err.response.data.user.username || err.response.data.user.email });
+				this.setState({
+					pendingServerResponse: "",
+					serverIssueError: err.response.data.user.username || err.response.data.user.email
+				});
 			})
 		}
 	};
@@ -121,6 +137,8 @@ class Registration extends React.Component {
 						variant="outlined" onChange={this.changeInputRegister} />
 					<Button fullWidth size="medium" variant="contained"
 						type="submit"
+						disabled={this.state.pendingServerResponse.length > 0 ||
+							this.state.successfullRegistration.length > 0}
 						style={{
 							marginTop: 20
 						}}>
@@ -136,7 +154,20 @@ class Registration extends React.Component {
 							</span>
 						</div>
 					}
-
+					{this.state.successfullRegistration &&
+						<div style={{ display: "flex", justifyContent: "center" }}>
+							<span style={{ color: "green" }}>
+								{this.state.successfullRegistration}
+							</span>
+						</div>
+					}
+					{this.state.pendingServerResponse &&
+						<div style={{ display: "flex", justifyContent: "center" }}>
+							<span>
+								{this.state.pendingServerResponse}
+							</span>
+						</div>
+					}
 				</form>
 			</div>
 		)

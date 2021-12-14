@@ -8,6 +8,7 @@ import review from '../images/review.png';
 import rejected from '../images/rejected.png';
 import accepted from '../images/accepted.png';
 import at_issuer from '../images/at_issuer.png';
+import rework from '../images/rework.png';
 
 
 
@@ -163,6 +164,8 @@ class Dashboard extends React.Component {
 			return rejected;
 		} else if (status === "at_issuer") {
 			return at_issuer;
+		} else if (status === "on_rework") {
+			return rework;
 		}
 		return accepted;
 	}
@@ -188,22 +191,28 @@ class Dashboard extends React.Component {
 					}}
 				/>
 				<div style={{ display: "flex", alignItems: "end", flexDirection: "column", marginRight: 40, marginTop: 40 }}>
-					<div style={{ display: "inherit" }}>
-						<img height="50px" width="50px" src={accepted} alt="accepted" />
-						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
+					<div >
+						<div style={{ display: "flex" }}>
+							<img height="50px" width="50px" src={accepted} alt="accepted" />
+							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка одобрена</p>
+						</div>
+						<div style={{ display: "flex" }}>
+							<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
+							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка у выпускающего</p>
+						</div>
+						<div style={{ display: "flex" }}>
+							<img height="50px" width="50px" src={review} alt="review" />
+							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка на рецензии</p>
+						</div>
+						<div style={{ display: "flex" }}>
+							<img height="50px" width="50px" src={rework} alt="rework" />
+							<p style={{ textAlign: "center", marginLeft: 3 }}>- Заявка на доработке</p>
+						</div >
+						<div style={{ display: "flex" }}>
+							<img height="50px" width="50px" src={rejected} alt="rejected" />
+							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка отклонена</p>
+						</div >
 					</div>
-					<div style={{ display: "inherit" }}>
-						<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
-						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
-					</div>
-					<div style={{ display: "inherit" }}>
-						<img height="50px" width="50px" src={review} alt="review" />
-						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
-					</div>
-					<div style={{ display: "inherit" }}>
-						<img height="50px" width="50px" src={rejected} alt="rejected" />
-						<p style={{ textAlign: "center", marginLeft: 3 }}>блаблабла</p>
-					</div >
 				</div >
 			</>
 		);
