@@ -286,10 +286,10 @@ class Application extends React.Component {
 			);
 
 		return (
-			<div>
+			<div id="application">
 				<form onSubmit={this.onSubmit}>
-					<div style={{ display: "inline-block", marginLeft: 15 }}>
-						<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block" }}>Заявка №{this.app.id}</h1>
+					<div id="data-application-header">
+						<h1 id="data-application-name">Заявка №{this.app.id}</h1>
 						{!isEditing && getUser() === this.app.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
@@ -305,13 +305,7 @@ class Application extends React.Component {
 							</form>
 						}
 					</div>
-					<div style={{
-						display: "grid",
-						gridTemplateColumns: "auto auto",
-						gridColumnGap: "0px",
-						gridRowGap: "10px",
-						marginLeft: "40px"
-					}}>
+					<div id="data-application">
 						<div className="cell-app"><div>ФИО руководителя:</div><div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div></div>
 						<div className="cell-app"><div>Спортивная организация:</div><div>{isEditing ? <input defaultValue={this.app.group_name} onChange={e => this.app.group_name = e.target.value} /> : this.app.group_name}</div></div>
 						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.app.start_date} onChange={e => this.app.start_date = e.target.value} /> : this.app.start_date}</div></div>
@@ -347,7 +341,6 @@ class Application extends React.Component {
 						<div className="cell-app"><div>Контрольные сроки конца:</div><div>{isEditing ?
 							<>
 								<input defaultValue={this.app.control_end_region}
-
 									onChange={e => this.app.control_end_region = e.target.value}
 								/>
 								<input defaultValue={this.app.control_end_date}
@@ -357,29 +350,19 @@ class Application extends React.Component {
 							</> : `${this.app.control_end_region}, ${this.app.control_end_date}`}</div></div>
 					</div>
 				</form>
-				<div style={{ marginTop: 30, marginLeft: 25, marginRight: 50 }}>
+				<div className="separator">
 					<hr />
 				</div>
 
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
-					<h1 style={{
-						marginBlockEnd: 20,
-						fontSize: 20, color: "#4A4A4A",
-						fontWeight: "normal",
-						textDecoration: "underline",
-						textDecorationColor: "#1D85D0",
-						textUnderlineOffset: "0.5rem"
-					}}>Документы</h1>
+				<div className="box">
+					<h1>Документы</h1>
 					<div>
-						<div style={{
-							display: "grid",
-							rowGap: "3px"
-						}}>
+						<div id="files">
 							{this.state.files.map(file => {
 								return (
 									<div>
 										{/*eslint-disable-next-line */}
-										< a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank" style={{ textDecoration: "none", color: "#4C94FF" }}>{file.filename}</a>
+										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
 										<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />
 									</div>
 								);
@@ -397,10 +380,10 @@ class Application extends React.Component {
 						</div>
 					</div>
 				</div >
-				<div style={{ marginLeft: 25, marginRight: 50 }}>
+				<div className="separator">
 					<hr />
 				</div>
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
+				<div className="box">
 					Рецензии
 					{this.state.reviews.map(review =>
 						<ReviewContent result={review.result} comment={review.result_comment}
@@ -427,7 +410,6 @@ class Application extends React.Component {
 
 							/>
 							<TextField
-								style={{ width: "100%" }}
 								name="result_comment"
 								placeholder="Рецензия"
 								multiline
@@ -439,19 +421,18 @@ class Application extends React.Component {
 							<button type="submit">Отправить</button>
 						</form>
 						<div className="cell-file">
-							<label className="custom-file-upload" style={{ backgroundColor: "#136DAB", color: "white" }} >
+							<label className="custom-file-upload" >
 								<input type="file"
 									onChange={(event) => {
 										this.uploadReview(event);
-									}}
-									style={{ display: "none" }} />
+									}} />
 								Отправить рецензию файлом со статусом {this.state.result}
 							</label>
 
 						</div>
 					</>
 				}
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
+				<div className="box">
 					Выпуски
 					{this.state.issues.map(issue =>
 						<ReviewContent result={issue.result} comment={issue.result_comment}
@@ -478,7 +459,6 @@ class Application extends React.Component {
 
 							/>
 							<TextField
-								style={{ width: "100%" }}
 								name="result_comment_issue"
 								placeholder="Выпуск"
 								multiline

@@ -194,7 +194,14 @@ code {
 	cursor: pointer;
 	text-align: center;
 	width: 80%;
+	background-color: #136DAB;
+	color: white;
 }
+
+.custom-file-upload input[type=file] {
+	display: none;
+}
+
 
 .cell-app {
 	display: flex;
@@ -207,4 +214,70 @@ code {
 
 .flex {
 	display: flex;
+}
+
+#dashboard #legend {
+	display: flex;
+	align-items: end;
+	flex-direction: column;
+	margin-right: 40px;
+	margin-top: 40px;
+}
+
+#dashboard p {
+	text-align: center;
+	margin-left: 3px;
+}
+
+#application #data-application {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-column-gap: 0px;
+	grid-row-gap: 10px;
+	margin-left: 40px;
+}
+
+#application #data-application-header {
+	display: inline-block;
+	margin-left: 15px;
+}
+
+#application #data-application-name {
+	margin-left: 20px;
+	font-size: 40px;
+	color: #4A4A4A;
+	font-weight: normal;
+	display: inline-block
+}
+
+#application .separator {
+	margin-top: 30px;
+	margin-left: 25px;
+	margin-right: 50px;
+}
+
+#application .box {
+	margin-top: 15px;
+	margin-left: 40px;
+	height: fit-content;
+}
+
+#application .box h1 {
+	margin-block-end: 20px;
+	font-size: 20px;
+	color: #4A4A4A;
+	font-weight: normal;
+	text-decoration: underline;
+	text-decoration-color: #1D85D0;
+	text-underline-offset: 0.5rem;
+}
+
+#application .box #files {
+	display: grid;
+	row-gap: 3px;
+}
+
+#application .box #files a {
+	text-decoration: none;
+	color: #4C94FF;
 }

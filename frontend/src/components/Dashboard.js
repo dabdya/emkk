@@ -166,7 +166,7 @@ class Dashboard extends React.Component {
 
 	render() {
 		return (
-			<>
+			<div id="dashboard">
 				<DataTable
 					columns={this.columns}
 					data={this.state.trips}
@@ -184,31 +184,31 @@ class Dashboard extends React.Component {
 						selectAllRowsItem: false
 					}}
 				/>
-				<div style={{ display: "flex", alignItems: "end", flexDirection: "column", marginRight: 40, marginTop: 40 }}>
+				<div id="legend">
 					<div >
 						<div className="flex">
 							<img height="50px" width="50px" src={accepted} alt="accepted" />
-							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка одобрена</p>
+							<p> - Заявка одобрена</p>
 						</div>
 						<div className="flex">
 							<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
-							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка у выпускающего</p>
+							<p> - Заявка у выпускающего</p>
 						</div>
 						<div className="flex">
 							<img height="50px" width="50px" src={review} alt="review" />
-							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка на рецензии</p>
+							<p> - Заявка на рецензии</p>
 						</div>
 						<div className="flex">
 							<img height="50px" width="50px" src={rework} alt="rework" />
-							<p style={{ textAlign: "center", marginLeft: 3 }}>- Заявка на доработке</p>
+							<p>- Заявка на доработке</p>
 						</div >
 						<div className="flex">
 							<img height="50px" width="50px" src={rejected} alt="rejected" />
-							<p style={{ textAlign: "center", marginLeft: 3 }}> - Заявка отклонена</p>
+							<p> - Заявка отклонена</p>
 						</div >
 					</div>
 				</div >
-			</>
+			</div>
 		);
 	}
 }

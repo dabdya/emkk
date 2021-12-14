@@ -304,8 +304,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ routeBookCount: this.state.routeBookCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить маршрутную книжку
 						</label>
 						<Tooltip
@@ -339,8 +338,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ cartographicMaterialCount: this.state.cartographicMaterialCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить картографический материал
 						</label>
 						<Tooltip
@@ -374,8 +372,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ participantsReferencesCount: this.state.participantsReferencesCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить справки участников
 						</label>
 						<Tooltip
@@ -409,8 +406,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ insurancePolicyScansCount: this.state.insurancePolicyScansCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить сканы страховых полисов
 						</label>
 						<Tooltip
