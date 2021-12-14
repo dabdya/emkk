@@ -22,7 +22,6 @@ class ReviewTest(TestCase):
             "result_comment": "GOOD"
         }
 
-    # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
 
         trip = self.env.trips[0]

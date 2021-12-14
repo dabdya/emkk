@@ -238,6 +238,9 @@ class ReviewView(generics.ListCreateAPIView):
             if isinstance(context_class, ReviewerList):
                 try_change_status_from_review_to_at_issuer(trip)
             elif isinstance(context_class, IssuerList):
+                if trip.status != TripStatus.AT_ISSUER:
+                    msg = f"Need at_issuer status, but found {trip.status}"
+                    return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
             serializer.save()
