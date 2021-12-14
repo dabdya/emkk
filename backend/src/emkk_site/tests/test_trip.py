@@ -1,3 +1,4 @@
+from django.core import mail
 from django.test import TestCase
 
 from src.emkk_site.tests.base import TestEnvironment
@@ -90,7 +91,7 @@ class TripTest(TestCase):
         trip_data = dict(self.trip_data)
         trip_data['kind'] = TripKind.HORSE_SPORT
         trip_data['info_for_reviewer'] = 'changed'
-        response = self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
+        self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
         trip = Trip.objects.get(pk=trip_id)
         self.assertGreater(trip.last_modified_at, old_date)
 
@@ -106,3 +107,28 @@ class TripTest(TestCase):
         new_trip = Trip.objects.get(pk=trip.id)
         self.assertEqual(r.status_code, 400)
         self.assertEqual(new_trip.kind, old_kind)
+
+    def test_trip_change_status_should_work(self):
+        trip = self.env.eg.generate_instance_by_model(Trip, status=TripStatus.ACCEPTED)
+        self.env.user.SECRETARY = True
+
+        trip.save()
+        self.env.user.save()
+
+        email = trip.leader.email
+
+        r = self.env.client_post(f'/api/trips/{trip.id}/change-status?new_status=TAKE_PAPERS', data={})
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(email in mail.outbox[0].to)
+        self.assertEqual(Trip.objects.get(id=trip.id).status, TripStatus.TAKE_PAPERS)
+
+    def test_only_secretary_can_change_trip_status(self):
+        trip = self.env.eg.generate_instance_by_model(Trip, status=TripStatus.ACCEPTED)
+        self.env.user.SECRETARY = False
+
+        trip.save()
+        self.env.user.save()
+
+        r = self.env.client_post(f'/api/trips/{trip.id}/change-status?new_status=TAKE_PAPERS', data={})
+        self.assertEqual(r.status_code, 403)

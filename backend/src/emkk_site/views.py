@@ -1,3 +1,4 @@
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import generics
 from rest_framework import status
@@ -10,7 +11,7 @@ from typing import Union
 from functools import partial
 
 from src.jwt_auth.permissions import (
-    IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner)
+    IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner, IsSecretary)
 
 from src.emkk_site.serializers import (
     TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
@@ -220,7 +221,7 @@ class ReviewView(generics.ListCreateAPIView):
             trip = Trip.objects.get(pk=trip_id)
         except Trip.DoesNotExist:
             msg = f"Trip with {trip_id} not found"
-            return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+            return Response(msg, status=status.HTTP_404_NOT_FOUND)
 
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
@@ -301,24 +302,30 @@ class ReviewDetail(generics.UpdateAPIView):
         return Review.objects.filter(pk=self.kwargs['pk']).first()
 
 
-# @api_view(['POST'])
-# # @permission_classes([IsAuthenticated])
-# def change_trip_status(request, *args, **kwargs):
-#     trip_id = kwargs['trip_id']
-#     try:
-#         trip = Trip.objects.get(pk=trip_id)
-#     except Trip.DoesNotExist:
-#         raise Http404(f"No trip by id: {trip_id}")
-#     new_status_str = request.query_params["new_status"]
-#     status_by_name = {
-#         "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,
-#         "ON_ROUTE": TripStatus.ON_ROUTE,
-#         "TAKE_PAPERS": TripStatus.TAKE_PAPERS,
-#         "ALARM": TripStatus.ALARM
-#     }
-#     if new_status_str in status_by_name:
-#         trip.status = status_by_name[new_status_str]
-#         trip.save()
-#         return Response(status=status.HTTP_200_OK)
-#     return Response(status=status.HTTP_400_BAD_REQUEST,
-#                     data=f"Status can be changed to {list(status_by_name.keys())}. But {new_status_str} found")
+@api_view(['POST'])
+@permission_classes([IsSecretary])
+def change_trip_status(request, *args, **kwargs):
+    trip_id = kwargs['pk']
+    try:
+        trip = Trip.objects.get(pk=trip_id)
+    except Trip.DoesNotExist:
+        raise Response(f"No trip by id: {trip_id}", status=status.HTTP_404_NOT_FOUND)
+    new_status_str = request.query_params["new_status"]
+    status_by_name = {
+        "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,
+        "ON_ROUTE": TripStatus.ON_ROUTE,
+        "TAKE_PAPERS": TripStatus.TAKE_PAPERS,
+        "ALARM": TripStatus.ALARM
+    }
+    if new_status_str in status_by_name:
+        trip.status = status_by_name[new_status_str]
+        trip.save()
+
+        send_mail(
+            f"Изменение статуса заявки {trip.id}: {trip.global_region}.{trip.local_region}",
+            f"""Здравствуйте. Статус вашей заявки был изменен на {trip.status}""",
+            settings.EMAIL_HOST_USER, [trip.leader.email, ])
+
+        return Response(status=status.HTTP_200_OK)
+    return Response(status=status.HTTP_400_BAD_REQUEST,
+                    data=f"Status can be changed to {list(status_by_name.keys())}. But {new_status_str} found")
