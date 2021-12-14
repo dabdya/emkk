@@ -67,6 +67,8 @@ class Trip(models.Model):
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     last_modified_at = models.DateTimeField(auto_now=True)
 
+    info_for_reviewer = models.TextField()
+
     def __str__(self):
         return self.group_name
 

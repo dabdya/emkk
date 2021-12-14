@@ -58,7 +58,7 @@ class TripTest(TestCase):
         trip.leader.save()
 
         r = self.env.client_patch(f'/api/trips/{trip.id}', {
-            'participants_count': trip.participants_count + 1}, user=trip.leader)
+            'participants_count': trip.participants_count + 1, 'info_for_reviewer': 'changed'}, user=trip.leader)
 
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r.data['participants_count'], trip.participants_count + 1)
@@ -89,6 +89,7 @@ class TripTest(TestCase):
         time.sleep(1)
         trip_data = dict(self.trip_data)
         trip_data['kind'] = TripKind.HORSE_SPORT
+        trip_data['info_for_reviewer'] = 'changed'
         response = self.env.client_patch(f'/api/trips/{trip_id}', trip_data)
         trip = Trip.objects.get(pk=trip_id)
         self.assertGreater(trip.last_modified_at, old_date)

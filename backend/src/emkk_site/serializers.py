@@ -82,6 +82,7 @@ class TripSerializer(serializers.ModelSerializer):
         depth = 1
         fields = '__all__'
         read_only_fields = ['created_at', 'status', 'leader', ]
+        extra_kwargs = {'info_for_reviewer': {'required': False}}
 
     def create(self, validated_data):
         user = self.context['user']
@@ -97,7 +98,9 @@ class TripDetailSerializer(serializers.ModelSerializer):
         depth = 1
         fields = '__all__'
         read_only_fields = ['created_at', 'status', 'leader', ]
-        extra_kwargs = {field.name: {'required': False} for field in Trip._meta.fields}
+        extra_kwargs = {
+            field.name: {'required': False} for field in Trip._meta.fields
+            if field.name != 'info_for_reviewer'}
 
 
 class TripForAnonymousSerializer(serializers.ModelSerializer):
