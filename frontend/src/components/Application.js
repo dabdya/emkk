@@ -1,7 +1,7 @@
 import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { Button, Select, ComboBox } from '@skbkontur/react-ui'
-import { Grid, Autocomplete, TextField } from '@mui/material'
+import { Autocomplete, TextField } from '@mui/material'
 import ReviewContent from './ReviewContent';
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
 import Requests from '../utils/requests';
@@ -54,7 +54,9 @@ class Application extends React.Component {
 			result_issue: "",
 		}
 
-		this.roles = this.props.location.state.roles;
+		this.roles = this.props.roles;
+		this.id = this.props.match.params.id;
+
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
 		this.changeComboBox = this.changeComboBox.bind(this);
@@ -68,6 +70,7 @@ class Application extends React.Component {
 		this.handleChange = this.handleChange.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
 		this.writeIssue = this.writeIssue.bind(this);
+		this.changeStatus = this.changeStatus.bind(this);
 	}
 
 	config() {
@@ -80,7 +83,7 @@ class Application extends React.Component {
 
 
 	async componentDidMount() {
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
 			.then(response => {
 				this.app = {
 					id: response.data.id,
@@ -104,9 +107,9 @@ class Application extends React.Component {
 				}
 				this.setState({ status: response.data.status });
 			})
-			.catch(err => console.error(err));
+			.catch(err => this.props.history.push("/"));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(file => {
 					this.setState(prevState => ({
@@ -115,13 +118,13 @@ class Application extends React.Component {
 				});
 			});
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
 			.catch(err => console.error(err));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews-from-issuer`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
 			.then(resp => {
 				this.setState({ issues: resp.data });
 			})
@@ -137,6 +140,7 @@ class Application extends React.Component {
 
 	async uploadReview(e) {
 		const file = e.target.files[0];
+
 		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
 			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] },
 			this.config())
@@ -147,7 +151,8 @@ class Application extends React.Component {
 					form,
 					this.config())
 			});
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews`, this.config())
+
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
@@ -203,6 +208,14 @@ class Application extends React.Component {
 		this.app.kind = KIND_OF_TOURISM[value];
 	};
 
+	async changeStatus(e) {
+		e.preventDefault();
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/change-status`,
+			{ status: this.status },
+			this.config())
+			.then(resp => { console.log(resp); })
+	}
+
 	async createBlob(e, file) {
 		e.preventDefault()
 		let mime;
@@ -252,7 +265,7 @@ class Application extends React.Component {
 			form.append("file", file);
 		}
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, form,
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, form,
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
@@ -278,7 +291,18 @@ class Application extends React.Component {
 						<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block" }}>Заявка №{this.app.id}</h1>
 						{!isEditing && getUser() === this.app.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
-						{<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>}
+						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
+						{this.roles.secretary &&
+							<form onSubmit={this.changeStatus}>
+								<select name="select">
+									<option value="alarm" selected>alarm</option>
+									<option value="on_route">on_route</option>
+									<option value="route_completed">route_completed</option>
+									<option value="take_papers">take_papers</option>
+								</select>
+								<input type="submit" />
+							</form>
+						}
 					</div>
 					<div style={{
 						display: "grid",
@@ -346,18 +370,20 @@ class Application extends React.Component {
 						textUnderlineOffset: "0.5rem"
 					}}>Документы</h1>
 					<div>
-						<Grid container rowSpacing={1} columnSpacing={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
-							{
-								this.state.files.map(file => {
-									return (<Grid item xs={12} sm={12} md={12} lg={12}>
+						<div style={{
+							display: "grid",
+							rowGap: "3px"
+						}}>
+							{this.state.files.map(file => {
+								return (
+									<div>
 										{/*eslint-disable-next-line */}
-										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank" style={{ textDecoration: "none", color: "#4C94FF" }}>{file.filename}</a>
+										< a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank" style={{ textDecoration: "none", color: "#4C94FF" }}>{file.filename}</a>
 										<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />
-									</Grid>
-									);
-								})
-							}
-						</Grid>
+									</div>
+								);
+							})}
+						</div>
 						<div style={{ marginTop: 15 }}>
 							<input
 								ref="fileInput"
@@ -369,7 +395,7 @@ class Application extends React.Component {
 							{getUser() === this.app.leader.username && <Button onClick={() => this.refs.fileInput.click()}>Добавить документы</Button>}
 						</div>
 					</div>
-				</div>
+				</div >
 				<div style={{ marginLeft: 25, marginRight: 50 }}>
 					<hr />
 				</div>
@@ -381,7 +407,8 @@ class Application extends React.Component {
 					)}
 				</div>
 				{
-					this.props.location.state.isMyReview &&
+					// this.props.location.state.isMyReview &&
+					this.roles.reviewer &&
 					this.state.status === "on_review" &&
 					<>
 						<form onSubmit={this.writeReview}>
@@ -461,7 +488,6 @@ class Application extends React.Component {
 							/>
 							<button type="submit">Выпустить</button>
 						</form>
-
 					</>
 				}
 			</div >

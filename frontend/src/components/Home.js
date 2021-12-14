@@ -53,7 +53,7 @@ class Home extends React.Component {
 					</div>
 					<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 						<Switch>
-							<Route path="/home/application" component={Application} />
+							<Route path="/home/application/:id" component={() => <Application {...this.props} />} />
 							<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
 							<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
 							<Route exact path="/home/applications" component={() => this.props.roles.emkkMember ? <Dashboard isMyApps={true} {...this.props} /> : <NotFound {...this.props} />} />

@@ -22,7 +22,7 @@ class Dashboard extends React.Component {
 			wrap: true,
 			sortable: true,
 			sortFunction: caseInsensitiveSort,
-			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader?.patronymic && row.leader.patronymic[0]}.`
+			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic && row.leader.patronymic[0]}.`
 		},
 		{
 			name: 'Локальный район',
@@ -145,13 +145,7 @@ class Dashboard extends React.Component {
 		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
-		const id = target.id;
-		const state = this.props.isMyReview ? { id: id, isMyReview: this.props.isMyReview, roles: this.props.roles } : { id: id, roles: this.props.roles };
-
-		this.props.history.push({
-			pathname: '/home/application',
-			state: state,
-		});
+		this.props.history.push(`/home/application/${target.id}`);
 
 	};
 
