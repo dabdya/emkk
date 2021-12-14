@@ -218,7 +218,7 @@ code {
 
 #dashboard #legend {
 	display: flex;
-	align-items: end;
+	align-items: flex-end;
 	flex-direction: column;
 	margin-right: 40px;
 	margin-top: 40px;

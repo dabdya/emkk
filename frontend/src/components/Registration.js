@@ -78,8 +78,8 @@ class Registration extends React.Component {
 				this.setState({
 					pendingServerResponse: "",
 					serverIssueError: "",
-					successfullRegistration: "Регистрация прошла успешно. \n \
-					Сейчас вы будете перенаправлены на страницу логина"});
+					successfullRegistration: "Регистрация прошла успешно. Сейчас вы будете перенаправлены на страницу логина"
+				});
 				window.setTimeout(() => this.props.history.push("/login"), 2500);
 
 			}).catch(err => {

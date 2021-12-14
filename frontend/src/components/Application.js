@@ -60,15 +60,12 @@ class Application extends React.Component {
 
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
-		this.changeComboBox = this.changeComboBox.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.createBlob = this.createBlob.bind(this);
 		this.deleteDocument = this.deleteDocument.bind(this);
 		this.addDocument = this.addDocument.bind(this);
 		this.config = this.config.bind(this);
-		this.takeOnReview = this.takeOnReview.bind(this);
 		this.writeReview = this.writeReview.bind(this);
-		this.handleChange = this.handleChange.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
 		this.writeIssue = this.writeIssue.bind(this);
 		this.changeStatus = this.changeStatus.bind(this);
@@ -82,9 +79,8 @@ class Application extends React.Component {
 		}
 	};
 
-
-	async componentDidMount() {
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
+	componentDidMount() {
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
 			.then(response => {
 				this.app = {
 					id: response.data.id,
@@ -132,23 +128,16 @@ class Application extends React.Component {
 			.catch(err => console.error(err));
 	};
 
-	async takeOnReview() {
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/work`, { trip: this.state.id }, this.config())
-			.then(resp => {
-				console.log(resp);
-			});
-	}
-
 	async uploadReview(e) {
 		const file = e.target.files[0];
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`,
 			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] },
 			this.config())
 			.then(resp => {
 				const form = new FormData()
 				form.append("file", file);
-				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews/${resp.data.id}/documents`,
+				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${resp.data.id}/documents`,
 					form,
 					this.config())
 			});
@@ -162,12 +151,12 @@ class Application extends React.Component {
 
 	async writeReview(e) {
 		e.preventDefault()
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/reviews`,
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`,
 			{ result: STATUS[this.review.result], result_comment: this.review.result_comment },
 			this.config())
 			.then(resp => {
-				this.setState({ status: resp.data.trip.status });
 				this.setState(prevState => ({
+					status: resp.data.trip.status,
 					reviews:
 						[...prevState.reviews,
 						{
@@ -177,7 +166,6 @@ class Application extends React.Component {
 							reviewer: resp.data.reviewer,
 						}]
 				}));
-
 			});
 	}
 
@@ -200,11 +188,6 @@ class Application extends React.Component {
 			});
 	}
 
-
-	handleChange(e) {
-		this.app[e.target.name] = e.target.value;
-	};
-
 	changeTourismKind(value) {
 		this.app.kind = KIND_OF_TOURISM[value];
 	};
@@ -226,15 +209,13 @@ class Application extends React.Component {
 				return resp;
 			})
 		const blob = new Blob([resp.data], { type: mime });
-		let a = document.createElement("a")
+		const a = document.createElement("a")
 		a.download = file.filename;
 		a.href = URL.createObjectURL(blob);
 		a.click();
 	};
 
-	changeComboBox(event) {
-		this.app.global_region = event.value;
-	};
+
 
 	async onSubmit(event) {
 		event.preventDefault();
@@ -250,15 +231,15 @@ class Application extends React.Component {
 		this.setState({ isEditing: !this.state.isEditing })
 	}
 
-	async deleteDocument(file) {
-		await this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
+	deleteDocument(file) {
+		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
 			this.config())
 			.then(() => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
 	}
 
-	async addDocument(afile) {
+	addDocument(afile) {
 		const files = afile.target.files;
 
 		const form = new FormData()
@@ -266,7 +247,7 @@ class Application extends React.Component {
 			form.append("file", file);
 		}
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, form,
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, form,
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
@@ -276,7 +257,7 @@ class Application extends React.Component {
 	}
 
 	render() {
-		const { isEditing } = this.state;
+		const { isEditing, issues, files, reviews, status } = this.state;
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		const getItems = query =>
@@ -284,70 +265,123 @@ class Application extends React.Component {
 				GLOBAL_AREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
 			);
+		const changeApp = e => this.app[e.target.name] = e.target.value;
+		const changeComboBox = e => this.app.global_region = e.value;
 
 		return (
-			<div id="application">
+			<div id="application" >
 				<form onSubmit={this.onSubmit}>
 					<div id="data-application-header">
 						<h1 id="data-application-name">Заявка №{this.app.id}</h1>
 						{!isEditing && getUser() === this.app.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
-						{this.roles.secretary &&
-							<form onSubmit={this.changeStatus}>
-								<select name="select">
-									<option value="alarm" selected>alarm</option>
-									<option value="on_route">on_route</option>
-									<option value="route_completed">route_completed</option>
-									<option value="take_papers">take_papers</option>
-								</select>
-								<input type="submit" />
-							</form>
-						}
 					</div>
 					<div id="data-application">
-						<div className="cell-app"><div>ФИО руководителя:</div><div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div></div>
-						<div className="cell-app"><div>Спортивная организация:</div><div>{isEditing ? <input defaultValue={this.app.group_name} onChange={e => this.app.group_name = e.target.value} /> : this.app.group_name}</div></div>
-						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.app.start_date} onChange={e => this.app.start_date = e.target.value} /> : this.app.start_date}</div></div>
-						<div className="cell-app"><div>Страховая компания:</div><div>{isEditing ? <input type="text" defaultValue={this.app.insurance_company_name} onChange={e => this.app.insurance_company_name = e.target.value} /> : this.app.insurance_company_name}</div></div>
-						<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.app.end_date} onChange={e => this.app.end_date = e.target.value} /> : this.app.end_date}</div></div>
-						<div className="cell-app"><div>Срок действия полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.app.insurance_policy_validity_duration} onChange={e => this.app.insurance_policy_validity_duration = e.target.value} /> : this.app.insurance_policy_validity_duration}</div></div>
-						<div className="cell-app"><div>Район:</div><div>{isEditing ?
-							<>
-								<ComboBox drawArrow={true}
-									getItems={getItems}
-									value={{ value: this.app.global_region, label: this.app.global_region }}
-									onValueChange={this.changeComboBox}
-									name="generalArea"
-								/>
-								<input defaultValue={this.app.local_region}
-									onChange={e => this.app.local_region = e.target.value}
-								/>
-							</> : `${this.app.global_region}, ${this.app.local_region}`}</div></div>
-						<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.app.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.app.participants_count}</div></div>
-						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} defaultValue={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.app.kind]}</div></div>
-						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.app.difficulty_category} onChange={e => this.app.difficulty_category = e.target.value} /> : this.app.difficulty_category}</div></div>
-						<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
-							<>
-								<input defaultValue={this.app.control_start_region}
-									onChange={e => this.app.control_start_region = e.target.value}
-								/>
-								<input defaultValue={this.app.control_start_date}
-									type="date"
-									onChange={e => this.app.control_start_date = e.target.value}
-								/>
-							</> : `${this.app.control_start_region}, ${this.app.control_start_date}`}</div></div>
-						<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.app.coordinator} onChange={e => this.app.coordinator = e.target.value} /> : this.app.coordinator}</div></div>
-						<div className="cell-app"><div>Контрольные сроки конца:</div><div>{isEditing ?
-							<>
-								<input defaultValue={this.app.control_end_region}
-									onChange={e => this.app.control_end_region = e.target.value}
-								/>
-								<input defaultValue={this.app.control_end_date}
-									type="date"
-									onChange={e => this.app.control_end_date = e.target.value}
-								/>
-							</> : `${this.app.control_end_region}, ${this.app.control_end_date}`}</div></div>
+						<div className="cell-app">
+							<div>ФИО руководителя:</div>
+							<div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div>
+						</div>
+						<div className="cell-app">
+							<div>Спортивная организация:</div>
+							<div>{isEditing
+								? <input defaultValue={this.app.group_name} name="group_name" onChange={changeApp} />
+								: this.app.group_name}</div>
+						</div>
+						<div className="cell-app">
+							<div>Дата начала маршрута:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.start_date} name="start_date" onChange={changeApp} />
+								: this.app.start_date}</div>
+						</div>
+						<div className="cell-app">
+							<div>Страховая компания:</div>
+							<div>{isEditing
+								? <input type="text" defaultValue={this.app.insurance_company_name} name="insurance_company_name" onChange={changeApp} />
+								: this.app.insurance_company_name}</div>
+						</div>
+						<div className="cell-app">
+							<div>Дата окончания маршрута:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.end_date} name="end_date" onChange={changeApp} />
+								: this.app.end_date}</div>
+						</div>
+						<div className="cell-app">
+							<div>Срок действия полиса:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.insurance_policy_validity_duration}
+									name="insurance_policy_validity_duration" onChange={changeApp} />
+								: this.app.insurance_policy_validity_duration}</div>
+						</div>
+						<div className="cell-app">
+							<div>Район:</div>
+							<div>{isEditing
+								? <>
+									<ComboBox drawArrow={true}
+										getItems={getItems}
+										value={{ value: this.app.global_region, label: this.app.global_region }}
+										onValueChange={changeComboBox}
+										name="generalArea"
+									/>
+									<input defaultValue={this.app.local_region} name="local_region"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.global_region}, ${this.app.local_region}`}</div>
+						</div>
+						<div className="cell-app">
+							<div>Число участников:</div>
+							<div>{isEditing
+								? <input type="text" pattern="^[0-9]+$" defaultValue={this.app.participants_count} name="participants_count" onChange={changeApp} />
+								: this.app.participants_count}</div>
+						</div>
+						<div className="cell-app">
+							<div>Вид туризма:</div>
+							<div>{isEditing
+								? <Select items={tourismVariants} defaultValue={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required />
+								: KIND_OF_TOURISM[this.app.kind]}</div></div>
+						<div className="cell-app">
+							<div>Категория сложности:</div>
+							<div>{isEditing
+								? <input type="text" pattern="[1-6]" defaultValue={this.app.difficulty_category} name="difficulty_category" onChange={changeApp} />
+								: this.app.difficulty_category}</div></div>
+						<div className="cell-app">
+							<div>Контрольный сроки начала:</div>
+							<div>{isEditing
+								? <>
+									<input defaultValue={this.app.control_start_region}
+										name="control_start_region"
+										onChange={changeApp}
+									/>
+									<input defaultValue={this.app.control_start_date}
+										type="date"
+										name="control_start_date"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.control_start_region}, ${this.app.control_start_date}`}</div></div>
+						<div className="cell-app">
+							<div>Координатор-связной:</div>
+							<div>{isEditing
+								? <input defaultValue={this.app.coordinator} name="coordinator" onChange={changeApp} />
+								: this.app.coordinator}</div>
+						</div>
+						<div className="cell-app">
+							<div>Контрольные сроки конца:</div>
+							<div>{isEditing
+								? <>
+									<input defaultValue={this.app.control_end_region}
+										name="control_end_region"
+										onChange={changeApp}
+									/>
+									<input defaultValue={this.app.control_end_date}
+										type="date"
+										name="control_end_date"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.control_end_region}, ${this.app.control_end_date}`}</div>
+						</div>
 					</div>
 				</form>
 				<div className="separator">
@@ -358,7 +392,7 @@ class Application extends React.Component {
 					<h1>Документы</h1>
 					<div>
 						<div id="files">
-							{this.state.files.map(file => {
+							{files.map(file => {
 								return (
 									<div>
 										{/*eslint-disable-next-line */}
@@ -385,7 +419,7 @@ class Application extends React.Component {
 				</div>
 				<div className="box">
 					Рецензии
-					{this.state.reviews.map(review =>
+					{reviews.map(review =>
 						<ReviewContent result={review.result} comment={review.result_comment}
 							reviewer={review.reviewer} key={review.id} />
 					)}
@@ -393,7 +427,7 @@ class Application extends React.Component {
 				{
 					// this.props.location.state.isMyReview &&
 					this.roles.reviewer &&
-					this.state.status === "on_review" &&
+					status === "on_review" &&
 					<>
 						<form onSubmit={this.writeReview}>
 							<Autocomplete
@@ -414,7 +448,6 @@ class Application extends React.Component {
 								placeholder="Рецензия"
 								multiline
 								rows={7}
-								rowsMax={Infinity}
 								onChange={(event) => this.review.result_comment = event.target.value}
 								required
 							/>
@@ -434,15 +467,15 @@ class Application extends React.Component {
 				}
 				<div className="box">
 					Выпуски
-					{this.state.issues.map(issue =>
+					{issues.map(issue =>
 						<ReviewContent result={issue.result} comment={issue.result_comment}
 							reviewer={issue.reviewer} key={issue.id} />
 					)}
 				</div>
 				{
 					this.roles.issuer &&
-					this.state.status === "at_issuer" &&
-					!this.state.issues[0] &&
+					status === "at_issuer" &&
+					!issues[0] &&
 					<>
 						<form onSubmit={this.writeIssue}>
 							<Autocomplete
@@ -463,7 +496,6 @@ class Application extends React.Component {
 								placeholder="Выпуск"
 								multiline
 								rows={7}
-								rowsMax="Infinity"
 								onChange={(event) => this.issue.result_comment_issue = event.target.value}
 								required
 							/>
