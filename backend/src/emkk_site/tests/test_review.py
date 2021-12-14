@@ -140,6 +140,7 @@ class ReviewTest(TestCase):
     def test_issuer_cant_take_trips_if_he_is_not_issuer_for_trip_kind(self):
         trip = self._get_cycling_at_issuer_trip()
         self.env.user.ISSUER = True
+        self.env.user.REVIEWER = False
         self.env.user.save()
         UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
                        is_issuer=False).save()
@@ -174,3 +175,39 @@ class ReviewTest(TestCase):
         email = trip.leader.email
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(email in mail.outbox[0].to)
+
+    def test_review_patch_should_work_if_owner_try_change(self):
+        old_data = {
+            "result": ReviewResult.ON_REWORK,
+            "result_comment": "REWORK",
+        }
+
+        review = self.env.eg.generate_instance_by_model(Review, reviewer=self.env.user, **old_data)
+        review.save()
+
+        patch_data = {
+            "result": ReviewResult.ACCEPTED,
+            "result_comment": "CHANGED TO ACCEPTED",
+        }
+
+        r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
+        self.assertEqual(r.status_code, 204)
+        self.assertDictEqual(patch_data, {
+            "result": r.data["result"], "result_comment": r.data["result_comment"]})
+
+    def test_review_patch_should_not_work_if_permission_denied(self):
+        old_data = {
+            "result": ReviewResult.ON_REWORK,
+            "result_comment": "REWORK",
+        }
+
+        review = self.env.eg.generate_instance_by_model(Review, **old_data)
+        review.save()
+
+        patch_data = {
+            "result": ReviewResult.ACCEPTED,
+            "result_comment": "CHANGED TO ACCEPTED",
+        }
+
+        r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
+        self.assertEqual(r.status_code, 403)

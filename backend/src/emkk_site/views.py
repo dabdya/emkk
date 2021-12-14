@@ -14,7 +14,7 @@ from src.jwt_auth.permissions import (
 
 from src.emkk_site.serializers import (
     TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
-    ReviewSerializer, ReviewFromIssuerSerializer,
+    ReviewSerializer, ReviewFromIssuerSerializer, BaseReviewSerializer,
     ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
 
 from src.emkk_site.services import (
@@ -24,7 +24,7 @@ from src.emkk_site.services import (
 from src.emkk_site.models import (
     TripDocument, Trip, ReviewFromReviewer, TripStatus,
     ReviewFromIssuer, Document, ReviewDocument,
-    ReviewFromIssuerDocument)
+    ReviewFromIssuerDocument, Review)
 
 from src.emkk_site.services import get_trips_available_for_work
 
@@ -282,6 +282,24 @@ class IssuerList(ReviewView):
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
         return super(IssuerList, self).create(request, *args, **kwargs)
+
+
+class ReviewDetail(generics.UpdateAPIView):
+    serializer_class = BaseReviewSerializer
+    permission_classes = [IsReviewer | IsIssuer, ]
+
+    def update(self, request, *args, **kwargs):
+        review = self.get_object()
+        self.check_object_permissions(request, review)
+        serializer = self.get_serializer_class()(review, request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_object(self):
+        return Review.objects.filter(pk=self.kwargs['pk']).first()
+
 
 # @api_view(['POST'])
 # # @permission_classes([IsAuthenticated])

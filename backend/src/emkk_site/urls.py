@@ -2,7 +2,7 @@ from django.urls import path
 
 from src.emkk_site.views import (
     TripDocumentList, DocumentDetail,
-    ReviewerList, IssuerList,
+    ReviewerList, IssuerList, ReviewDetail,
     TripList, TripDetail, ReviewDocumentList, ReviewFromIssuerDocumentList, )
 
 
@@ -10,6 +10,8 @@ urlpatterns = [
 
     path('trips', TripList.as_view()),
     path('trips/<int:pk>', TripDetail.as_view()),
+
+    path('reviews/<int:pk>', ReviewDetail().as_view()),
 
     path('trips/<int:pk>/documents', TripDocumentList.as_view()),
     path('documents/<uuid:doc_uuid>', DocumentDetail.as_view()),
