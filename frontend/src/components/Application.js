@@ -8,6 +8,7 @@ import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
 import Requests from "../utils/requests";
 import { getToken, getUser } from "../utils/Common";
 import icon from "../images/delete.ico";
+import ReviewForm from "./ReviewForm";
 
 
 class Application extends React.Component {
@@ -45,16 +46,6 @@ class Application extends React.Component {
 			status: "",
 		}
 
-		this.review = {
-			result_comment: "",
-			result: "",
-		}
-
-		this.issue = {
-			result_comment_issue: "",
-			result_issue: "",
-		}
-
 		this.roles = this.props.roles;
 		this.id = this.props.match.params.id;
 
@@ -65,10 +56,9 @@ class Application extends React.Component {
 		this.deleteDocument = this.deleteDocument.bind(this);
 		this.addDocument = this.addDocument.bind(this);
 		this.config = this.config.bind(this);
-		this.writeReview = this.writeReview.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
-		this.writeIssue = this.writeIssue.bind(this);
 		this.changeStatus = this.changeStatus.bind(this);
+		this.setter = this.setter.bind(this);
 	}
 
 	config() {
@@ -149,43 +139,19 @@ class Application extends React.Component {
 			.catch(err => console.error(err));
 	}
 
-	async writeReview(e) {
-		e.preventDefault()
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`,
-			{ result: STATUS[this.review.result], result_comment: this.review.result_comment },
-			this.config())
-			.then(resp => {
-				this.setState(prevState => ({
-					status: resp.data.trip.status,
-					reviews:
-						[...prevState.reviews,
-						{
-							id: resp.data.id,
-							result: resp.data.result,
-							result_comment: resp.data.result_comment,
-							reviewer: resp.data.reviewer,
-						}]
-				}));
-			});
-	}
-
-	writeIssue(e) {
-		e.preventDefault()
-		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/reviews-from-issuer`,
-			{ result: STATUS[this.issue.result_issue], result_comment: this.issue.result_comment_issue },
-			this.config())
-			.then(resp => {
-				this.setState(prevState => ({
-					issues:
-						[...prevState.issues, {
-							id: resp.data.id,
-							result: resp.data.result,
-							result_comment: resp.data.result_comment,
-							reviewer: resp.data.reviewer,
-						}]
-				}));
-
-			});
+	setter(resp, isReview) {
+		const name = isReview ? "reviews" : "issues";
+		this.setState(prevState => ({
+			status: resp.data.trip.status,
+			[name]:
+				[...prevState[name],
+				{
+					id: resp.data.id,
+					result: resp.data.result,
+					result_comment: resp.data.result_comment,
+					reviewer: resp.data.reviewer,
+				}]
+		}));
 	}
 
 	changeTourismKind(value) {
@@ -425,45 +391,10 @@ class Application extends React.Component {
 					)}
 				</div>
 				{
-					// this.props.location.state.isMyReview &&
 					this.roles.reviewer &&
 					status === "on_review" &&
-					<>
-						<form onSubmit={this.writeReview}>
-							<Autocomplete
-								openOnFocus
-								options={["Отклонить", "Принять", "На доработку"]}
-								onSelect={(event) => this.review.result = event.target.value}
-								renderInput={(params) =>
-									<TextField {...params}
-										variant="filled"
-										name="result"
-										inputProps={{ ...params.inputProps }}
-										label="Статус"
-										required />}
-
-							/>
-							<TextField
-								name="result_comment"
-								placeholder="Рецензия"
-								multiline
-								rows={7}
-								onChange={(event) => this.review.result_comment = event.target.value}
-								required
-							/>
-							<button type="submit">Отправить</button>
-						</form>
-						<div className="cell-file">
-							<label className="custom-file-upload" >
-								<input type="file"
-									onChange={(event) => {
-										this.uploadReview(event);
-									}} />
-								Отправить рецензию файлом со статусом {this.state.result}
-							</label>
-
-						</div>
-					</>
+					reviews.filter(rev => rev.reviewer.username == getUser()).length == 0 &&
+					<ReviewForm isReview={true} id={this.id} setter={this.setter} />
 				}
 				<div className="box">
 					Выпуски
@@ -476,32 +407,7 @@ class Application extends React.Component {
 					this.roles.issuer &&
 					status === "at_issuer" &&
 					!issues[0] &&
-					<>
-						<form onSubmit={this.writeIssue}>
-							<Autocomplete
-								openOnFocus
-								options={["Отклонить", "Принять", "На доработку"]}
-								onSelect={(event) => this.issue.result_issue = event.target.value}
-								renderInput={(params) =>
-									<TextField {...params}
-										variant="filled"
-										name="result_issue"
-										inputProps={{ ...params.inputProps }}
-										label="Статус"
-										required />}
-
-							/>
-							<TextField
-								name="result_comment_issue"
-								placeholder="Выпуск"
-								multiline
-								rows={7}
-								onChange={(event) => this.issue.result_comment_issue = event.target.value}
-								required
-							/>
-							<button type="submit">Выпустить</button>
-						</form>
-					</>
+					<ReviewForm id={this.id} setter={this.setter} />
 				}
 			</div >
 		)

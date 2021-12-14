@@ -281,3 +281,15 @@ code {
 	text-decoration: none;
 	color: #4C94FF;
 }
+
+.review-form {
+	margin-top: 30px;
+	margin-left: 25px;
+	margin-right: 50px;
+}
+
+.review-form #buttons {
+	display: flex;
+	justify-content: space-evenly;
+	margin-top: 10px;
+}

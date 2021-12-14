@@ -54,7 +54,7 @@ export default class ReviewContent extends React.Component {
 				}}>
 					<img alt="" src={this.getImage()} height="50px" width="50px" />
 					<div style={{ marginLeft: "13.02px", height: "50" }}>
-						<a href="#" onClick={this.open} style={{ marginLeft: "3px", fontSize: 18 }}>{this.reviewer.first_name} {this.reviewer.last_name} {this.reviewer.patronymic}</ a> < br />
+						<a href="#" onClick={this.open} style={{ marginLeft: "3px", fontSize: 18 }}>{this.reviewer?.first_name} {this.reviewer?.last_name} {this.reviewer?.patronymic}</ a> < br />
 						<span style={{ marginLeft: "3px", fontSize: 16 }}>Рецензент</ span> < br />
 						<span style={{ marginLeft: "3px", fontSize: 14 }}>статус: {STATUS[this.result]}</ span> < br />
 					</div>
@@ -67,7 +67,7 @@ export default class ReviewContent extends React.Component {
 				}}>
 					{this.comment}
 				</div>
-				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer.first_name} ${this.reviewer.last_name} ${this.reviewer.patronymic}`}
+				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
 					close={this.close} message={getText(this.reviewer)}></ShowModal>}
 			</div >
 		);
