@@ -56,6 +56,14 @@ class IsIssuer(BasePermission):
         return obj.reviewer == request.user
 
 
+class IsSecretary(BasePermission):
+    def has_permission(self, request, view):
+        return request.user.is_authenticated and request.user.SECRETARY
+
+    def has_object_permission(self, request, view, obj):
+        return True
+
+
 class IsTripOwner(BasePermission):
     def has_permission(self, request, view):
         return request.user.is_authenticated
