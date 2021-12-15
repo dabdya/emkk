@@ -62,7 +62,7 @@ class TripList(generics.ListCreateAPIView):
 class TripDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Trip.objects.all()
     serializer_class = TripDetailSerializer
-    permission_classes = [IsAuthenticated & ReadOnly | IsTripOwner]
+    permission_classes = [IsTripOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, args, kwargs)
@@ -86,7 +86,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DocumentDetail(generics.RetrieveDestroyAPIView):
-    permission_classes = [IsDocumentOwner | IsIssuer | IsReviewer, ]
+    permission_classes = [IsDocumentOwner | IsIssuer | IsReviewer | IsSecretary, ]
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
@@ -123,7 +123,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
 
 class DocumentList(generics.ListCreateAPIView):
     serializer_class = TripDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def get_related_trip(self):
         trip_id = self.kwargs['pk']
@@ -175,7 +175,7 @@ class DocumentList(generics.ListCreateAPIView):
 
 class ReviewDocumentList(DocumentList):
     serializer_class = ReviewDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(ReviewDocument, ReviewFromReviewer)
@@ -183,7 +183,7 @@ class ReviewDocumentList(DocumentList):
 
 class ReviewFromIssuerDocumentList(DocumentList):
     serializer_class = ReviewFromIssuerDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(ReviewFromIssuerDocument, ReviewFromIssuer)
@@ -191,7 +191,7 @@ class ReviewFromIssuerDocumentList(DocumentList):
 
 class TripDocumentList(DocumentList):
     serializer_class = TripDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer, ]
+    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(TripDocument, Trip)
@@ -264,7 +264,7 @@ class ReviewerList(ReviewView):
         super(ReviewerList, self).__init__(ReviewFromReviewer)
 
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer | IsIssuer | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsReviewer | IsIssuer | IsSecretary | IsAuthenticated & ReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
@@ -278,7 +278,7 @@ class IssuerList(ReviewView):
         super(IssuerList, self).__init__(ReviewFromIssuer)
 
     serializer_class = ReviewFromIssuerSerializer
-    permission_classes = [IsIssuer | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsSecretary | IsIssuer | IsAuthenticated & ReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
@@ -287,7 +287,7 @@ class IssuerList(ReviewView):
 
 class ReviewDetail(generics.UpdateAPIView):
     serializer_class = BaseReviewSerializer
-    permission_classes = [IsReviewer | IsIssuer, ]
+    permission_classes = [IsReviewer | IsIssuer | IsSecretary, ]
 
     def update(self, request, *args, **kwargs):
         review = self.get_object()
