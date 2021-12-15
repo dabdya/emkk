@@ -27,8 +27,8 @@ class ApplicationForm extends React.Component {
 			local_region: "",
 			start_date: null,
 			end_date: null,
-			control_start_date: null,
-			control_end_date: null,
+			control_start_date: "",
+			control_end_date: "",
 			control_start_region: "",
 			control_end_region: "",
 			difficulty_category: 0,
@@ -60,6 +60,12 @@ class ApplicationForm extends React.Component {
 				Authorization: "Token " + getToken()
 			}
 		};
+		if (!rest.control_start_date) {
+			rest.control_start_date = rest.start_date;
+		}
+		if (!rest.control_end_date) {
+			rest.control_end_date = rest.end_date;
+		}
 		const request = new Requests();
 		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
 			rest,
@@ -92,8 +98,8 @@ class ApplicationForm extends React.Component {
 	};
 
 	close() {
-		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = "/";
+		this.setState({ buttonIsPressed: false })
+		this.props.history.push("/");
 	}
 
 	uploadFile(event) {
@@ -102,7 +108,7 @@ class ApplicationForm extends React.Component {
 	}
 
 	open() {
-		this.setState(() => ({ buttonIsPressed: true }))
+		this.setState({ buttonIsPressed: true })
 	}
 
 	render() {
@@ -213,7 +219,6 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						required
 						id="outlined"
 						label="Контрольный срок сообщения о начале маршрута"
 						name="control_start_date"
@@ -269,7 +274,6 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						required
 						id="outlined"
 						label="Контрольный срок сообщения об окончании маршрута"
 						name="control_end_date"
