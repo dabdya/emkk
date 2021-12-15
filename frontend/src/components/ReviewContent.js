@@ -62,7 +62,8 @@ export default class ReviewContent extends React.Component {
 		return rework;
 	}
 
-	open() {
+	open(e) {
+		e.preventDefault();
 		this.setState({ buttonIsPressed: true });
 	}
 
