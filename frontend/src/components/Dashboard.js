@@ -22,7 +22,7 @@ class Dashboard extends React.Component {
 			wrap: true,
 			sortable: true,
 			sortFunction: caseInsensitiveSort,
-			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic && row.leader.patronymic[0]}.`
+			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic ? row.leader.patronymic[0] + "." : ""}`
 		},
 		{
 			name: "Локальный район",
