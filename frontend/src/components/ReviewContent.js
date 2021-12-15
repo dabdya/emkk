@@ -1,13 +1,16 @@
 import React from "react";
+import TextField from "@mui/material/TextField";
+import { Button } from "@skbkontur/react-ui";
+import ShowModal from "./ShowModal";
 import { STATUS } from "../utils/Constants";
+import Requests from "../utils/requests";
+import { getToken, getUser } from "../utils/Common";
 import rework from "../images/rework.png";
 import accepted from "../images/accepted.png";
 import rejected from "../images/rejected.png";
-import ShowModal from "./ShowModal";
-import TextField from "@mui/material/TextField";
-import { Button } from "@skbkontur/react-ui";
-import Requests from "../utils/requests";
-import { getToken } from "../utils/Common";
+
+
+import icon from "../images/delete.ico";
 
 export default class ReviewContent extends React.Component {
 	constructor(props) {
@@ -33,10 +36,12 @@ export default class ReviewContent extends React.Component {
 	async onSubmit(e) {
 		e.preventDefault();
 		await this.requests.patch(`${process.env.REACT_APP_URL}/api/reviews/${this.props.id}`,
-			{ result_comment: e.target[0].value, result: "rejected" }, this.config())
+			{ result_comment: e.target[0].value, result: e.nativeEvent.submitter.name }, this.config())
 			.then(() => {
 				this.comment = e.target[0].value;
+				this.result = e.nativeEvent.submitter.name;
 				this.changeEditing()
+
 			})
 	}
 
@@ -97,8 +102,17 @@ export default class ReviewContent extends React.Component {
 					padding: "10px 10px"
 				}}>
 					{this.comment}
+					{this.props.files?.map(file => {
+						return (
+							<div>
+								{/*eslint-disable-next-line */}
+								<a onClick={(e) => this.props.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
+								{this.state.editing && <img src={icon} onClick={() => this.props.deleteDocument(file)} alt="delete" className="deleteIcon" />}
+							</div>
+						);
+					})}
 				</div>
-				<Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>
+				{this.reviewer.username == getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 				{this.state.editing &&
 					<form onSubmit={this.onSubmit}>
 						<TextField
@@ -110,7 +124,11 @@ export default class ReviewContent extends React.Component {
 							required
 							style={{ width: "60%" }}
 						/>
-						<input type="submit" />
+						<div id="buttons">
+							<button type="submit" name="accepted">Одобрить</button>
+							<button type="submit" name="on_rework">На доработку</button>
+							<button type="submit" name="rejected">Отклонить</button>
+						</div>
 					</form>}
 				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
 					close={this.close} message={getText(this.reviewer)}></ShowModal>}

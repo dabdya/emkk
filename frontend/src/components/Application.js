@@ -20,6 +20,8 @@ class Application extends React.Component {
 			files: [],
 			reviews: [],
 			issues: [],
+			issuesFiles: [],
+			reviewsFiles: [],
 			status: "",
 		};
 
@@ -54,7 +56,9 @@ class Application extends React.Component {
 		this.onSubmit = this.onSubmit.bind(this);
 		this.createBlob = this.createBlob.bind(this);
 		this.deleteDocument = this.deleteDocument.bind(this);
+		this.deleteDocumentInReview = this.deleteDocumentInReview.bind(this);
 		this.addDocument = this.addDocument.bind(this);
+		this.addFileInReview = this.addFileInReview.bind(this);
 		this.config = this.config.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
 		this.changeStatus = this.changeStatus.bind(this);
@@ -109,12 +113,24 @@ class Application extends React.Component {
 		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
+				resp?.data?.map(async review => {
+					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
+						.then(resp => {
+							this.setState({ reviewsFiles: resp.data });
+						})
+				})
 			})
 			.catch(err => console.error(err));
 
 		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
 			.then(resp => {
 				this.setState({ issues: resp.data });
+				resp?.data?.map(issue => {
+					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
+						.then(resp => {
+							this.setState({ issuesFiles: resp.data });
+						})
+				})
 			})
 			.catch(err => console.error(err));
 	};
@@ -204,6 +220,20 @@ class Application extends React.Component {
 			.then(() => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
+	}
+
+	deleteDocumentInReview(file) {
+		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
+			this.config())
+			.then(() => {
+				this.setState(prevState => ({ reviewsFiles: prevState.reviewsFiles.filter(item => item.uuid !== file.uuid) }));
+				this.setState(prevState => ({ issuesFiles: prevState.issuesFiles.filter(item => item.uuid !== file.uuid) }));
+			})
+	}
+
+	addFileInReview(file, isReview) {
+		const name = isReview ? "reviewsFiles" : "issuesFiles";
+		this.setState(prevState => ({ [name]: [...prevState[name], file] }));
 	}
 
 	addDocument(afile) {
@@ -405,28 +435,29 @@ class Application extends React.Component {
 				<div className="box">
 					Рецензии
 					{reviews.map(review =>
-						<ReviewContent result={review.result} comment={review.result_comment}
-							reviewer={review.reviewer} id={review.id} key={review.id} />
+						<ReviewContent files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
+							reviewer={review.reviewer} id={review.id} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
 					this.roles.reviewer &&
-					status === "on_review" &&
+					(status === "on_review" ||
+						status === "at_issuer") &&
 					reviews.filter(rev => rev.reviewer.username === getUser()).length === 0 &&
-					<ReviewForm isReview={true} id={this.id} setter={this.setter} />
+					<ReviewForm isReview={true} id={this.id} setter={this.setter} addFile={this.addFileInReview} />
 				}
 				<div className="box">
 					Выпуски
 					{issues.map(issue =>
-						<ReviewContent id={issue.id} result={issue.result} comment={issue.result_comment}
-							reviewer={issue.reviewer} key={issue.id} />
+						<ReviewContent files={this.state.issuesFiles} id={issue.id} result={issue.result} comment={issue.result_comment}
+							reviewer={issue.reviewer} key={issue.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
 					this.roles.issuer &&
 					status === "at_issuer" &&
 					!issues[0] &&
-					<ReviewForm id={this.id} setter={this.setter} />
+					<ReviewForm id={this.id} setter={this.setter} addFile={this.addFileInReview} />
 				}
 			</div >
 		)

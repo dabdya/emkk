@@ -10,7 +10,6 @@ export default class ReviewContent extends React.Component {
 		this.review = {}
 		this.write = this.write.bind(this);
 		this.config = this.config.bind(this);
-
 	}
 
 	config() {
@@ -20,17 +19,30 @@ export default class ReviewContent extends React.Component {
 			}
 		}
 	};
-	async write(e) {
+	
+	write(e) {
 		e.preventDefault()
 		const id = this.props.id;
 		const url = this.props.isReview
 			? `${process.env.REACT_APP_URL}/api/trips/${id}/reviews`
 			: `${process.env.REACT_APP_URL}/api/trips/${id}/reviews-from-issuer`;
-		await this.requests.post(url,
+
+		this.requests.post(url,
 			{ result: e.nativeEvent.submitter.name, result_comment: e.target[0].value },
 			this.config())
 			.then(resp => {
 				this.props.setter(resp, this.props.isReview);
+				const fileUrl = this.props.isReview
+					? `${process.env.REACT_APP_URL}/api/trips/${id}/reviews/${resp.data.id}/documents`
+					: `${process.env.REACT_APP_URL}/api/trips/${id}/reviews-from-issuer/${resp.data.id}/documents`;
+				const form = new FormData();
+				form.append("file", e.target[3].files[0]);
+				this.requests.post(fileUrl,
+					form,
+					this.config())
+					.then(resp => {
+						this.props.addFile(resp.data[0], this.props.isReview);
+					});
 			});
 	}
 
