@@ -67,6 +67,8 @@ class Trip(models.Model):
     created_at = models.DateTimeField(editable=False, default=timezone.now)
     last_modified_at = models.DateTimeField(auto_now=True)
 
+    info_for_reviewer = models.TextField()
+
     def __str__(self):
         return self.group_name
 
@@ -143,8 +145,13 @@ class ReviewFromIssuerDocument(Document):
 
 
 class UserExperience(models.Model):
-    """Опыт пользователя по каждому виду туризма ~ категории сложности[1..6]"""
+    """Пользователь может рецензировать заявки сложности `difficulty_as_for_reviewer` и меньшей.
+     категории сложности ~ [1..6]"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    kind = models.CharField(choices=TripKind.choices, max_length=30)
-    difficulty_category = models.IntegerField(
+    trip_kind = models.CharField(choices=TripKind.choices, max_length=30)
+    difficulty_as_for_reviewer = models.IntegerField(
         validators=[MinValueValidator(1), MaxValueValidator(6)])
+    is_issuer = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('user', 'trip_kind',)
