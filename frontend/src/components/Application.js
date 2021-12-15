@@ -1,12 +1,13 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
-import { Button, Select, ComboBox } from '@skbkontur/react-ui'
-import { Grid, Autocomplete, TextField } from '@mui/material'
-import ReviewContent from './ReviewContent';
-import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from '../utils/Constants';
-import Requests from '../utils/requests';
-import { getToken, getUser } from '../utils/Common';
+import React from "react";
+import { withRouter } from "react-router-dom";
+import { Button, Select, ComboBox } from "@skbkontur/react-ui";
+import TextField from "@mui/material/TextField";
+import ReviewContent from "./ReviewContent";
+import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
+import Requests from "../utils/requests";
+import { getToken, getUser } from "../utils/Common";
 import icon from "../images/delete.ico";
+import ReviewForm from "./ReviewForm";
 
 
 class Application extends React.Component {
@@ -19,6 +20,8 @@ class Application extends React.Component {
 			files: [],
 			reviews: [],
 			issues: [],
+			issuesFiles: [],
+			reviewsFiles: [],
 			status: "",
 		};
 
@@ -41,46 +44,37 @@ class Application extends React.Component {
 			insurance_company_name: "",
 			insurance_policy_validity_duration: "",
 			last_modified_at: "",
+			info_for_reviewer: "",
 			status: "",
 		}
 
-		this.review = {
-			result_comment: "",
-			result: "",
-		}
+		this.roles = this.props.roles;
+		this.id = this.props.match.params.id;
 
-		this.issue = {
-			result_comment_issue: "",
-			result_issue: "",
-		}
-
-		this.roles = this.props.location.state.roles;
 		this.changeEditing = this.changeEditing.bind(this);
 		this.changeTourismKind = this.changeTourismKind.bind(this);
-		this.changeComboBox = this.changeComboBox.bind(this);
 		this.onSubmit = this.onSubmit.bind(this);
 		this.createBlob = this.createBlob.bind(this);
 		this.deleteDocument = this.deleteDocument.bind(this);
+		this.deleteDocumentInReview = this.deleteDocumentInReview.bind(this);
 		this.addDocument = this.addDocument.bind(this);
+		this.addFileInReview = this.addFileInReview.bind(this);
 		this.config = this.config.bind(this);
-		this.takeOnReview = this.takeOnReview.bind(this);
-		this.writeReview = this.writeReview.bind(this);
-		this.handleChange = this.handleChange.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
-		this.writeIssue = this.writeIssue.bind(this);
+		this.changeStatus = this.changeStatus.bind(this);
+		this.setter = this.setter.bind(this);
 	}
 
 	config() {
 		return {
 			headers: {
-				Authorization: 'Token ' + getToken()
+				Authorization: "Token " + getToken()
 			}
 		}
 	};
 
-
-	async componentDidMount() {
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}`, this.config())
+	componentDidMount() {
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
 			.then(response => {
 				this.app = {
 					id: response.data.id,
@@ -100,13 +94,14 @@ class Application extends React.Component {
 					control_start_region: response.data.control_start_region,
 					insurance_company_name: response.data.insurance_company_name,
 					insurance_policy_validity_duration: response.data.insurance_policy_validity_duration,
-					last_modified_at: response.data.last_modified_at
+					last_modified_at: response.data.last_modified_at,
+					info_for_reviewer: response.data.info_for_reviewer,
 				}
 				this.setState({ status: response.data.status });
 			})
-			.catch(err => console.error(err));
+			.catch(err => this.props.history.push("/"));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, this.config())
 			.then(async resp => {
 				resp.data.forEach(file => {
 					this.setState(prevState => ({
@@ -115,112 +110,94 @@ class Application extends React.Component {
 				});
 			});
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
+				resp?.data?.map(async review => {
+					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
+						.then(resp => {
+							this.setState({ reviewsFiles: resp.data });
+						})
+				})
 			})
 			.catch(err => console.error(err));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews-from-issuer`, this.config())
+		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
 			.then(resp => {
 				this.setState({ issues: resp.data });
+				resp?.data?.map(issue => {
+					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
+						.then(resp => {
+							this.setState({ issuesFiles: resp.data });
+						})
+				})
 			})
 			.catch(err => console.error(err));
 	};
 
-	async takeOnReview() {
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/work`, { trip: this.state.id }, this.config())
-			.then(resp => {
-				console.log(resp);
-			});
-	}
-
 	async uploadReview(e) {
 		const file = e.target.files[0];
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews`,
+
+		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`,
 			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] },
 			this.config())
 			.then(resp => {
 				const form = new FormData()
 				form.append("file", file);
-				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.state.id}/reviews/${resp.data.id}/documents`,
+				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${resp.data.id}/documents`,
 					form,
 					this.config())
 			});
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/reviews`, this.config())
+
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
 			.catch(err => console.error(err));
 	}
 
-	async writeReview(e) {
-		e.preventDefault()
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/reviews`,
-			{ result: STATUS[this.review.result], result_comment: this.review.result_comment },
-			this.config())
-			.then(resp => {
-				this.setState({ status: resp.data.trip.status });
-				this.setState(prevState => ({
-					reviews:
-						[...prevState.reviews,
-						{
-							id: resp.data.id,
-							result: resp.data.result,
-							result_comment: resp.data.result_comment,
-							reviewer: resp.data.reviewer,
-						}]
-				}));
-
-			});
+	setter(resp, isReview) {
+		const name = isReview ? "reviews" : "issues";
+		this.setState(prevState => ({
+			status: resp.data.trip.status,
+			[name]:
+				[...prevState[name],
+				{
+					id: resp.data.id,
+					result: resp.data.result,
+					result_comment: resp.data.result_comment,
+					reviewer: resp.data.reviewer,
+				}]
+		}));
 	}
-
-	writeIssue(e) {
-		e.preventDefault()
-		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/reviews-from-issuer`,
-			{ result: STATUS[this.issue.result_issue], result_comment: this.issue.result_comment_issue },
-			this.config())
-			.then(resp => {
-				this.setState(prevState => ({
-					issues:
-						[...prevState.issues, {
-							id: resp.data.id,
-							result: resp.data.result,
-							result_comment: resp.data.result_comment,
-							reviewer: resp.data.reviewer,
-						}]
-				}));
-
-			});
-	}
-
-
-	handleChange(e) {
-		this.app[e.target.name] = e.target.value;
-	};
 
 	changeTourismKind(value) {
 		this.app.kind = KIND_OF_TOURISM[value];
 	};
 
+	changeStatus(e) {
+		e.preventDefault();
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {},
+			this.config())
+			.then(resp => { console.log(resp); })
+	}
+
 	async createBlob(e, file) {
 		e.preventDefault()
 		let mime;
-		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: 'arraybuffer' })
+		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: "arraybuffer" })
 			.then(resp => {
 				mime = resp.headers["content-type"];
 				return resp;
 			})
 		const blob = new Blob([resp.data], { type: mime });
-		let a = document.createElement("a")
+		const a = document.createElement("a")
 		a.download = file.filename;
 		a.href = URL.createObjectURL(blob);
 		a.click();
 	};
 
-	changeComboBox(event) {
-		this.app.global_region = event.value;
-	};
+
 
 	async onSubmit(event) {
 		event.preventDefault();
@@ -236,15 +213,29 @@ class Application extends React.Component {
 		this.setState({ isEditing: !this.state.isEditing })
 	}
 
-	async deleteDocument(file) {
-		await this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
+	deleteDocument(file) {
+		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
 			this.config())
 			.then(() => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
 	}
 
-	async addDocument(afile) {
+	deleteDocumentInReview(file) {
+		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
+			this.config())
+			.then(() => {
+				this.setState(prevState => ({ reviewsFiles: prevState.reviewsFiles.filter(item => item.uuid !== file.uuid) }));
+				this.setState(prevState => ({ issuesFiles: prevState.issuesFiles.filter(item => item.uuid !== file.uuid) }));
+			})
+	}
+
+	addFileInReview(file, isReview) {
+		const name = isReview ? "reviewsFiles" : "issuesFiles";
+		this.setState(prevState => ({ [name]: [...prevState[name], file] }));
+	}
+
+	addDocument(afile) {
 		const files = afile.target.files;
 
 		const form = new FormData()
@@ -252,7 +243,7 @@ class Application extends React.Component {
 			form.append("file", file);
 		}
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.props.location.state.id}/documents`, form,
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, form,
 			this.config())
 			.then(resp => {
 				for (const item of resp.data) {
@@ -262,7 +253,7 @@ class Application extends React.Component {
 	}
 
 	render() {
-		const { isEditing } = this.state;
+		const { isEditing, issues, files, reviews, status } = this.state;
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		const getItems = query =>
@@ -270,94 +261,170 @@ class Application extends React.Component {
 				GLOBAL_AREA.map(item => { return { value: item, label: item } })
 					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
 			);
+		const changeApp = e => this.app[e.target.name] = e.target.value;
+		const changeComboBox = e => this.app.global_region = e.value;
 
 		return (
-			<div>
+			<div id="application" >
+				<div id="data-application-header">
+					<h1 id="data-application-name">Заявка №{this.app.id}</h1>
+					{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+					{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
+					{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
+					<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
+					{this.roles.secretary && <form onSubmit={this.changeStatus}>
+						<select>
+							<option value="ALARM">alarm</option>
+							<option value="ROUTE_COMPLETED">route_completed</option>
+							<option value="ON_ROUTE">on_route</option>
+							<option value="TAKE_PAPERS">take_papers</option>
+						</select>
+						<button type="submit">Сменить статус</button>
+					</form>}
+				</div>
 				<form onSubmit={this.onSubmit}>
-					<div style={{ display: "inline-block", marginLeft: 15 }}>
-						<h1 style={{ marginLeft: 20, fontSize: 40, color: "#4A4A4A", fontWeight: "normal", display: "inline-block" }}>Заявка №{this.app.id}</h1>
-						{!isEditing && getUser() === this.app.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
-						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
-						{<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>}
-					</div>
-					<div style={{
-						display: "grid",
-						gridTemplateColumns: "auto auto",
-						gridColumnGap: "0px",
-						gridRowGap: "10px",
-						marginLeft: "40px"
-					}}>
-						<div className="cell-app"><div>ФИО руководителя:</div><div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div></div>
-						<div className="cell-app"><div>Спортивная организация:</div><div>{isEditing ? <input defaultValue={this.app.group_name} onChange={e => this.app.group_name = e.target.value} /> : this.app.group_name}</div></div>
-						<div className="cell-app"><div>Дата начала маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.app.start_date} onChange={e => this.app.start_date = e.target.value} /> : this.app.start_date}</div></div>
-						<div className="cell-app"><div>Страховая компания:</div><div>{isEditing ? <input type="text" defaultValue={this.app.insurance_company_name} onChange={e => this.app.insurance_company_name = e.target.value} /> : this.app.insurance_company_name}</div></div>
-						<div className="cell-app"><div>Дата окончания маршрута:</div><div>{isEditing ? <input type="date" defaultValue={this.app.end_date} onChange={e => this.app.end_date = e.target.value} /> : this.app.end_date}</div></div>
-						<div className="cell-app"><div>Срок действия полиса:</div><div>{isEditing ? <input type="date" defaultValue={this.app.insurance_policy_validity_duration} onChange={e => this.app.insurance_policy_validity_duration = e.target.value} /> : this.app.insurance_policy_validity_duration}</div></div>
-						<div className="cell-app"><div>Район:</div><div>{isEditing ?
-							<>
-								<ComboBox drawArrow={true}
-									getItems={getItems}
-									value={{ value: this.app.global_region, label: this.app.global_region }}
-									onValueChange={this.changeComboBox}
-									name="generalArea"
-								/>
-								<input defaultValue={this.app.local_region}
-									onChange={e => this.app.local_region = e.target.value}
-								/>
-							</> : `${this.app.global_region}, ${this.app.local_region}`}</div></div>
-						<div className="cell-app"><div>Число участников:</div><div>{isEditing ? <input type="text" pattern="^[0-9]+$" defaultValue={this.app.participants_count} onChange={e => this.setState({ participants_count: e.target.value })} /> : this.app.participants_count}</div></div>
-						<div className="cell-app"><div>Вид туризма:</div><div>{isEditing ? <Select items={tourismVariants} defaultValue={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required /> : KIND_OF_TOURISM[this.app.kind]}</div></div>
-						<div className="cell-app"><div>Категория сложности:</div><div>{isEditing ? <input type="text" pattern="[1-6]" defaultValue={this.app.difficulty_category} onChange={e => this.app.difficulty_category = e.target.value} /> : this.app.difficulty_category}</div></div>
-						<div className="cell-app"><div>Контрольный сроки начала:</div><div>{isEditing ?
-							<>
-								<input defaultValue={this.app.control_start_region}
-									onChange={e => this.app.control_start_region = e.target.value}
-								/>
-								<input defaultValue={this.app.control_start_date}
-									type="date"
-									onChange={e => this.app.control_start_date = e.target.value}
-								/>
-							</> : `${this.app.control_start_region}, ${this.app.control_start_date}`}</div></div>
-						<div className="cell-app"><div>Координатор-связной:</div><div>{isEditing ? <input defaultValue={this.app.coordinator} onChange={e => this.app.coordinator = e.target.value} /> : this.app.coordinator}</div></div>
-						<div className="cell-app"><div>Контрольные сроки конца:</div><div>{isEditing ?
-							<>
-								<input defaultValue={this.app.control_end_region}
+					<div id="data-application">
+						<div className="cell-app">
+							<div>ФИО руководителя:</div>
+							<div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div>
+						</div>
+						<div className="cell-app">
+							<div>Спортивная организация:</div>
+							<div>{isEditing
+								? <input defaultValue={this.app.group_name} name="group_name" onChange={changeApp} />
+								: this.app.group_name}</div>
+						</div>
+						<div className="cell-app">
+							<div>Дата начала маршрута:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.start_date} name="start_date" onChange={changeApp} />
+								: this.app.start_date}</div>
+						</div>
+						<div className="cell-app">
+							<div>Страховая компания:</div>
+							<div>{isEditing
+								? <input type="text" defaultValue={this.app.insurance_company_name} name="insurance_company_name" onChange={changeApp} />
+								: this.app.insurance_company_name}</div>
+						</div>
+						<div className="cell-app">
+							<div>Дата окончания маршрута:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.end_date} name="end_date" onChange={changeApp} />
+								: this.app.end_date}</div>
+						</div>
+						<div className="cell-app">
+							<div>Срок действия полиса:</div>
+							<div>{isEditing
+								? <input type="date" defaultValue={this.app.insurance_policy_validity_duration}
+									name="insurance_policy_validity_duration" onChange={changeApp} />
+								: this.app.insurance_policy_validity_duration}</div>
+						</div>
+						<div className="cell-app">
+							<div>Район:</div>
+							<div>{isEditing
+								? <>
+									<ComboBox drawArrow={true}
+										getItems={getItems}
+										value={{ value: this.app.global_region, label: this.app.global_region }}
+										onValueChange={changeComboBox}
+										name="generalArea"
+									/>
+									<input defaultValue={this.app.local_region} name="local_region"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.global_region}, ${this.app.local_region}`}</div>
+						</div>
+						<div className="cell-app">
+							<div>Число участников:</div>
+							<div>{isEditing
+								? <input type="text" pattern="^[0-9]+$" defaultValue={this.app.participants_count} name="participants_count" onChange={changeApp} />
+								: this.app.participants_count}</div>
+						</div>
+						<div className="cell-app">
+							<div>Вид туризма:</div>
+							<div>{isEditing
+								? <Select items={tourismVariants} defaultValue={KIND_OF_TOURISM[this.app.kind]} onValueChange={this.changeTourismKind} required />
+								: KIND_OF_TOURISM[this.app.kind]}</div></div>
+						<div className="cell-app">
+							<div>Категория сложности:</div>
+							<div>{isEditing
+								? <input type="text" pattern="[1-6]" defaultValue={this.app.difficulty_category} name="difficulty_category" onChange={changeApp} />
+								: this.app.difficulty_category}</div></div>
+						<div className="cell-app">
+							<div>Контрольный сроки начала:</div>
+							<div>{isEditing
+								? <>
+									<input defaultValue={this.app.control_start_region}
+										name="control_start_region"
+										onChange={changeApp}
+									/>
+									<input defaultValue={this.app.control_start_date}
+										type="date"
+										name="control_start_date"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.control_start_region}, ${this.app.control_start_date}`}</div></div>
+						<div className="cell-app">
+							<div>Координатор-связной:</div>
+							<div>{isEditing
+								? <input defaultValue={this.app.coordinator} name="coordinator" onChange={changeApp} />
+								: this.app.coordinator}</div>
+						</div>
+						<div className="cell-app">
+							<div>Контрольные сроки конца:</div>
+							<div>{isEditing
+								? <>
+									<input defaultValue={this.app.control_end_region}
+										name="control_end_region"
+										onChange={changeApp}
+									/>
+									<input defaultValue={this.app.control_end_date}
+										type="date"
+										name="control_end_date"
+										onChange={changeApp}
+									/>
+								</>
+								: `${this.app.control_end_region}, ${this.app.control_end_date}`}</div>
+						</div>
 
-									onChange={e => this.app.control_end_region = e.target.value}
-								/>
-								<input defaultValue={this.app.control_end_date}
-									type="date"
-									onChange={e => this.app.control_end_date = e.target.value}
-								/>
-							</> : `${this.app.control_end_region}, ${this.app.control_end_date}`}</div></div>
+					</div>
+					<div id="info-for-reviewer">
+						<>
+							<div>Комментарий для рецензента</div>
+							<TextField
+								name="info_for_reviewer"
+								defaultValue={this.app.info_for_reviewer}
+								placeholder="Текст"
+								multiline
+								disabled={!isEditing}
+								rows={7}
+								onChange={changeApp}
+								required
+								style={{ width: "60%" }}
+							/>
+						</>
 					</div>
 				</form>
-				<div style={{ marginTop: 30, marginLeft: 25, marginRight: 50 }}>
+				<div className="separator">
 					<hr />
 				</div>
 
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
-					<h1 style={{
-						marginBlockEnd: 20,
-						fontSize: 20, color: "#4A4A4A",
-						fontWeight: "normal",
-						textDecoration: "underline",
-						textDecorationColor: "#1D85D0",
-						textUnderlineOffset: "0.5rem"
-					}}>Документы</h1>
+				<div className="box">
+					<h1>Документы</h1>
 					<div>
-						<Grid container rowSpacing={1} columnSpacing={{ xs: 12, sm: 12, md: 12, lg: 12 }}>
-							{
-								this.state.files.map(file => {
-									return (<Grid item xs={12} sm={12} md={12} lg={12}>
+						<div id="files">
+							{files.map(file => {
+								return (
+									<div>
 										{/*eslint-disable-next-line */}
-										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank" style={{ textDecoration: "none", color: "#4C94FF" }}>{file.filename}</a>
+										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
 										<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />
-									</Grid>
-									);
-								})
-							}
-						</Grid>
+									</div>
+								);
+							})}
+						</div>
 						<div style={{ marginTop: 15 }}>
 							<input
 								ref="fileInput"
@@ -369,100 +436,36 @@ class Application extends React.Component {
 							{getUser() === this.app.leader.username && <Button onClick={() => this.refs.fileInput.click()}>Добавить документы</Button>}
 						</div>
 					</div>
-				</div>
-				<div style={{ marginLeft: 25, marginRight: 50 }}>
+				</div >
+				<div className="separator">
 					<hr />
 				</div>
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
+				<div className="box">
 					Рецензии
-					{this.state.reviews.map(review =>
-						<ReviewContent result={review.result} comment={review.result_comment}
-							reviewer={review.reviewer} key={review.id} />
+					{reviews.map(review =>
+						<ReviewContent files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
+							reviewer={review.reviewer} id={review.id} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
-					this.props.location.state.isMyReview &&
-					this.state.status === "on_review" &&
-					<>
-						<form onSubmit={this.writeReview}>
-							<Autocomplete
-								openOnFocus
-								options={["Отклонить", "Принять", "На доработку"]}
-								onSelect={(event) => this.review.result = event.target.value}
-								renderInput={(params) =>
-									<TextField {...params}
-										variant="filled"
-										name="result"
-										inputProps={{ ...params.inputProps }}
-										label="Статус"
-										required />}
-
-							/>
-							<TextField
-								style={{ width: "100%" }}
-								name="result_comment"
-								placeholder="Рецензия"
-								multiline
-								rows={7}
-								rowsMax={Infinity}
-								onChange={(event) => this.review.result_comment = event.target.value}
-								required
-							/>
-							<button type="submit">Отправить</button>
-						</form>
-						<div className="cell-file">
-							<label className="custom-file-upload" style={{ backgroundColor: "#136DAB", color: "white" }} >
-								<input type="file"
-									onChange={(event) => {
-										this.uploadReview(event);
-									}}
-									style={{ display: "none" }} />
-								Отправить рецензию файлом со статусом {this.state.result}
-							</label>
-
-						</div>
-					</>
+					this.roles.reviewer &&
+					(status === "on_review" ||
+						status === "at_issuer") &&
+					reviews.filter(rev => rev.reviewer.username === getUser()).length === 0 &&
+					<ReviewForm isReview={true} id={this.id} setter={this.setter} addFile={this.addFileInReview} />
 				}
-				<div style={{ marginTop: 15, marginLeft: 40, height: "fit-content" }}>
+				<div className="box">
 					Выпуски
-					{this.state.issues.map(issue =>
-						<ReviewContent result={issue.result} comment={issue.result_comment}
-							reviewer={issue.reviewer} key={issue.id} />
+					{issues.map(issue =>
+						<ReviewContent files={this.state.issuesFiles} id={issue.id} result={issue.result} comment={issue.result_comment}
+							reviewer={issue.reviewer} key={issue.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
 					this.roles.issuer &&
-					this.state.status === "at_issuer" &&
-					!this.state.issues[0] &&
-					<>
-						<form onSubmit={this.writeIssue}>
-							<Autocomplete
-								openOnFocus
-								options={["Отклонить", "Принять", "На доработку"]}
-								onSelect={(event) => this.issue.result_issue = event.target.value}
-								renderInput={(params) =>
-									<TextField {...params}
-										variant="filled"
-										name="result_issue"
-										inputProps={{ ...params.inputProps }}
-										label="Статус"
-										required />}
-
-							/>
-							<TextField
-								style={{ width: "100%" }}
-								name="result_comment_issue"
-								placeholder="Выпуск"
-								multiline
-								rows={7}
-								rowsMax="Infinity"
-								onChange={(event) => this.issue.result_comment_issue = event.target.value}
-								required
-							/>
-							<button type="submit">Выпустить</button>
-						</form>
-
-					</>
+					status === "at_issuer" &&
+					!issues[0] &&
+					<ReviewForm id={this.id} setter={this.setter} addFile={this.addFileInReview} />
 				}
 			</div >
 		)

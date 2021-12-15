@@ -1,8 +1,8 @@
 import React from "react";
 import axios from "axios";
-import { TextField, Button } from '@mui/material'
+import { TextField, Button } from "@mui/material"
 import { withRouter } from "react-router-dom";
-import jwt_decode from 'jwt-decode';
+import jwt_decode from "jwt-decode";
 
 class ResetPassword extends React.Component {
 
@@ -13,7 +13,7 @@ class ResetPassword extends React.Component {
 			const currentDate = new Date();
 			const decodedToken = jwt_decode(this.resetToken);
 			if (decodedToken.exp * 1000 < currentDate.getTime()) {
-				throw new Error('Invalid token or expired token');
+				throw new Error("Invalid token or expired token");
 			}
 		}
 		catch (e) {
@@ -34,7 +34,7 @@ class ResetPassword extends React.Component {
 					user: {
 						password: this.state.password
 					},
-					reset_token: 'Token ' + this.resetToken
+					reset_token: "Token " + this.resetToken
 				}
 			).then(resp => {
 				this.setState({ error: "Пароль успешно поменян" });

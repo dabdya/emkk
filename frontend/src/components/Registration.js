@@ -1,8 +1,8 @@
-import React from 'react'
-import axios from 'axios';
-import validator from 'validator';
-import { TextField, Button } from '@mui/material'
-import { withRouter } from 'react-router-dom';
+import React from "react"
+import axios from "axios";
+import validator from "validator";
+import { TextField, Button } from "@mui/material"
+import { withRouter } from "react-router-dom";
 
 class Registration extends React.Component {
 
@@ -48,7 +48,7 @@ class Registration extends React.Component {
 
 	close() {
 		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = '/signup';
+		window.location.href = "/signup";
 	}
 
 	async onSubmit(event) {
@@ -78,8 +78,8 @@ class Registration extends React.Component {
 				this.setState({
 					pendingServerResponse: "",
 					serverIssueError: "",
-					successfullRegistration: "Регистрация прошла успешно. \n \
-					Сейчас вы будете перенаправлены на страницу логина"});
+					successfullRegistration: "Регистрация прошла успешно. Сейчас вы будете перенаправлены на страницу логина"
+				});
 				window.setTimeout(() => this.props.history.push("/login"), 2500);
 
 			}).catch(err => {

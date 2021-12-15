@@ -1,14 +1,14 @@
-import React from 'react';
-import { Switch, Route, NavLink, Link, Redirect, withRouter } from 'react-router-dom';
-import axios from 'axios';
-import Login from './Login';
-import Home from './Home';
+import React from "react";
+import { Switch, Route, NavLink, Link, Redirect, withRouter } from "react-router-dom";
+import axios from "axios";
+import Login from "./Login";
+import Home from "./Home";
 import Registration from "./Registration";
-import NotFound from './NotFound';
-import ForgetPass from './ForgetPassword';
-import ResetPassword from './ResetPassword';
-import { getToken, getUser, removeUserSession, setUserSession, getRoles } from '../utils/Common';
-import logo from '../images/mainlogo.png';
+import NotFound from "./NotFound";
+import ForgetPass from "./ForgetPassword";
+import ResetPassword from "./ResetPassword";
+import { getToken, getUser, removeUserSession, setUserSession, getRoles } from "../utils/Common";
+import logo from "../images/mainlogo.png";
 
 
 class App extends React.Component {
@@ -23,22 +23,22 @@ class App extends React.Component {
 
 	componentDidMount() {
 		if (getToken()) {
-			const config = {
-				headers: {
-					Authorization: 'Token ' + getToken()
-				}
-			};
-			axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
-				setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
-				this.setState({ isLogined: true });
-			}).catch(error => {
-				console.error(error);
-				removeUserSession();
-			});
+			// const config = {
+			// 	headers: {
+			// 		Authorization: "Token " + getToken()
+			// 	}
+			// };
 
-			const roles = getRoles(getToken());
+			// axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
+			// 	setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
+			// 	this.setState({ isLogined: true });
+			// }).catch(error => {
+			// 	console.error(error);
+			// 	removeUserSession();
+			// });
+
+			this.roles = getRoles(getToken());
 			this.setState({ isLogined: true });
-			this.roles = roles;
 		} else {
 			this.setState({ isLogined: false });
 		}

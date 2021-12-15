@@ -1,13 +1,13 @@
-import React from 'react';
-import { withRouter } from 'react-router-dom';
+import React from "react";
+import { withRouter } from "react-router-dom";
 import ShowModal from "./ShowModal"
-import { GLOBAL_AREA, KIND_OF_TOURISM } from '../utils/Constants';
-import { getToken } from '../utils/Common';
-import Requests from '../utils/requests'
-import HelpIcon from '@mui/icons-material/Help';
-import Tooltip from '@mui/material/Tooltip';
-import IconButton from '@mui/material/IconButton';
-import { Autocomplete, TextField, Button } from '@mui/material'
+import { GLOBAL_AREA, KIND_OF_TOURISM } from "../utils/Constants";
+import { getToken } from "../utils/Common";
+import Requests from "../utils/requests"
+import HelpIcon from "@mui/icons-material/Help";
+import Tooltip from "@mui/material/Tooltip";
+import IconButton from "@mui/material/IconButton";
+import { Autocomplete, TextField, Button } from "@mui/material"
 
 
 class ApplicationForm extends React.Component {
@@ -27,8 +27,8 @@ class ApplicationForm extends React.Component {
 			local_region: "",
 			start_date: null,
 			end_date: null,
-			control_start_date: null,
-			control_end_date: null,
+			control_start_date: "",
+			control_end_date: "",
 			control_start_region: "",
 			control_end_region: "",
 			difficulty_category: 0,
@@ -57,9 +57,15 @@ class ApplicationForm extends React.Component {
 		const { files, ...rest } = this.app;
 		const config = {
 			headers: {
-				Authorization: 'Token ' + getToken()
+				Authorization: "Token " + getToken()
 			}
 		};
+		if (!rest.control_start_date) {
+			rest.control_start_date = rest.start_date;
+		}
+		if (!rest.control_end_date) {
+			rest.control_end_date = rest.end_date;
+		}
 		const request = new Requests();
 		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
 			rest,
@@ -92,8 +98,8 @@ class ApplicationForm extends React.Component {
 	};
 
 	close() {
-		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = '/';
+		this.setState({ buttonIsPressed: false })
+		this.props.history.push("/");
 	}
 
 	uploadFile(event) {
@@ -102,7 +108,7 @@ class ApplicationForm extends React.Component {
 	}
 
 	open() {
-		this.setState(() => ({ buttonIsPressed: true }))
+		this.setState({ buttonIsPressed: true })
 	}
 
 	render() {
@@ -213,7 +219,6 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						required
 						id="outlined"
 						label="Контрольный срок сообщения о начале маршрута"
 						name="control_start_date"
@@ -269,7 +274,6 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						required
 						id="outlined"
 						label="Контрольный срок сообщения об окончании маршрута"
 						name="control_end_date"
@@ -304,8 +308,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ routeBookCount: this.state.routeBookCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить маршрутную книжку
 						</label>
 						<Tooltip
@@ -339,8 +342,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ cartographicMaterialCount: this.state.cartographicMaterialCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить картографический материал
 						</label>
 						<Tooltip
@@ -374,8 +376,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ participantsReferencesCount: this.state.participantsReferencesCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить справки участников
 						</label>
 						<Tooltip
@@ -409,8 +410,7 @@ class ApplicationForm extends React.Component {
 								onChange={(event) => {
 									this.uploadFile(event);
 									this.setState({ insurancePolicyScansCount: this.state.insurancePolicyScansCount + event.target.files.length })
-								}}
-								style={{ display: "none" }} />
+								}} />
 							Загрузить сканы страховых полисов
 						</label>
 						<Tooltip
