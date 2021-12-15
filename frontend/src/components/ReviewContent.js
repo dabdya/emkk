@@ -4,13 +4,20 @@ import rework from "../images/rework.png";
 import accepted from "../images/accepted.png";
 import rejected from "../images/rejected.png";
 import ShowModal from "./ShowModal";
+import TextField from "@mui/material/TextField";
+import { Button } from "@skbkontur/react-ui";
+import Requests from "../utils/requests";
+import { getToken } from "../utils/Common";
+
 export default class ReviewContent extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			buttonIsPressed: false,
+			editing: false,
 		}
 
+		this.requests = new Requests();
 		this.reviewer = this.props.reviewer;
 		this.result = this.props.result;
 		this.comment = this.props.comment;
@@ -18,7 +25,28 @@ export default class ReviewContent extends React.Component {
 		this.getImage = this.getImage.bind(this);
 		this.open = this.open.bind(this);
 		this.close = this.close.bind(this);
+		this.changeEditing = this.changeEditing.bind(this);
+		this.onSubmit = this.onSubmit.bind(this);
+		this.config = this.config.bind(this);
 	}
+
+	async onSubmit(e) {
+		e.preventDefault();
+		await this.requests.patch(`${process.env.REACT_APP_URL}/api/reviews/${this.props.id}`,
+			{ result_comment: e.target[0].value, result: "rejected" }, this.config())
+			.then(() => {
+				this.comment = e.target[0].value;
+				this.changeEditing()
+			})
+	}
+
+	config() {
+		return {
+			headers: {
+				Authorization: "Token " + getToken()
+			}
+		}
+	};
 
 	getImage() {
 		if (this.result === "accepted") {
@@ -29,13 +57,16 @@ export default class ReviewContent extends React.Component {
 		return rework;
 	}
 
-	open(e) {
-		e.preventDefault();
-		this.setState(() => ({ buttonIsPressed: true }))
+	open() {
+		this.setState({ buttonIsPressed: true });
 	}
 
 	close() {
-		this.setState(() => ({ buttonIsPressed: false }))
+		this.setState({ buttonIsPressed: false });
+	}
+
+	changeEditing() {
+		this.setState({ editing: !this.state.editing });
 	}
 
 	render() {
@@ -67,8 +98,23 @@ export default class ReviewContent extends React.Component {
 				}}>
 					{this.comment}
 				</div>
+				<Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>
+				{this.state.editing &&
+					<form onSubmit={this.onSubmit}>
+						<TextField
+							name="info_for_reviewer"
+							defaultValue={this.comment}
+							placeholder="Текст"
+							multiline
+							rows={7}
+							required
+							style={{ width: "60%" }}
+						/>
+						<input type="submit" />
+					</form>}
 				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
 					close={this.close} message={getText(this.reviewer)}></ShowModal>}
+
 			</div >
 		);
 	}

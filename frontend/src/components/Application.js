@@ -1,7 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { Button, Select, ComboBox } from "@skbkontur/react-ui";
-import Autocomplete from "@mui/material/Autocomplete";
 import TextField from "@mui/material/TextField";
 import ReviewContent from "./ReviewContent";
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
@@ -43,6 +42,7 @@ class Application extends React.Component {
 			insurance_company_name: "",
 			insurance_policy_validity_duration: "",
 			last_modified_at: "",
+			info_for_reviewer: "",
 			status: "",
 		}
 
@@ -90,7 +90,8 @@ class Application extends React.Component {
 					control_start_region: response.data.control_start_region,
 					insurance_company_name: response.data.insurance_company_name,
 					insurance_policy_validity_duration: response.data.insurance_policy_validity_duration,
-					last_modified_at: response.data.last_modified_at
+					last_modified_at: response.data.last_modified_at,
+					info_for_reviewer: response.data.info_for_reviewer,
 				}
 				this.setState({ status: response.data.status });
 			})
@@ -239,8 +240,9 @@ class Application extends React.Component {
 				<form onSubmit={this.onSubmit}>
 					<div id="data-application-header">
 						<h1 id="data-application-name">Заявка №{this.app.id}</h1>
-						{!isEditing && getUser() === this.app.leader?.username && < Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+						{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
+						{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
 						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
 					</div>
 					<div id="data-application">
@@ -348,6 +350,23 @@ class Application extends React.Component {
 								</>
 								: `${this.app.control_end_region}, ${this.app.control_end_date}`}</div>
 						</div>
+
+					</div>
+					<div id="info-for-reviewer">
+						<>
+							<div>Комментарий для рецензента</div>
+							<TextField
+								name="info_for_reviewer"
+								defaultValue={this.app.info_for_reviewer}
+								placeholder="Текст"
+								multiline
+								disabled={!isEditing}
+								rows={7}
+								onChange={changeApp}
+								required
+								style={{ width: "60%" }}
+							/>
+						</>
 					</div>
 				</form>
 				<div className="separator">
@@ -387,19 +406,19 @@ class Application extends React.Component {
 					Рецензии
 					{reviews.map(review =>
 						<ReviewContent result={review.result} comment={review.result_comment}
-							reviewer={review.reviewer} key={review.id} />
+							reviewer={review.reviewer} id={review.id} key={review.id} />
 					)}
 				</div>
 				{
 					this.roles.reviewer &&
 					status === "on_review" &&
-					reviews.filter(rev => rev.reviewer.username == getUser()).length == 0 &&
+					reviews.filter(rev => rev.reviewer.username === getUser()).length === 0 &&
 					<ReviewForm isReview={true} id={this.id} setter={this.setter} />
 				}
 				<div className="box">
 					Выпуски
 					{issues.map(issue =>
-						<ReviewContent result={issue.result} comment={issue.result_comment}
+						<ReviewContent id={issue.id} result={issue.result} comment={issue.result_comment}
 							reviewer={issue.reviewer} key={issue.id} />
 					)}
 				</div>

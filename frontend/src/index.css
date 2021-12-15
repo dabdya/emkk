@@ -282,6 +282,12 @@ code {
 	color: #4C94FF;
 }
 
+#application #info-for-reviewer {
+	margin-left: 40px;
+	margin-top: 10px;
+	display: flex;
+}
+
 .review-form {
 	margin-top: 30px;
 	margin-left: 25px;
