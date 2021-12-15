@@ -1,4 +1,5 @@
 from src.emkk_site.models import Trip, TripStatus, ReviewFromReviewer, ReviewFromIssuer, UserExperience
+from django.db.models import Q
 
 
 def get_reviewers_count_by_difficulty(difficulty):
@@ -12,7 +13,7 @@ def get_reviewers_count_by_difficulty(difficulty):
 def try_change_status_from_review_to_at_issuer(trip):
     existing_reviews_count = len(ReviewFromReviewer.objects.filter(trip=trip))
     needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-    if trip.status == TripStatus.ON_REVIEW and existing_reviews_count + 1 >= needed_reviews_count:
+    if trip.status == TripStatus.ON_REVIEW and existing_reviews_count + 1 == needed_reviews_count:
         trip.status = TripStatus.AT_ISSUER
         trip.save()
 
@@ -24,8 +25,8 @@ def try_change_trip_status_to_issuer_result(trip, result):
 
 
 def get_trips_available_for_work(user):
-    for_issue = _get_trips_available_for_issuers(user)
-    for_review = _get_trips_available_for_reviewers(user)
+    for_issue = get_trips_available_for_issue(user)
+    for_review = get_trips_available_for_review(user)
 
     if user.ISSUER and user.REVIEWER:
         return for_review + for_issue
@@ -35,39 +36,38 @@ def get_trips_available_for_work(user):
         return for_review
 
 
-def _get_trips_available_for_reviewers(user):
-    trips = Trip.objects.filter(status=TripStatus.ON_REVIEW)
-    trips_available_for_review = []
-
-    for trip in trips:
-        needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
-        actual_reviews = len(ReviewFromReviewer.objects.filter(trip=trip))
-
-        reviews_count_from_user = ReviewFromReviewer.objects.filter(trip=trip, reviewer=user).count()
-
-        if actual_reviews < needed_reviews_count and reviews_count_from_user == 0 and _user_can_be_reviewer(user, trip):
-            trips_available_for_review.append(trip)
-
+def get_trips_available_for_review(user):
+    trips = Trip.objects.filter(
+        Q(status=TripStatus.ON_REVIEW) | Q(status=TripStatus.AT_ISSUER))
+    trips_available_for_review = [
+        trip for trip in trips
+        if user_can_be_reviewer(user, trip) and first_review_for(user, trip)
+    ]
     return trips_available_for_review
 
 
-def _get_trips_available_for_issuers(user):
+def get_trips_available_for_issue(user):
     trips = Trip.objects.filter(status=TripStatus.AT_ISSUER)
-    trips_for_issuer = []
-
-    for trip in trips:
-        issues_count_for_trip = ReviewFromIssuer.objects.filter(trip=trip, reviewer=user).count()
-        if _user_can_be_issuer(user, trip) and issues_count_for_trip == 0:
-            trips_for_issuer.append(trip)
-
-    return trips_for_issuer
+    trips_available_for_issue = [
+        trip for trip in trips
+        if user_can_be_issuer(user, trip) and first_issue_for(user, trip)
+    ]
+    return trips_available_for_issue
 
 
-def _user_can_be_issuer(user, trip):
+def first_issue_for(user, trip):
+    return ReviewFromIssuer.objects.filter(trip=trip, reviewer=user).count() == 0
+
+
+def user_can_be_issuer(user, trip):
     experience = UserExperience.objects.filter(user=user, trip_kind=trip.kind)
     return bool(experience) and experience[0].is_issuer
 
 
-def _user_can_be_reviewer(user, trip):
+def first_review_for(user, trip):
+    return ReviewFromReviewer.objects.filter(trip=trip, reviewer=user).count() == 0
+
+
+def user_can_be_reviewer(user, trip):
     experience = UserExperience.objects.filter(user=user, trip_kind=trip.kind)
     return bool(experience) and experience[0].difficulty_as_for_reviewer >= trip.difficulty_category

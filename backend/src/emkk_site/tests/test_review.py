@@ -1,5 +1,7 @@
 from django.test import TestCase
 from django.db import IntegrityError
+from django.core import mail
+
 from src.emkk_site.tests.base import TestEnvironment
 from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience
 from src.emkk_site.services import get_reviewers_count_by_difficulty
@@ -20,7 +22,6 @@ class ReviewTest(TestCase):
             "result_comment": "GOOD"
         }
 
-    # noinspection PyMethodMayBeStatic
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
 
         trip = self.env.trips[0]
@@ -75,12 +76,6 @@ class ReviewTest(TestCase):
 
         """Reviewer try create several reviews for one trip. Expected fail"""
         for _ in range(2):
-            """Reviewer take trip in work"""
-            self.env.client_post(
-                f'/api/trips/work',
-                data=self.get_review_data(trip.id), user=self.env.user)
-
-            """Create review"""
             self.env.client_post(
                 f'/api/trips/{trip.id}/reviews',
                 data=self.get_review_data(trip.id), user=self.env.user)
@@ -145,6 +140,7 @@ class ReviewTest(TestCase):
     def test_issuer_cant_take_trips_if_he_is_not_issuer_for_trip_kind(self):
         trip = self._get_cycling_at_issuer_trip()
         self.env.user.ISSUER = True
+        self.env.user.REVIEWER = False
         self.env.user.save()
         UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
                        is_issuer=False).save()
@@ -170,3 +166,48 @@ class ReviewTest(TestCase):
         except IntegrityError:
             raised = True
         self.assertTrue(raised)
+
+    def test_after_create_review_email_notify_should_sent_to_trip_leader(self):
+        trip = self.env.trips[0]
+        self.env.client_post(
+            f'/api/trips/{trip.id}/reviews',
+            data=self.get_review_data(trip.id), user=self.env.user)
+        email = trip.leader.email
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertTrue(email in mail.outbox[0].to)
+
+    def test_review_patch_should_work_if_owner_try_change(self):
+        old_data = {
+            "result": ReviewResult.ON_REWORK,
+            "result_comment": "REWORK",
+        }
+
+        review = self.env.eg.generate_instance_by_model(Review, reviewer=self.env.user, **old_data)
+        review.save()
+
+        patch_data = {
+            "result": ReviewResult.ACCEPTED,
+            "result_comment": "CHANGED TO ACCEPTED",
+        }
+
+        r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
+        self.assertEqual(r.status_code, 204)
+        self.assertDictEqual(patch_data, {
+            "result": r.data["result"], "result_comment": r.data["result_comment"]})
+
+    def test_review_patch_should_not_work_if_permission_denied(self):
+        old_data = {
+            "result": ReviewResult.ON_REWORK,
+            "result_comment": "REWORK",
+        }
+
+        review = self.env.eg.generate_instance_by_model(Review, **old_data)
+        review.save()
+
+        patch_data = {
+            "result": ReviewResult.ACCEPTED,
+            "result_comment": "CHANGED TO ACCEPTED",
+        }
+
+        r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
+        self.assertEqual(r.status_code, 403)
