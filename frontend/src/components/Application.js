@@ -175,10 +175,9 @@ class Application extends React.Component {
 		this.app.kind = KIND_OF_TOURISM[value];
 	};
 
-	async changeStatus(e) {
+	changeStatus(e) {
 		e.preventDefault();
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/change-status`,
-			{ status: this.status },
+		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {},
 			this.config())
 			.then(resp => { console.log(resp); })
 	}
@@ -267,14 +266,23 @@ class Application extends React.Component {
 
 		return (
 			<div id="application" >
+				<div id="data-application-header">
+					<h1 id="data-application-name">Заявка №{this.app.id}</h1>
+					{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+					{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
+					{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
+					<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
+					{this.roles.secretary && <form onSubmit={this.changeStatus}>
+						<select>
+							<option value="ALARM">alarm</option>
+							<option value="ROUTE_COMPLETED">route_completed</option>
+							<option value="ON_ROUTE">on_route</option>
+							<option value="TAKE_PAPERS">take_papers</option>
+						</select>
+						<button type="submit">Сменить статус</button>
+					</form>}
+				</div>
 				<form onSubmit={this.onSubmit}>
-					<div id="data-application-header">
-						<h1 id="data-application-name">Заявка №{this.app.id}</h1>
-						{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
-						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
-						{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
-						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
-					</div>
 					<div id="data-application">
 						<div className="cell-app">
 							<div>ФИО руководителя:</div>
