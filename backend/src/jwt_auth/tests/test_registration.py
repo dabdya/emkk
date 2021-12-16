@@ -77,6 +77,7 @@ class RegistrationTest(TestCase):
         r = self.client.post(
             '/auth/users', data=json.dumps(self.user_data),
             content_type='application/json')
+        self.assertEqual(r.status_code, 201)
         email = self.user_data["user"]["email"]
         self.assertEqual(len(mail.outbox), 1)
         self.assertTrue(email in mail.outbox[0].to)
