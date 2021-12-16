@@ -3,7 +3,8 @@ from django.db import IntegrityError
 from django.core import mail
 
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience, Trip
+from src.emkk_site.models import (
+    Review, TripStatus, ReviewResult, TripKind, UserExperience, Trip, ReviewFromIssuer)
 from src.emkk_site.services import get_reviewers_count_by_difficulty
 from src.jwt_auth.models import User
 
@@ -26,7 +27,7 @@ class ReviewTest(TestCase):
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
 
         user = self.env.eg.generate_instance_by_model(
-            User, is_active=True, reviewer=False, issuer=False, secretary=False)
+            User, is_active=True, REVIEWER=False, ISSUER=False, SECRETARY=False)
         trip = self.env.eg.generate_instance_by_model(Trip, leader=user, status=TripStatus.ON_REVIEW)
         user.save()
         trip.save()
@@ -52,7 +53,6 @@ class ReviewTest(TestCase):
         review_data = self.get_review_data(trip.id)
         review_data['result'] = issuer_result
 
-        self.env.client_post(f'/api/trips/work', data={'trip': trip.id}, user=issuer)
         self.env.client_post(
             f'/api/trips/{trip.id}/reviews-from-issuer', data=review_data, user=issuer)
 
@@ -199,6 +199,26 @@ class ReviewTest(TestCase):
         self.assertEqual(r.status_code, 204)
         self.assertDictEqual(patch_data, {
             "result": r.data["result"], "result_comment": r.data["result_comment"]})
+
+    def test_review_patch_should_change_trip_status_if_review_from_issuer(self):
+        issuer = self.env.eg.generate_instance_by_model(
+            User, is_active=True, ISSUER=True, REVIEWER=False, SECRETARY=False)
+        issuer.save()
+
+        review = self.env.eg.generate_instance_by_model(ReviewFromIssuer, reviewer=issuer, **{
+            "result": ReviewResult.ON_REWORK,
+            "result_comment": "REWORK",
+        })
+        review.save()
+
+        patch_data = {
+            "result": ReviewResult.ACCEPTED,
+            "result_comment": "CHANGED TO ACCEPTED",
+        }
+
+        r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data, user=issuer)
+        self.assertEqual(r.status_code, 204)
+        self.assertEqual(Review.objects.get(id=review.id).trip.status, patch_data["result"])
 
     def test_review_patch_should_not_work_if_permission_denied(self):
         self.env.user.REVIEWER = False

@@ -22,7 +22,7 @@ class TestJWTAuthorization(TestCase):
 
     def test_when_access_token_valid_user_should_be_authorized(self):
         user = self.env.eg.generate_instance_by_model(
-            User, is_active=True, reviewer=False, issuer=False, secretary=False)
+            User, is_active=True, REVIEWER=False, ISSUER=False, SECRETARY=False)
         trip = self.env.eg.generate_instance_by_model(Trip, leader=user)
         user.save()
         trip.save()

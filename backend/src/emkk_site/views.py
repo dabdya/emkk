@@ -293,8 +293,13 @@ class ReviewDetail(generics.UpdateAPIView):
         review = self.get_object()
         self.check_object_permissions(request, review)
         serializer = self.get_serializer_class()(review, request.data)
+
         if serializer.is_valid():
             serializer.save()
+            review_from_issuer = ReviewFromIssuer.objects.filter(pk=review.id).count() == 1
+            if review_from_issuer:
+                review.trip.status = review.result
+                review.trip.save()
             return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
