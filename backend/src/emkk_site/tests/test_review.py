@@ -45,10 +45,17 @@ class ReviewTest(TestCase):
 
     def test_trip_status_established_to_issuer_result_if_review_come_from_issuer(self):
 
-        trip = self.env.eg.generate_instance_by_model(Trip, status=TripStatus.AT_ISSUER)
+        trip = self.env.eg.generate_instance_by_model(
+            Trip, status=TripStatus.AT_ISSUER, difficulty_category=1, kind=TripKind.CYCLING)
         trip.save()
 
-        issuer = self.env.create_issuers(1)[0]
+        issuer = self.env.eg.generate_instance_by_model(
+            User, is_active=True, REVIEWER=False, ISSUER=True, SECRETARY=False)
+        issuer.save()
+
+        UserExperience(user=issuer, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
+                       is_issuer=True).save()
+
         issuer_result = ReviewResult.ACCEPTED
         review_data = self.get_review_data(trip.id)
         review_data['result'] = issuer_result
@@ -120,11 +127,15 @@ class ReviewTest(TestCase):
     def test_reviewer_cant_take_trip_with_difficulty_greater_than_reviewer_experience(self):
         trip = self._get_cycling_trip(difficulty=6)
         self.env.user.REVIEWER = True
+        self.env.user.SECRETARY = False
         self.env.user.save()
         UserExperience(user=self.env.user, trip_kind=TripKind.CYCLING, difficulty_as_for_reviewer=3,
                        is_issuer=False).save()
         available_to_writing_review = self.env.client_get(f'/api/trips?filter=work').data
         self.assertNotIn(trip.id, [t.get("id") for t in available_to_writing_review])
+
+        r = self.env.client_get(f'/api/trips/{trip.id}')
+        self.assertEqual(r.status_code, 403)
 
     def _get_cycling_trip(self, difficulty):
         trip = self.env.trips[1]

@@ -315,7 +315,7 @@ def change_trip_status(request, *args, **kwargs):
         trip = Trip.objects.get(pk=trip_id)
     except Trip.DoesNotExist:
         raise Response(f"No trip by id: {trip_id}", status=status.HTTP_404_NOT_FOUND)
-    new_status_str = request.query_params["new_status"]
+    new_status_str = request.query_params["new_status"].upper()
     status_by_name = {
         "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,
         "ON_ROUTE": TripStatus.ON_ROUTE,
