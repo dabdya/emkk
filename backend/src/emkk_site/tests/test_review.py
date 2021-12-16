@@ -3,8 +3,9 @@ from django.db import IntegrityError
 from django.core import mail
 
 from src.emkk_site.tests.base import TestEnvironment
-from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience
+from src.emkk_site.models import Review, TripStatus, ReviewResult, TripKind, UserExperience, Trip
 from src.emkk_site.services import get_reviewers_count_by_difficulty
+from src.jwt_auth.models import User
 
 
 class ReviewTest(TestCase):
@@ -24,22 +25,26 @@ class ReviewTest(TestCase):
 
     def test_trip_status_established_to_at_issuer_if_reviews_count_equals_needed_count(self):
 
-        trip = self.env.trips[0]
+        user = self.env.eg.generate_instance_by_model(
+            User, is_active=True, reviewer=False, issuer=False, secretary=False)
+        trip = self.env.eg.generate_instance_by_model(Trip, leader=user, status=TripStatus.ON_REVIEW)
+        user.save()
+        trip.save()
         needed_reviews_count = get_reviewers_count_by_difficulty(trip.difficulty_category)
 
         reviewers = self.env.create_reviewers(needed_reviews_count)
         for i in range(needed_reviews_count):
-            self.env.client_post(
+            r = self.env.client_post(
                 f'/api/trips/{trip.id}/reviews',
                 data=self.get_review_data(trip.id), user=reviewers[i])
+            self.assertEqual(r.status_code, 201)
 
-        trip = self.env.client_get(f'/api/trips/{trip.id}').data
-        self.assertEqual(trip.get('status'), TripStatus.AT_ISSUER)
+        r = self.env.client_get(f'/api/trips/{trip.id}', user=user)
+        self.assertEqual(r.data.get('status'), TripStatus.AT_ISSUER)
 
     def test_trip_status_established_to_issuer_result_if_review_come_from_issuer(self):
 
-        trip = self.env.trips[0]
-        trip.status = TripStatus.AT_ISSUER
+        trip = self.env.eg.generate_instance_by_model(Trip, status=TripStatus.AT_ISSUER)
         trip.save()
 
         issuer = self.env.create_issuers(1)[0]
@@ -51,8 +56,8 @@ class ReviewTest(TestCase):
         self.env.client_post(
             f'/api/trips/{trip.id}/reviews-from-issuer', data=review_data, user=issuer)
 
-        trip = self.env.client_get(f'/api/trips/{trip.id}').data
-        self.assertEqual(trip.get('status'), issuer_result)
+        r = self.env.client_get(f'/api/trips/{trip.id}', user=issuer)
+        self.assertEqual(r.data.get('status'), issuer_result)
 
     def test_trip_status_no_change_to_issuer_result_if_trip_on_review(self):
 
@@ -196,6 +201,11 @@ class ReviewTest(TestCase):
             "result": r.data["result"], "result_comment": r.data["result_comment"]})
 
     def test_review_patch_should_not_work_if_permission_denied(self):
+        self.env.user.REVIEWER = False
+        self.env.user.ISSUER = False
+        self.env.user.SECRETARY = False
+        self.env.user.save()
+
         old_data = {
             "result": ReviewResult.ON_REWORK,
             "result_comment": "REWORK",

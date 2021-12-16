@@ -45,7 +45,7 @@ class IsReviewer(BasePermission):
         return request.user.is_authenticated and request.user.REVIEWER
 
     def has_object_permission(self, request, view, obj):
-        return obj.reviewer == request.user
+        return getattr(obj, 'reviewer', False) == request.user
 
 
 class IsIssuer(BasePermission):
@@ -53,7 +53,7 @@ class IsIssuer(BasePermission):
         return request.user.is_authenticated and request.user.ISSUER
 
     def has_object_permission(self, request, view, obj):
-        return obj.reviewer == request.user
+        return getattr(obj, 'reviewer', False) == request.user
 
 
 class IsSecretary(BasePermission):
@@ -61,7 +61,7 @@ class IsSecretary(BasePermission):
         return request.user.is_authenticated and request.user.SECRETARY
 
     def has_object_permission(self, request, view, obj):
-        return True
+        return request.user.SECRETARY
 
 
 class IsTripOwner(BasePermission):
