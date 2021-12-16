@@ -88,10 +88,10 @@ class RegistrationAPIView(APIView):
         serializer = self.serializer_class(data=user)
 
         if serializer.is_valid():
-            user = serializer.save()
-
+            email = serializer.validated_data["email"]
             send_mail(emails.REGISTRATION_HEAD, emails.REGISTRATION_BODY,
-                      settings.EMAIL_HOST_USER, [user.email, ], fail_silently=True)
+                      settings.EMAIL_HOST_USER, [email, ], fail_silently=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
