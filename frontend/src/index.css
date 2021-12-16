@@ -188,14 +188,18 @@ code {
 }
 
 .custom-file-upload {
-	border: 1px solid #ccc;
+	/*border: 1px solid #ccc;*/
 	display: inline-block;
 	padding: 6px 12px;
 	cursor: pointer;
 	text-align: center;
 	width: 80%;
-	background-color: #136DAB;
-	color: white;
+	background-color: #E8E8E8;
+	border-radius: 5px;
+}
+
+.custom-file-upload:hover {
+	background-color: #E1E1E1;
 }
 
 .custom-file-upload input[type=file] {
@@ -298,4 +302,31 @@ code {
 	display: flex;
 	justify-content: space-evenly;
 	margin-top: 10px;
+}
+
+.profile-box {
+	background-color: white;
+	width: 70%;
+	height: fit-content;
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-row-gap: 0.75rem;
+	/*margin-left: 40px;*/
+}
+
+.profile-cell {
+	display: flex;
+	flex-flow: column wrap;
+	align-items: center;
+	justify-content: center;
+}
+
+.profile-parent-box {
+	margin-top: 5rem;
+	margin-left: 2rem;
+}
+
+.profile-header {
+	font-size: 1.25rem;
+	font-weight: bold;
 }

@@ -274,10 +274,10 @@ class Application extends React.Component {
 					<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
 					{this.roles.secretary && <form onSubmit={this.changeStatus}>
 						<select>
-							<option value="ALARM">alarm</option>
-							<option value="ROUTE_COMPLETED">route_completed</option>
-							<option value="ON_ROUTE">on_route</option>
-							<option value="TAKE_PAPERS">take_papers</option>
+							<option value="ALARM">Аварийная ситуация</option>
+							<option value="ROUTE_COMPLETED">Маршрут завершен</option>
+							<option value="ON_ROUTE">На маршруте</option>
+							<option value="TAKE_PAPERS">В работе</option>
 						</select>
 						<button type="submit">Сменить статус</button>
 					</form>}

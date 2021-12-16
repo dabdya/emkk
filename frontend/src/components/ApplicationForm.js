@@ -8,7 +8,7 @@ import HelpIcon from "@mui/icons-material/Help";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
 import { Autocomplete, TextField, Button } from "@mui/material"
-
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 class ApplicationForm extends React.Component {
 
@@ -442,10 +442,10 @@ class ApplicationForm extends React.Component {
 					/>
 				</div>
 				<div className="cell">
-					<Button variant="contained"
+					<Button variant="contained" endIcon={<AssignmentTurnedInIcon/>}
 						type="submit"
 						tabIndex={21}
-						style={{ width: "80%", backgroundColor: "#136DAB" }}
+						style={{ marginRight: "1.75rem", width: "90%", backgroundColor: "#136DAB"}}
 					>Отправить заявку</Button>
 				</div>
 				{this.state.buttonIsPressed && <ShowModal header="ЭМКК" close={this.close} message="Заявка подана!" />}
