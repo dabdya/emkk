@@ -59,7 +59,7 @@ class App extends React.Component {
 	render() {
 		return (
 			<div className="App">
-				<div style={{ height: "100%" }}>
+				<div>
 					<div className="header" style={{ width: "100%", boxShadow: "2px 2px 2px grey" }}>
 						<div style={{ marginLeft: 15 }}>
 							<a href="/home/dashboard">
@@ -79,7 +79,7 @@ class App extends React.Component {
 							</>}
 
 					</div>
-					<div className="content" style={{ height: "80%" }}>
+					<div className="content">
 						<Switch>
 							<Route exact path="/" render={() => (
 								<Redirect to="/home/dashboard" />

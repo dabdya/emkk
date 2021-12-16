@@ -57,7 +57,10 @@ class Registration extends React.Component {
 			this.setState({ passwordValidityError: "Пароли не совпадают" })
 		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
 			this.setState({ passwordValidityError: "Пароль должен состоять из шести маленьких латинских букв" });
-		} else {
+		} else if (/@/.test(this.state.username)) {
+			this.setState({ loginError: "Логин не может содержать @" });
+		}
+		else {
 			this.setState({
 				serverIssueError: "",
 				pendingServerResponse: "Подождите..."
@@ -78,6 +81,7 @@ class Registration extends React.Component {
 				this.setState({
 					pendingServerResponse: "",
 					serverIssueError: "",
+					loginError: "",
 					successfullRegistration: "Регистрация прошла успешно. Сейчас вы будете перенаправлены на страницу логина"
 				});
 				window.setTimeout(() => this.props.history.push("/login"), 2500);
@@ -110,6 +114,7 @@ class Registration extends React.Component {
 					display: "inline-block"
 				}} onSubmit={this.onSubmit}>
 					<TextField fullWidth id="outlined-required" size="small" name="username" required
+						error={this.state.loginError.length > 0} helperText={this.state.loginError}
 						margin="normal" label="Логин"
 						variant="outlined" onChange={this.changeInputRegister} />
 					<TextField error={this.state.emailError.length > 0} helperText={this.state.emailError} fullWidth id="outlined-required" size="small" name="email" required

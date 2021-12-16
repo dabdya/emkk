@@ -73,7 +73,7 @@ class Application extends React.Component {
 		}
 	};
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
 			.then(response => {
 				this.app = {
@@ -110,11 +110,11 @@ class Application extends React.Component {
 				});
 			});
 
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 				resp?.data?.map(async review => {
-					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
+					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
 						.then(resp => {
 							this.setState({ reviewsFiles: resp.data });
 						})
@@ -122,11 +122,11 @@ class Application extends React.Component {
 			})
 			.catch(err => console.error(err));
 
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
 			.then(resp => {
 				this.setState({ issues: resp.data });
-				resp?.data?.map(issue => {
-					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
+				resp?.data?.map(async issue => {
+					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
 						.then(resp => {
 							this.setState({ issuesFiles: resp.data });
 						})

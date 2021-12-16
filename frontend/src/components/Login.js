@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 import { getToken, setUserSession, getRoles } from "../utils/Common";
-import { GoogleLogin } from "react-google-login";
 import { TextField, Button } from "@mui/material"
 import { withRouter } from "react-router-dom";
 

@@ -159,7 +159,7 @@ class ApplicationForm extends React.Component {
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
-								inputProps={{ ...params.inputProps, tabIndex: 2, required: true }}
+								inputProps={{ ...params.inputProps, tabIndex: 2 }}
 								label="Общий район"
 								required />}
 					/>
