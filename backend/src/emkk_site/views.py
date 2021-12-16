@@ -29,6 +29,8 @@ from src.emkk_site.models import (
 
 from src.emkk_site.services import get_trips_available_for_work
 
+from src import emails
+
 
 class TripList(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated | ReadOnly, ]
@@ -246,11 +248,9 @@ class ReviewView(generics.ListCreateAPIView):
                 try_change_trip_status_to_issuer_result(trip, result)
             serializer.save()
 
-            send_mail(
-                f"Обновление по заявке {trip.id}: {trip.global_region}.{trip.local_region}",
-                """Здравствуйте. Поступила новая рецензия для вашей заявки. 
-                Подробности можно посмотреть в меню 'Мои заявки' на сайте.""",
-                settings.EMAIL_HOST_USER, [trip.leader.email, ])
+            send_mail(emails.NEW_REVIEW_HEAD % (trip.id, trip.global_region, trip.local_region, ),
+                      emails.NEW_REVIEW_BODY, settings.EMAIL_HOST_USER, [trip.leader.email, ],
+                      fail_silently=True)
 
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
@@ -293,8 +293,13 @@ class ReviewDetail(generics.UpdateAPIView):
         review = self.get_object()
         self.check_object_permissions(request, review)
         serializer = self.get_serializer_class()(review, request.data)
+
         if serializer.is_valid():
             serializer.save()
+            review_from_issuer = ReviewFromIssuer.objects.filter(pk=review.id).count() == 1
+            if review_from_issuer:
+                review.trip.status = review.result
+                review.trip.save()
             return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -310,7 +315,7 @@ def change_trip_status(request, *args, **kwargs):
         trip = Trip.objects.get(pk=trip_id)
     except Trip.DoesNotExist:
         raise Response(f"No trip by id: {trip_id}", status=status.HTTP_404_NOT_FOUND)
-    new_status_str = request.query_params["new_status"]
+    new_status_str = request.query_params["new_status"].upper()
     status_by_name = {
         "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,
         "ON_ROUTE": TripStatus.ON_ROUTE,
@@ -321,11 +326,10 @@ def change_trip_status(request, *args, **kwargs):
         trip.status = status_by_name[new_status_str]
         trip.save()
 
-        send_mail(
-            f"Изменение статуса заявки {trip.id}: {trip.global_region}.{trip.local_region}",
-            f"""Здравствуйте. Статус вашей заявки был изменен на {trip.status}""",
-            settings.EMAIL_HOST_USER, [trip.leader.email, ])
-
+        send_mail(emails.CHANGE_STATUS_HEAD % (trip.id, trip.global_region, trip.local_region, ),
+                  emails.CHANGE_STATUS_BODY % (trip.status, ),
+                  settings.EMAIL_HOST_USER, [trip.leader.email, ], fail_silently=True)
         return Response(status=status.HTTP_200_OK)
+
     return Response(status=status.HTTP_400_BAD_REQUEST,
                     data=f"Status can be changed to {list(status_by_name.keys())}. But {new_status_str} found")

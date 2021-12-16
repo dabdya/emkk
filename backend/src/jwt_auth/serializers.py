@@ -28,10 +28,19 @@ class LoginSerializer(serializers.Serializer):
                 "A password is required to log in"
             )
 
+        "If email provided instead of username"
+        if "@" in username:
+            try:
+                user = User.objects.get(email=username)
+                if user.check_password(password):
+                    return user
+            except User.DoesNotExist as err:
+                raise serializers.ValidationError("User with this email not found")
+
         user = authenticate(username=username, password=password)
         if not user:
             raise serializers.ValidationError(
-                "A user with this username and password was not found"
+                "User with this username and password was not found"
             )
 
         if not user.is_active:

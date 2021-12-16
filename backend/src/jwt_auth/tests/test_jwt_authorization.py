@@ -2,6 +2,9 @@ from django.test import TestCase, Client
 
 from src.emkk_site.tests.base import TestEnvironment
 
+from src.emkk_site.models import Trip
+from src.jwt_auth.models import User
+
 """
     Что происходит при аутентификации на приватных ресурсах с помощью jwt токенов:
     1. Клиент отправляет access_token и если он валидный, и время его жизни не истекло, то
@@ -18,9 +21,13 @@ class TestJWTAuthorization(TestCase):
         self.env = TestEnvironment().with_user().with_trips(1)
 
     def test_when_access_token_valid_user_should_be_authorized(self):
-        trip = self.env.trips[0]
+        user = self.env.eg.generate_instance_by_model(
+            User, is_active=True, REVIEWER=False, ISSUER=False, SECRETARY=False)
+        trip = self.env.eg.generate_instance_by_model(Trip, leader=user)
+        user.save()
+        trip.save()
         private_url = f'/api/trips/{trip.id}'
-        r = self.env.client_get(private_url)
+        r = self.env.client_get(private_url, user=user)
         self.assertEqual(r.status_code, 200)
 
     def test_when_access_token_invalid_user_not_be_authorized(self):

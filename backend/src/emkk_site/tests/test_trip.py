@@ -45,9 +45,14 @@ class TripTest(TestCase):
         self.assertFalse(response.data[0].get('insurance_info', False))
 
     def test_user_cant_change_trip_if_is_not_owner(self):
+        self.env.user.REVIEWER = False
+        self.env.user.ISSUER = False
+        self.env.user.SECRETARY = False
+        self.env.user.save()
+
         trip = self.env.trips[0]
         r = self.env.client_patch(f'/api/trips/{trip.id}', {
-            'participants_count': trip.participants_count + 1})
+            'participants_count': trip.participants_count + 1, 'info_for_reviewer': 'changed'})
         self.assertEqual(r.status_code, 403)
 
         r = self.env.client_delete(f'/api/trips/{trip.id}')

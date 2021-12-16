@@ -1,6 +1,9 @@
 from rest_framework.permissions import BasePermission
 from django.conf import settings
 
+from src.emkk_site.models import Trip
+from src.emkk_site.services import user_can_be_reviewer, user_can_be_issuer
+
 import jwt
 
 
@@ -45,7 +48,9 @@ class IsReviewer(BasePermission):
         return request.user.is_authenticated and request.user.REVIEWER
 
     def has_object_permission(self, request, view, obj):
-        return obj.reviewer == request.user
+        if isinstance(obj, Trip) and not user_can_be_reviewer(request.user, obj):
+            return False
+        return request.user.REVIEWER
 
 
 class IsIssuer(BasePermission):
@@ -53,7 +58,9 @@ class IsIssuer(BasePermission):
         return request.user.is_authenticated and request.user.ISSUER
 
     def has_object_permission(self, request, view, obj):
-        return obj.reviewer == request.user
+        if isinstance(obj, Trip) and not user_can_be_issuer(request.user, obj):
+            return False
+        return request.user.ISSUER
 
 
 class IsSecretary(BasePermission):
@@ -61,7 +68,7 @@ class IsSecretary(BasePermission):
         return request.user.is_authenticated and request.user.SECRETARY
 
     def has_object_permission(self, request, view, obj):
-        return True
+        return request.user.SECRETARY
 
 
 class IsTripOwner(BasePermission):
