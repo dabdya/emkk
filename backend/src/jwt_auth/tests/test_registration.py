@@ -45,6 +45,13 @@ class RegistrationTest(TestCase):
         self.assertEqual(r.status_code, 400)
         self.assertNotEqual(User.objects.count(), 1)
 
+    def test_user_not_created_when_username_contains_unacceptable_symbols(self):
+        data = dict(self.user_data)
+        data["user"]["username"] = "login@with"
+        r = self.client.post('/auth/users', data=json.dumps(data), content_type="application/json")
+        self.assertEqual(r.status_code, 422)
+        self.assertEqual(User.objects.count(), 0)
+
     def test_user_not_created_when_data_contains_exist_username_or_email(self):
         r1 = self.client.post(
             '/auth/users', data=json.dumps(self.user_data),

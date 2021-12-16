@@ -85,8 +85,10 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
-        serializer = self.serializer_class(data=user)
+        if "@" in user["username"]:
+            return Response("Symbol '@' is unacceptable", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
+        serializer = self.serializer_class(data=user)
         if serializer.is_valid():
             email = serializer.validated_data["email"]
             send_mail(emails.REGISTRATION_HEAD, emails.REGISTRATION_BODY,
