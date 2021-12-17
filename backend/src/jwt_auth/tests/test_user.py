@@ -25,11 +25,13 @@ class UserTest(TestCase):
         self.assertTrue("refresh_token" in r.data)
 
     def test_user_password_update_should_correct_work(self):
+        self.env.user.set_password("current_password")
+        self.env.user.save()
         patch_data = {
             "user": {
                 "password": "new_password",
             },
-            "old_password": self.env.user.password,
+            "old_password": "current_password",
         }
 
         r = self.env.client_patch(f'/auth/user', data=patch_data, user=self.env.user)
@@ -46,3 +48,13 @@ class UserTest(TestCase):
 
         r = self.env.client_patch(f'/auth/user', data=data_without_old_password)
         self.assertEqual(r.status_code, 400)
+
+        data_without_invalid_old_password = {
+            "user": {
+                "password": "new_password",
+            },
+            "old_password": "invalid_password",
+        }
+
+        r = self.env.client_patch(f'/auth/user', data=data_without_invalid_old_password)
+        self.assertEqual(r.status_code, 422)
