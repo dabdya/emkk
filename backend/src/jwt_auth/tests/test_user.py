@@ -2,6 +2,7 @@ from django.test import TestCase
 from src.emkk_site.tests.base import TestEnvironment
 
 from src.jwt_auth.models import User
+from django.contrib.auth.hashers import check_password
 
 
 class UserTest(TestCase):
@@ -22,3 +23,38 @@ class UserTest(TestCase):
 
         self.assertTrue("access_token" in r.data)
         self.assertTrue("refresh_token" in r.data)
+
+    def test_user_password_update_should_correct_work(self):
+        self.env.user.set_password("current_password")
+        self.env.user.save()
+        patch_data = {
+            "user": {
+                "password": "new_password",
+            },
+            "old_password": "current_password",
+        }
+
+        r = self.env.client_patch(f'/auth/user', data=patch_data, user=self.env.user)
+        self.assertEqual(r.status_code, 200)
+
+        self.env.user = User.objects.get(email=self.env.user.email)
+        self.assertTrue(check_password(patch_data["user"]["password"], self.env.user.password))
+
+        data_without_old_password = {
+            "user": {
+                "password": "new_password",
+            },
+        }
+
+        r = self.env.client_patch(f'/auth/user', data=data_without_old_password)
+        self.assertEqual(r.status_code, 400)
+
+        data_without_invalid_old_password = {
+            "user": {
+                "password": "new_password",
+            },
+            "old_password": "invalid_password",
+        }
+
+        r = self.env.client_patch(f'/auth/user', data=data_without_invalid_old_password)
+        self.assertEqual(r.status_code, 422)

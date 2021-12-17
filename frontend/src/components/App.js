@@ -7,6 +7,7 @@ import Registration from "./Registration";
 import NotFound from "./NotFound";
 import ForgetPass from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
+import Account from "./Account.js";
 import { getToken, getUser, removeUserSession, setUserSession, getRoles } from "../utils/Common";
 import logo from "../images/mainlogo.png";
 
@@ -72,9 +73,10 @@ class App extends React.Component {
 								<NavLink className="link" activeClassName="active" to="/login">Логин</NavLink>
 								<NavLink className="link" activeClassName="active" to="/signup">Регистрация</NavLink>
 							</>}
-						{this.state.isLogined &&
+						{this.state
+							.isLogined &&
 							<>
-								<div>{getUser()} </div>
+								<Link className="link" style={{ padding: "0 35px" }} to="/account">{getUser()}</Link>
 								<Link className="link" style={{ padding: "0 35px" }} onClick={this.onLogout} to="/home/dashboard" >Выйти</Link>
 							</>}
 
@@ -92,10 +94,9 @@ class App extends React.Component {
 								<Login onChangeLogin={this.onChangeLogin} {...this.props} />
 							</Route>
 
+							<Route path="/account" component={Account}/>
+							<Route path="*" component={NotFound} />
 
-							<Route path="*" render={() => (
-								<Redirect to="/home/dashboard" />
-							)} />
 						</Switch>
 					</div>
 				</div>
