@@ -40,7 +40,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "build:prod": "node ./server.js 1>server.log 2>server-error.log",
+    "build:prod": "node ./server.js",
     "build:env": "env-cmd -f ./prod.env react-scripts build"
   },
   "eslintConfig": {
