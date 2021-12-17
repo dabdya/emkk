@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from rest_framework.parsers import JSONParser
+from django.contrib.auth.hashers import check_password
 from django.core.mail import send_mail
 from django.conf import settings
 
@@ -72,6 +73,12 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
 
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        if "password" in user_data and not request.data.get("old_password", False):
+            return Response("Old password not provided or invalid", status=status.HTTP_400_BAD_REQUEST)
+
+        if "password" in user_data and not check_password(request.data["old_password"], request.user.password):
+            return Response("Old password is invalid", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
 
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
