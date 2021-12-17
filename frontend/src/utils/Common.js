@@ -3,7 +3,6 @@ import jwt_decode from "jwt-decode";
 const getUser = () => {
 	const userStr = localStorage.getItem("user");
 	return userStr ? JSON.parse(userStr) : null;
-
 }
 
 const getToken = () => {
