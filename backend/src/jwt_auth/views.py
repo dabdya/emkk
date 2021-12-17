@@ -73,6 +73,9 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+        if "password" in user_data and not request.data.get("old_password", False):
+            return Response("Old password not provided or invalid", status=status.HTTP_400_BAD_REQUEST)
+
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
