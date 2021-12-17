@@ -26,6 +26,8 @@ from src.jwt_auth.renderers import UserJSONRenderer
 from datetime import timedelta
 import jwt
 
+from src import emails
+
 
 class RefreshTokenView(APIView):
     permission_classes = [AllowAny, ]
@@ -83,17 +85,17 @@ class RegistrationAPIView(APIView):
 
     def post(self, request):
         user = request.data.get('user', {})
+        if "@" in user["username"]:
+            return Response("Symbol '@' is unacceptable", status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
         serializer = self.serializer_class(data=user)
         if serializer.is_valid():
-            user = serializer.save()
-
-            send_mail(
-                "Регистрация нового пользователя",
-                """Здравствуйте! Вы успешно зарегистрировались на сайте маршрутно-квалификационной комиссии.
-                   Используйте логин и пароль указанные при регистрации для входа на сайт.""",
-                settings.EMAIL_HOST_USER, [user.email, ])
-
+            email = serializer.validated_data["email"]
+            send_mail(emails.REGISTRATION_HEAD, emails.REGISTRATION_BODY,
+                      settings.EMAIL_HOST_USER, [email, ], fail_silently=True)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -134,11 +136,8 @@ class ResetPasswordView(APIView):
                 'exp': dt.timestamp(),
             }, settings.RESET_KEY, algorithm='HS256')
 
-            send_mail(
-                "Запрос на сброс пароля",
-                f"""Здравствуйте! Для вашего аккаунта был запрошен сброс пароля. 
-                    Это можно сделать перейдя по ссылке {reset_url}/{token}""",
-                settings.EMAIL_HOST_USER, [user.email, ])
+            send_mail(emails.RESET_PASSWORD_HEAD, emails.RESET_PASSWORD_BODY % (reset_url, token, ),
+                      settings.EMAIL_HOST_USER, [user.email, ], fail_silently=True)
             return Response({'reset_token': token}, status=status.HTTP_200_OK)
 
         except User.DoesNotExist:

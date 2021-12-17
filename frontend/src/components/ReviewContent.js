@@ -8,8 +8,6 @@ import { getToken, getUser } from "../utils/Common";
 import rework from "../images/rework.png";
 import accepted from "../images/accepted.png";
 import rejected from "../images/rejected.png";
-
-
 import icon from "../images/delete.ico";
 
 export default class ReviewContent extends React.Component {
@@ -41,7 +39,6 @@ export default class ReviewContent extends React.Component {
 				this.comment = e.target[0].value;
 				this.result = e.nativeEvent.submitter.name;
 				this.changeEditing()
-
 			})
 	}
 
@@ -62,7 +59,8 @@ export default class ReviewContent extends React.Component {
 		return rework;
 	}
 
-	open() {
+	open(e) {
+		e.preventDefault();
 		this.setState({ buttonIsPressed: true });
 	}
 
@@ -102,17 +100,17 @@ export default class ReviewContent extends React.Component {
 					padding: "10px 10px"
 				}}>
 					{this.comment}
-					{this.props.files?.map(file => {
+					{this.props?.files?.map(file => {
 						return (
 							<div>
 								{/*eslint-disable-next-line */}
-								<a onClick={(e) => this.props.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
+								<a onClick={(e) => this.props.createBlob(e, file)} href="#" target="_blank">{file?.filename}</a>
 								{this.state.editing && <img src={icon} onClick={() => this.props.deleteDocument(file)} alt="delete" className="deleteIcon" />}
 							</div>
 						);
 					})}
 				</div>
-				{this.reviewer.username == getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+				{this.reviewer.username === getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 				{this.state.editing &&
 					<form onSubmit={this.onSubmit}>
 						<TextField
@@ -129,10 +127,10 @@ export default class ReviewContent extends React.Component {
 							<button type="submit" name="on_rework">На доработку</button>
 							<button type="submit" name="rejected">Отклонить</button>
 						</div>
+						<input type="file" />
 					</form>}
 				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
 					close={this.close} message={getText(this.reviewer)}></ShowModal>}
-
 			</div >
 		);
 	}

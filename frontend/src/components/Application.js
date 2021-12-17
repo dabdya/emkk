@@ -73,7 +73,7 @@ class Application extends React.Component {
 		}
 	};
 
-	componentDidMount() {
+	async componentDidMount() {
 		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
 			.then(response => {
 				this.app = {
@@ -110,11 +110,11 @@ class Application extends React.Component {
 				});
 			});
 
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 				resp?.data?.map(async review => {
-					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
+					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
 						.then(resp => {
 							this.setState({ reviewsFiles: resp.data });
 						})
@@ -122,11 +122,11 @@ class Application extends React.Component {
 			})
 			.catch(err => console.error(err));
 
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
+		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
 			.then(resp => {
 				this.setState({ issues: resp.data });
-				resp?.data?.map(issue => {
-					this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
+				resp?.data?.map(async issue => {
+					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
 						.then(resp => {
 							this.setState({ issuesFiles: resp.data });
 						})
@@ -266,23 +266,23 @@ class Application extends React.Component {
 
 		return (
 			<div id="application" >
-				<div id="data-application-header">
-					<h1 id="data-application-name">Заявка №{this.app.id}</h1>
-					{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
-					{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
-					{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
-					<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
-					{this.roles.secretary && <form onSubmit={this.changeStatus}>
-						<select>
-							<option value="ALARM">Аварийная ситуация</option>
-							<option value="ROUTE_COMPLETED">Маршрут завершен</option>
-							<option value="ON_ROUTE">На маршруте</option>
-							<option value="TAKE_PAPERS">В работе</option>
-						</select>
-						<button type="submit">Сменить статус</button>
-					</form>}
-				</div>
+				{this.roles.secretary && <form onSubmit={this.changeStatus}>
+					<select>
+						<option value="ALARM">Аварийная ситуация</option>
+						<option value="ROUTE_COMPLETED">Маршрут завершен</option>
+						<option value="ON_ROUTE">На маршруте</option>
+						<option value="TAKE_PAPERS">В работе</option>
+					</select>
+					<button type="submit">Сменить статус</button>
+				</form>}
 				<form onSubmit={this.onSubmit}>
+					<div id="data-application-header">
+						<h1 id="data-application-name">Заявка №{this.app.id}</h1>
+						{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
+						{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
+						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
+					</div>
 					<div id="data-application">
 						<div className="cell-app">
 							<div>ФИО руководителя:</div>

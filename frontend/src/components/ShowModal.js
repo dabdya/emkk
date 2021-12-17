@@ -2,9 +2,7 @@ import { Button, Modal } from "@skbkontur/react-ui";
 import React from "react";
 
 export default class ShowModal extends React.Component {
-	constructor(props) {
-		super(props);
-	}
+
 	render() {
 		return (
 			<Modal onClose={this.props.close}>

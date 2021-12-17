@@ -27,11 +27,22 @@ class TestLogin(TestCase):
 
         eg = EntityGenerator()
         self.user = eg.generate_instance_by_model(
-            User, **self.login_data["user"], is_active=True)
+            User, **self.login_data["user"], email="email@gmail.com", is_active=True)
         self.user.set_password(self.login_data["user"]["password"])
         self.user.save()
 
     def test_login_success_when_data_is_valid(self):
+        data_with_email_instead_username = dict(self.login_data)
+        data_with_email_instead_username["user"]["username"] = "email@gmail.com"
+        r = self.client.post(
+            '/auth/users/login',
+            data=json.dumps(data_with_email_instead_username), content_type="application/json"
+        )
+
+        self.assertEqual(r.status_code, 200)
+        self.assertTrue("access_token" in r.data)
+
+    def test_login_success_email_or_username(self):
         r = self.client.post(
             '/auth/users/login',
             data=json.dumps(self.login_data), content_type="application/json"

@@ -1,4 +1,5 @@
 body {
+	height: fit-content;
 	margin: 0;
 	/* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Playfair Display", sans-serif; */
 	-webkit-font-smoothing: antialiased;
@@ -12,7 +13,8 @@ body {
 }
 
 #root {
-	height: 100vh;
+	min-height: 100vh;
+	min-width: 100vh;
 }
 
 code {
@@ -32,19 +34,10 @@ code {
 	border-bottom: 1px solid #999;
 }
 
-.App {
-	height: inherit;
-}
-
 .header-home {
-	display: flex;
-	justify-content: flex-start;
-	align-items: center;
-	flex-direction: column;
-	margin: 0;
 	background: #136DAB;
-	border: 1px solid #999;
-	min-height: 92vh;
+	min-height: 91vh;
+	box-shadow: 2px 2px 2px grey;
 }
 
 .header-home a {
@@ -220,12 +213,14 @@ code {
 	display: flex;
 }
 
+.Home {
+	display: flex;
+}
+
 #dashboard #legend {
 	display: flex;
-	align-items: flex-end;
-	flex-direction: column;
-	margin-right: 40px;
-	margin-top: 40px;
+	justify-content: space-evenly;
+	margin-top: 20px;
 }
 
 #dashboard p {
@@ -292,6 +287,10 @@ code {
 	display: flex;
 }
 
+#application #info-for-reviewer div {
+	margin-right: 10px;
+}
+
 .review-form {
 	margin-top: 30px;
 	margin-left: 25px;
@@ -330,3 +329,18 @@ code {
 	font-size: 1.25rem;
 	font-weight: bold;
 }
+
+#application a {
+	text-decoration: none;
+}
+
+@media screen and (max-width : 1024px) {
+	#application #data-application {
+		display: block;
+	}
+
+	#application #data-application .cell-app {
+		display: block;
+	}
+}
+

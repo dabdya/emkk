@@ -22,7 +22,7 @@ class Dashboard extends React.Component {
 			wrap: true,
 			sortable: true,
 			sortFunction: caseInsensitiveSort,
-			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic && row.leader.patronymic[0]}.`
+			cell: row => `${row.leader.first_name} ${row.leader.last_name[0]}. ${row.leader.patronymic ? row.leader.patronymic[0] + "." : ""}`
 		},
 		{
 			name: "Локальный район",
@@ -149,8 +149,6 @@ class Dashboard extends React.Component {
 
 	};
 
-
-
 	renderImage(status) {
 		if (status === "on_review") {
 			return review;
@@ -166,26 +164,27 @@ class Dashboard extends React.Component {
 
 	render() {
 		return (
-			<div id="dashboard">
-				<DataTable
-					columns={this.columns}
-					data={this.state.trips}
-					subHeaderWrap={false}
-					fixedHeader={true}
-					onRowClicked={row => { this.onClickOnRow(row); }}
-					pagination
-					highlightOnHover={this.props.roles.emkkMember}
-					pointerOnHover={this.props.roles.emkkMember}
-					subHeaderAlign="left"
-					noDataComponent="Таблица пустая"
-					paginationComponentOptions={{
-						rowsPerPageText: "Страница: ",
-						rangeSeparatorText: "из", noRowsPerPage: true,
-						selectAllRowsItem: false
-					}}
-				/>
-				<div id="legend">
-					<div >
+			<div>
+				<div id="dashboard">
+					<DataTable
+						columns={this.columns}
+						data={this.state.trips}
+						subHeaderWrap={false}
+						fixedHeader={true}
+						onRowClicked={row => { this.onClickOnRow(row); }}
+						pagination
+						highlightOnHover={this.props.roles.emkkMember}
+						pointerOnHover={this.props.roles.emkkMember}
+						subHeaderAlign="left"
+						noDataComponent="Таблица пустая"
+						paginationComponentOptions={{
+							rowsPerPageText: "Страница: ",
+							rangeSeparatorText: "из",
+							selectAllRowsItem: true,
+							selectAllRowsItemText: "Все"
+						}}
+					/>
+					<div id="legend">
 						<div className="flex">
 							<img height="50px" width="50px" src={accepted} alt="accepted" />
 							<p> - Заявка одобрена</p>
@@ -206,8 +205,8 @@ class Dashboard extends React.Component {
 							<img height="50px" width="50px" src={rejected} alt="rejected" />
 							<p> - Заявка отклонена</p>
 						</div >
-					</div>
-				</div >
+					</div >
+				</div>
 			</div>
 		);
 	}
