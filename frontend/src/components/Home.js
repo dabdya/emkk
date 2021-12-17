@@ -11,10 +11,6 @@ import hiking_dashboard from "../images/hiking_dashboard.png"
 
 
 class Home extends React.Component {
-	constructor(props) {
-		super(props);
-	}
-
 	render() {
 		return (
 			<div className="Home">

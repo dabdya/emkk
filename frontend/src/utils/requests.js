@@ -1,4 +1,4 @@
-import { getRefreshToken, getToken, setToken } from "./Common";
+import { getRefreshToken, getToken, setAccessToken } from "./Common";
 import axios from "axios";
 export default class Requests {
 	constructor() {
@@ -11,7 +11,7 @@ export default class Requests {
 				if (error.response.data.detail === "Signature has expired") {
 					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
 						.then(async resp => {
-							setToken(resp.data.access_token);
+							setAccessToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
 							return this.wrappedAxios.get(url, config);
 						})
@@ -26,7 +26,7 @@ export default class Requests {
 				if (error.response.data.detail === "Signature has expired") {
 					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
 						.then(resp => {
-							setToken(resp.data.access_token);
+							setAccessToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
 							return this.wrappedAxios.post(url, data, config);
 						})
@@ -41,7 +41,7 @@ export default class Requests {
 				if (error.response.data.detail === "Signature has expired") {
 					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
 						.then(resp => {
-							setToken(resp.data.access_token);
+							setAccessToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
 							return this.wrappedAxios.patch(url, data, config);
 						})
@@ -56,7 +56,7 @@ export default class Requests {
 				if (error.response.data.detail === "Signature has expired") {
 					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
 						.then(resp => {
-							setToken(resp.data.access_token);
+							setAccessToken(resp.data.access_token);
 							config.headers["Authorization"] = "Token " + getToken();
 							return this.wrappedAxios.delete(url, config);
 						})
