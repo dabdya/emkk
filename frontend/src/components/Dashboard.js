@@ -142,6 +142,10 @@ class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
+		if(this.props.roles.secretary){
+			this.props.history.push(`/home/application/${target.id}`);
+			return;
+		}
 		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
