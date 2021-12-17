@@ -20,6 +20,7 @@
     "@types/react-router-dom": "^5.3.1",
     "axios": "^0.22.0",
     "date-fns": "^2.26.0",
+    "express": "^4.17.2",
     "jwt-decode": "^3.1.2",
     "react": "^17.0.2",
     "react-bootstrap": "^1.6.4",
@@ -29,6 +30,7 @@
     "react-router": "^5.2.1",
     "react-router-dom": "^5.3.0",
     "react-scripts": "^4.0.3",
+    "styled-components": "^5.3.3",
     "validator": "^13.6.0",
     "web-vitals": "^1.1.2"
   },
@@ -37,7 +39,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "build:prod": "node ./server.js 1>server.log 2>server-error.log",
+    "build:env": "env-cmd -f ./prod.env react-scripts build"
   },
   "eslintConfig": {
     "extends": [
@@ -56,5 +60,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "env-cmd": "^10.1.0"
   }
 }

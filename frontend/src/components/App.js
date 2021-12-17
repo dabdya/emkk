@@ -62,7 +62,7 @@ class App extends React.Component {
 				<div>
 					<div className="header" style={{ width: "100%", boxShadow: "2px 2px 2px grey" }}>
 						<div style={{ marginLeft: 15 }}>
-							<a href="/home/dashboard">
+							<a href="/">
 								<img width="62px" height="62px" src={logo} alt="logo" />
 							</a>
 						</div>
@@ -93,7 +93,9 @@ class App extends React.Component {
 							</Route>
 
 
-							<Route path="*" component={NotFound} />
+							<Route path="*" render={() => (
+								<Redirect to="/home/dashboard" />
+							)} />
 						</Switch>
 					</div>
 				</div>
