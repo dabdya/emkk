@@ -87,7 +87,8 @@ class Application extends React.Component {
 					kind: response.data.kind,
 					start_date: response.data.start_date,
 					end_date: response.data.end_date,
-					coordinator: response.data.coordinator_name + " " + response.data.coordinator_phone_number,
+					coordinator: response.data.coordinator_name,
+					coordinator_phone_number: response.data.coordinator_phone_number,
 					control_end_date: response.data.control_end_date,
 					control_end_region: response.data.control_end_region,
 					control_start_date: response.data.control_start_date,
@@ -378,7 +379,12 @@ class Application extends React.Component {
 								</>
 								: `${this.app.control_end_region}, ${this.app.control_end_date}`}</div>
 						</div>
-
+						<div className="cell-app">
+							<div>Номер координатора:</div>
+							<div>{isEditing
+								? <input defaultValue={this.app.coordinator_phone_number} name="coordinator_phone_number" onChange={changeApp} />
+								: this.app.coordinator_phone_number}</div>
+						</div>
 					</div>
 					<div id="info-for-reviewer">
 						<>
