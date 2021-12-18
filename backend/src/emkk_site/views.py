@@ -326,8 +326,15 @@ def change_trip_status(request, *args, **kwargs):
         trip.status = status_by_name[new_status_str]
         trip.save()
 
+        status_to_email_repr = {
+            'on_route': 'на маршруте',
+            'route_completed': 'маршрут завершен',
+            'take_papers': 'документы готовы',
+            'alarm': 'аварийная ситуация',
+        }
+
         send_mail(emails.CHANGE_STATUS_HEAD % (trip.id, trip.global_region, trip.local_region, ),
-                  emails.CHANGE_STATUS_BODY % (trip.status, ),
+                  emails.CHANGE_STATUS_BODY % (status_to_email_repr[trip.status], ),
                   settings.EMAIL_HOST_USER, [trip.leader.email, ], fail_silently=True)
         return Response(status=status.HTTP_200_OK)
 
