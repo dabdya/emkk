@@ -4,6 +4,11 @@ from django.conf import settings
 from src.emkk_site.models import Trip
 from src.emkk_site.services import user_can_be_reviewer, user_can_be_issuer
 
+from src.jwt_auth.models import User
+
+from django.utils.timezone import make_aware
+from datetime import datetime
+
 import jwt
 
 
@@ -37,8 +42,10 @@ class ResetPassword(BasePermission):
             return False
 
         try:
-            jwt.decode(token, settings.RESET_KEY, algorithms=["HS256"])
-            return True
+            payload = jwt.decode(token, settings.RESET_KEY, algorithms=["HS256"])
+            generate_at = datetime.strptime(payload['generate_at'], "%m/%d/%Y, %H:%M:%S")
+            user = User.objects.get(username=payload['username'])
+            return user.updated_at < make_aware(generate_at)
         except (jwt.InvalidSignatureError, jwt.InvalidSignatureError) as err:
             return False
 

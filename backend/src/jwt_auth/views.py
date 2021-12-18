@@ -24,7 +24,7 @@ from src.jwt_auth.permissions import ResetPassword
 from src.jwt_auth.models import User
 from src.jwt_auth.renderers import UserJSONRenderer
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import jwt
 
 from src import emails
@@ -139,6 +139,7 @@ class ResetPasswordView(APIView):
             dt = timezone.now() + timedelta(minutes=60)
 
             token = jwt.encode({
+                'generate_at': datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
                 'username': user.username,
                 'exp': dt.timestamp(),
             }, settings.RESET_KEY, algorithm='HS256')
