@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.core import mail
 
 from src.emkk_site.tests.base import TestEnvironment
 from src.jwt_auth.models import User
@@ -40,6 +39,29 @@ class ResetPasswordTest(TestCase):
         self.env.user = User.objects.get(email=self.env.user.email)
         self.assertTrue(check_password(new_password, self.env.user.password))
         self.assertFalse(check_password(old_password, self.env.user.password))
+
+    def test_reset_password_should_work_only_once(self):
+        data = {
+            "email": self.env.user.email,
+            "reset_url": '/auth/user',
+        }
+
+        r = self.env.client_post('/auth/users/reset-password',
+                                 data=data, set_auth_header=False)
+
+        new_password = "new_password"
+        patch_data = {
+            "user": {
+                "password": new_password,
+            },
+            "reset_token": f'Token {r.data["reset_token"]}'
+        }
+
+        r = self.env.client_patch('/auth/user', data=patch_data, set_auth_header=False)
+        self.assertEqual(r.status_code, 200)
+
+        r = self.env.client_patch('/auth/user', data=patch_data, set_auth_header=False)
+        self.assertEqual(r.status_code, 403)
 
     def test_should_not_work_when_email_not_exist_or_not_found(self):
         data = {

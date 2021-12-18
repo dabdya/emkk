@@ -35,6 +35,8 @@ class ReviewTest(TestCase):
 
         reviewers = self.env.create_reviewers(needed_reviews_count)
         for i in range(needed_reviews_count):
+            UserExperience(user=reviewers[i], trip_kind=trip.kind,
+                           difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=False).save()
             r = self.env.client_post(
                 f'/api/trips/{trip.id}/reviews',
                 data=self.get_review_data(trip.id), user=reviewers[i])
@@ -86,6 +88,10 @@ class ReviewTest(TestCase):
 
         trip = self.env.trips[0]
 
+        """Add needed experience"""
+        UserExperience(user=self.env.user, trip_kind=trip.kind,
+                       difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=False).save()
+
         """Reviewer try create several reviews for one trip. Expected fail"""
         for _ in range(2):
             self.env.client_post(
@@ -103,6 +109,8 @@ class ReviewTest(TestCase):
         self.env.user.ISSUER = True
         self.env.user.save()
 
+        UserExperience(user=self.env.user, trip_kind=trip.kind,
+                       difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=True).save()
         r = self.env.client_post(
             f'/api/trips/{trip.id}/reviews-from-issuer',
             data=self.get_review_data(trip.id), user=self.env.user)
@@ -185,6 +193,10 @@ class ReviewTest(TestCase):
 
     def test_after_create_review_email_notify_should_sent_to_trip_leader(self):
         trip = self.env.trips[0]
+
+        UserExperience(user=self.env.user, trip_kind=trip.kind,
+                       difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=False).save()
+
         self.env.client_post(
             f'/api/trips/{trip.id}/reviews',
             data=self.get_review_data(trip.id), user=self.env.user)
