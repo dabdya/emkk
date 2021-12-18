@@ -217,7 +217,7 @@ code {
 	display: flex;
 }
 
-#dashboard #legend {
+#dashboard .legend {
 	display: flex;
 	justify-content: space-evenly;
 	margin-top: 20px;
