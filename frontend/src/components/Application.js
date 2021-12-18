@@ -256,13 +256,7 @@ class Application extends React.Component {
 		const { isEditing, issues, files, reviews, status } = this.state;
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
-		const getItems = query =>
-			Promise.resolve(
-				GLOBAL_AREA.map(item => { return { value: item, label: item } })
-					.filter(item => item.value.toLowerCase().startsWith(query.toLowerCase()))
-			);
 		const changeApp = e => this.app[e.target.name] = e.target.value;
-		const changeComboBox = e => this.app.global_region = e.value;
 
 		return (
 			<div id="application" >
@@ -323,12 +317,8 @@ class Application extends React.Component {
 							<div>Район:</div>
 							<div>{isEditing
 								? <>
-									<ComboBox drawArrow={true}
-										getItems={getItems}
-										value={{ value: this.app.global_region, label: this.app.global_region }}
-										onValueChange={changeComboBox}
-										name="generalArea"
-									/>
+									<Select items={GLOBAL_AREA} defaultValue={this.app.global_region}
+										onValueChange={value => this.app.global_region = value} required />
 									<input defaultValue={this.app.local_region} name="local_region"
 										onChange={changeApp}
 									/>
@@ -420,7 +410,8 @@ class Application extends React.Component {
 									<div>
 										{/*eslint-disable-next-line */}
 										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
-										<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />
+										{getUser() === this.app.leader.username &&
+											<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />}
 									</div>
 								);
 							})}
