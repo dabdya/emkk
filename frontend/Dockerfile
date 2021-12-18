@@ -8,3 +8,5 @@ COPY package-lock.json /emkk/frontend/
 RUN npm install
 
 COPY . /emkk/frontend/
+
+RUN npm run build:env
