@@ -217,6 +217,14 @@ code {
 	display: flex;
 }
 
+.center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%)
+}
+
 #dashboard .legend {
 	display: flex;
 	justify-content: space-evenly;
@@ -343,4 +351,3 @@ code {
 		display: block;
 	}
 }
-

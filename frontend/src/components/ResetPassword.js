@@ -49,12 +49,7 @@ class ResetPassword extends React.Component {
 
 	render() {
 		return (
-			<div style={{
-				height: "100%",
-				display: "flex",
-				alignItems: "center",
-				justifyContent: "center"
-			}}>
+			<div className="center">
 				<form onSubmit={this.onSubmit}
 					style={{
 						display: "grid",
