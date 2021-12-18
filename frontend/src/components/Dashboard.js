@@ -9,6 +9,10 @@ import rejected from "../images/rejected.png";
 import accepted from "../images/accepted.png";
 import at_issuer from "../images/at_issuer.png";
 import rework from "../images/rework.png";
+import on_route from "../images/on_route.png";
+import take_papers from "../images/take_papers.png";
+import alarm from "../images/alarm.png";
+import route_completed from "../images/route_completed.png";
 
 
 
@@ -57,7 +61,7 @@ class Dashboard extends React.Component {
 			name: "Категория сложности",
 			selector: row => row.difficulty_category,
 			center: true,
-			width: "100px",
+			width: "160px",
 			sortable: true,
 		},
 		{
@@ -142,6 +146,11 @@ class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
+		if(this.props.roles.secretary){
+			this.props.history.push(`/home/application/${target.id}`);
+			return;
+		}
+		
 		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
@@ -158,6 +167,14 @@ class Dashboard extends React.Component {
 			return at_issuer;
 		} else if (status === "on_rework") {
 			return rework;
+		} else if (status === "on_route") {
+			return on_route;
+		} else if (status === "take_papers") {
+			return take_papers;
+		} else if (status === "alarm") {
+			return alarm;
+		} else if (status === "route_completed") {
+			return route_completed;
 		}
 		return accepted;
 	}
@@ -184,7 +201,7 @@ class Dashboard extends React.Component {
 							selectAllRowsItemText: "Все"
 						}}
 					/>
-					<div id="legend">
+					<div className="legend">
 						<div className="flex">
 							<img height="50px" width="50px" src={accepted} alt="accepted" />
 							<p> - Заявка одобрена</p>
@@ -200,12 +217,30 @@ class Dashboard extends React.Component {
 						<div className="flex">
 							<img height="50px" width="50px" src={rework} alt="rework" />
 							<p>- Заявка на доработке</p>
-						</div >
+						</div>
 						<div className="flex">
 							<img height="50px" width="50px" src={rejected} alt="rejected" />
 							<p> - Заявка отклонена</p>
-						</div >
-					</div >
+						</div>
+					</div>
+					<div className="legend">
+						<div className="flex">
+							<img height="50px" src={on_route} alt="on_route" />
+							<p>- На маршруте</p>
+						</div>
+						<div className="flex">
+							<img height="50px" src={take_papers} alt="take_papers" />
+							<p> - (take_papers)В работе?Ждёт подписи?</p>
+						</div>
+						<div className="flex">
+							<img height="50px" src={route_completed} alt="route_completed" />
+							<p>- Маршрут завершён</p>
+						</div>
+						<div className="flex">
+							<img height="50px" width="50px" src={alarm} alt="alarm" />
+							<p>- Аварийная ситуация</p>
+						</div>
+					</div>
 				</div>
 			</div>
 		);

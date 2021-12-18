@@ -107,26 +107,11 @@ code {
 }
 
 
-.rdt_TableCol {
-	white-space: normal !important;
-	word-wrap: break-word !important;
-	overflow-wrap: break-word !important;
-	overflow: visible !important;
-}
-
-.rdt_TableCol_Sortable {
-	white-space: normal !important;
-	word-wrap: break-word !important;
-	overflow-wrap: break-word !important;
-	overflow: visible !important;
-}
-
-
-.lnndaO {
+.rdt_TableCol_Sortable :first-child {
 	font-weight: bolder;
 	overflow: visible !important;
 	white-space: normal !important;
-}
+} 
 
 .formInputField:focus {
 	border: 2px solid #00518E;
@@ -217,7 +202,15 @@ code {
 	display: flex;
 }
 
-#dashboard #legend {
+.center {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-right: -50%;
+	transform: translate(-50%, -50%)
+}
+
+#dashboard .legend {
 	display: flex;
 	justify-content: space-evenly;
 	margin-top: 20px;
@@ -343,4 +336,3 @@ code {
 		display: block;
 	}
 }
-
