@@ -43,9 +43,9 @@ class ResetPassword(BasePermission):
 
         try:
             payload = jwt.decode(token, settings.RESET_KEY, algorithms=["HS256"])
-            generate_at = datetime.strptime(payload['generate_at'], "%m/%d/%Y, %H:%M:%S")
+            generate_at = datetime.strptime(payload['generate_at'], "%m/%d/%Y, %H:%M:%S.%f")
             user = User.objects.get(username=payload['username'])
-            return user.updated_at < make_aware(generate_at)
+            return user.updated_at <= make_aware(generate_at)
         except (jwt.InvalidSignatureError, jwt.InvalidSignatureError) as err:
             return False
 
