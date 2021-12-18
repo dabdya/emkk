@@ -3,6 +3,7 @@ import axios from "axios";
 import { TextField, Button } from "@mui/material"
 import { withRouter } from "react-router-dom";
 import jwt_decode from "jwt-decode";
+import validator from "validator";
 
 class ResetPassword extends React.Component {
 
@@ -28,6 +29,8 @@ class ResetPassword extends React.Component {
 		e.preventDefault();
 		if (this.state.password !== this.state.secondPassword) {
 			this.setState({ error: "Пароли не совпадают" });
+		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
+			this.setState({ error: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
 			axios.patch(`${process.env.REACT_APP_URL}/auth/user`,
 				{
