@@ -61,7 +61,7 @@ class Dashboard extends React.Component {
 			name: "Категория сложности",
 			selector: row => row.difficulty_category,
 			center: true,
-			width: "100px",
+			width: "160px",
 			sortable: true,
 		},
 		{
@@ -146,6 +146,11 @@ class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
+		if(this.props.roles.secretary){
+			this.props.history.push(`/home/application/${target.id}`);
+			return;
+		}
+		
 		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}
