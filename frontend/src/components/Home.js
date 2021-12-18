@@ -30,7 +30,7 @@ class Home extends React.Component {
 							<NavLink activeClassName="active" to="/home/my_reviews">
 								<div className="cell">
 									<img alt="" src={take_application_in_work} className="img-home-navbar" />
-									<span style={{ display: "block", color: "white" }}>Написать рецензию</span>
+									<span style={{ display: "block", color: "white" }}>Мои рецензии</span>
 								</div>
 							</NavLink>
 						</>}

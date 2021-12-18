@@ -286,7 +286,7 @@ class Application extends React.Component {
 					<div id="data-application">
 						<div className="cell-app">
 							<div>ФИО руководителя:</div>
-							<div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic}`}</div>
+							<div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic ? this.app.leader.patronymic : ""}`}</div>
 						</div>
 						<div className="cell-app">
 							<div>Спортивная организация:</div>
