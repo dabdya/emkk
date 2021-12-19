@@ -43,6 +43,8 @@ class TripTest(TestCase):
         response = self.env.client_get(f'/api/trips', set_auth_header=False)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(response.data[0].get('insurance_info', False))
+        self.assertFalse(response.data[0].get('access_token', False))
+        self.assertFalse(response.data[0].get('refresh_token', False))
 
     def test_user_cant_change_trip_if_is_not_owner(self):
         self.env.user.REVIEWER = False
