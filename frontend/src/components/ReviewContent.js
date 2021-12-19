@@ -130,7 +130,7 @@ export default class ReviewContent extends React.Component {
 						<input type="file" />
 					</form>}
 				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
-					close={this.close} message={getText(this.reviewer)}></ShowModal>}
+	close={this.close} message={getText(this.reviewer)}/>}
 			</div >
 		);
 	}

@@ -79,7 +79,7 @@ class App extends React.Component {
 							.isLogined &&
 							<>
 								{this.roles.secretary && <a className="link" activeClassName="active" href={process.env.REACT_APP_ADMIN_URL}>Админка</a>}
-								<Link className="link" style={{ padding: "0 35px" }} to="/account">{getUser()}</Link>
+								<Link className="link" style={{ padding: "0 35px" }} to="/home/account">{getUser()}</Link>
 								<Link className="link" style={{ padding: "0 35px" }} onClick={this.onLogout} to="/home/dashboard" >Выйти</Link>
 							</>}
 
@@ -96,8 +96,6 @@ class App extends React.Component {
 							<Route path="/login">
 								<Login onChangeLogin={this.onChangeLogin} {...this.props} />
 							</Route>
-
-							<Route path="/account" component={Account} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>
