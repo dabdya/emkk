@@ -93,6 +93,7 @@ class ReviewFromIssuer(Review):
 
 
 class Document(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     file = models.FileField(upload_to='%Y/%m/%d/')
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     filename = models.CharField(max_length=250)
