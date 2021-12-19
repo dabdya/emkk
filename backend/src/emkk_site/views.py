@@ -27,7 +27,7 @@ from src.emkk_site.models import (
     ReviewFromIssuer, Document, ReviewDocument,
     ReviewFromIssuerDocument, Review)
 
-from src.emkk_site.services import get_trips_available_for_work
+from src.emkk_site.services import get_trips_available_for_work, user_can_be_issuer, user_can_be_reviewer
 
 from src import emails
 
@@ -217,18 +217,31 @@ class ReviewView(generics.ListCreateAPIView):
         })
         return context
 
-    def create(self, request, *args, **kwargs):
-        trip_id = kwargs["pk"]
+    def get_related_trip(self):
         try:
-            trip = Trip.objects.get(pk=trip_id)
-        except Trip.DoesNotExist:
-            msg = f"Trip with {trip_id} not found"
+            return Trip.objects.get(pk=self.kwargs['pk'])
+        except Trip.DoesNotExist as err:
+            return
+
+    def create(self, request, *args, **kwargs):
+        trip = self.get_related_trip()
+        if not trip:
+            msg = f"Trip with {trip.id} not found"
             return Response(msg, status=status.HTTP_404_NOT_FOUND)
+
+        context_class = kwargs.get("context_class", None)
+        if isinstance(context_class, ReviewerList):
+            experience = user_can_be_reviewer
+        else:
+            experience = user_can_be_issuer
+
+        if not experience(request.user, trip):
+            msg = f"For trip with kind {trip.kind} " \
+                  f"and difficulty {trip.difficulty_category} you are not experience"
+            return Response(msg, status=status.HTTP_403_FORBIDDEN)
 
         serializer = self.serializer_class(
             data=request.data, context=self.get_serializer_context())
-
-        context_class = kwargs.get("context_class", None)
 
         if serializer.is_valid():
             user = request.user
@@ -240,14 +253,15 @@ class ReviewView(generics.ListCreateAPIView):
 
             if isinstance(context_class, ReviewerList):
                 try_change_status_from_review_to_at_issuer(trip)
-            elif isinstance(context_class, IssuerList):
+            else:
                 if trip.status != TripStatus.AT_ISSUER:
                     msg = f"Need at_issuer status, but found {trip.status}"
                     return Response(msg, status=status.HTTP_422_UNPROCESSABLE_ENTITY)
+
                 result = serializer.validated_data["result"]
                 try_change_trip_status_to_issuer_result(trip, result)
-            serializer.save()
 
+            serializer.save()
             send_mail(emails.NEW_REVIEW_HEAD % (trip.id, trip.global_region, trip.local_region, ),
                       emails.NEW_REVIEW_BODY, settings.EMAIL_HOST_USER, [trip.leader.email, ],
                       fail_silently=True)
@@ -264,7 +278,7 @@ class ReviewerList(ReviewView):
         super(ReviewerList, self).__init__(ReviewFromReviewer)
 
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer | IsIssuer | IsSecretary | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsReviewer | IsSecretary | IsAuthenticated & ReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
@@ -326,8 +340,15 @@ def change_trip_status(request, *args, **kwargs):
         trip.status = status_by_name[new_status_str]
         trip.save()
 
+        status_to_email_repr = {
+            'on_route': 'на маршруте',
+            'route_completed': 'маршрут завершен',
+            'take_papers': 'документы готовы',
+            'alarm': 'аварийная ситуация',
+        }
+
         send_mail(emails.CHANGE_STATUS_HEAD % (trip.id, trip.global_region, trip.local_region, ),
-                  emails.CHANGE_STATUS_BODY % (trip.status, ),
+                  emails.CHANGE_STATUS_BODY % (status_to_email_repr[trip.status], ),
                   settings.EMAIL_HOST_USER, [trip.leader.email, ], fail_silently=True)
         return Response(status=status.HTTP_200_OK)
 

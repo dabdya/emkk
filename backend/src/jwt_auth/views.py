@@ -139,6 +139,7 @@ class ResetPasswordView(APIView):
             dt = timezone.now() + timedelta(minutes=60)
 
             token = jwt.encode({
+                'generate_at': timezone.now().strftime("%m/%d/%Y, %H:%M:%S.%f"),
                 'username': user.username,
                 'exp': dt.timestamp(),
             }, settings.RESET_KEY, algorithm='HS256')

@@ -11,6 +11,7 @@ import hiking_dashboard from "../images/hiking_dashboard.png"
 
 
 class Home extends React.Component {
+
 	render() {
 		return (
 			<div className="Home">
@@ -21,12 +22,12 @@ class Home extends React.Component {
 							<span style={{ display: "block", color: "white" }}>Табло походов</span>
 						</div>
 					</NavLink>
-					{this.props.roles.reviewer &&
+					{(this.props.roles.reviewer || this.props.roles.issuer) &&
 						<>
 							<NavLink activeClassName="active" to="/home/my_reviews">
 								<div className="cell">
 									<img alt="" src={take_application_in_work} className="img-home-navbar" />
-									<span style={{ display: "block", color: "white" }}>Написать рецензию</span>
+									<span style={{ display: "block", color: "white" }}>Мои рецензии</span>
 								</div>
 							</NavLink>
 						</>}
@@ -52,7 +53,7 @@ class Home extends React.Component {
 						<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
 						<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
 						<Route exact path="/home/applications" component={() => this.props.roles.emkkMember ? <Dashboard isMyApps={true} {...this.props} /> : <NotFound {...this.props} />} />
-						<Route exact path="/home/my_reviews" component={() => this.props.roles.reviewer ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
+						<Route exact path="/home/my_reviews" component={() => (this.props.roles.reviewer || this.props.roles.issuer) ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="*" component={NotFound} />
 					</Switch>
 				</div>
