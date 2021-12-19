@@ -88,10 +88,18 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class DocumentDetail(generics.RetrieveDestroyAPIView):
-    permission_classes = [IsDocumentOwner | IsIssuer | IsReviewer | IsSecretary, ]
+
+    def get_permissions(self):
+        if self.request.method == 'GET':
+            self.permission_classes = [IsDocumentOwner | IsIssuer | IsReviewer | IsSecretary, ]
+        else:
+            self.permission_classes = [IsDocumentOwner, ]
+        return super().get_permissions()
 
     def retrieve(self, request, *args, **kwargs):
         document = self.get_object()
+        self.check_object_permissions(request, document)
+
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -108,8 +116,11 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
                 os.remove(path)
 
         document = self.get_object()
+        self.check_object_permissions(request, document)
+
         if not document:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
         delete_file(document.file.path)
         document.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -125,14 +136,7 @@ class DocumentDetail(generics.RetrieveDestroyAPIView):
 
 class DocumentList(generics.ListCreateAPIView):
     serializer_class = TripDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
-
-    def get_related_trip(self):
-        trip_id = self.kwargs['pk']
-        try:
-            return Trip.objects.get(pk=trip_id)
-        except Document.DoesNotExist:
-            pass
+    permission_classes = [IsTripOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self, model_class,  # TripDocument or ReviewDocument
                  related_model_class):  # Trip or Review
@@ -144,12 +148,14 @@ class DocumentList(generics.ListCreateAPIView):
         return self.model_class.get_by_related_obj_id(self.kwargs["pk"])
 
     def create(self, request, *args, **kwargs):
-        related_model_obj = self.get_related_model_obj()  # object of type Review or Trip
+        related_model_obj = self.get_object()  # object of type Review or Trip
+        self.check_object_permissions(request, related_model_obj)
         if not related_model_obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
         documents = []
         for file in self.request.FILES.getlist('file'):
             document = self.model_class.create(related_model_obj)
+            document.owner = self.request.user
             document.file = file
             document.content_type = file.content_type
             document.filename = file.name
@@ -161,13 +167,14 @@ class DocumentList(generics.ListCreateAPIView):
         return Response(documents, status=status.HTTP_201_CREATED)
 
     def list(self, request, *args, **kwargs):
-        related_model_obj = self.get_related_model_obj()
+        related_model_obj = self.get_object()
+        self.check_object_permissions(request, related_model_obj)
         if not related_model_obj:
             return Response(status=status.HTTP_404_NOT_FOUND)
         return Response([document.to_str_restricted() for document in self.get_queryset()],
                         status=status.HTTP_200_OK)
 
-    def get_related_model_obj(self) -> Union[Trip, ReviewFromReviewer]:
+    def get_object(self) -> Union[Trip, ReviewFromReviewer]:
         obj_id = self.kwargs['pk']
         try:
             return self.related_model_class.objects.get(pk=obj_id)
@@ -177,7 +184,6 @@ class DocumentList(generics.ListCreateAPIView):
 
 class ReviewDocumentList(DocumentList):
     serializer_class = ReviewDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(ReviewDocument, ReviewFromReviewer)
@@ -185,7 +191,6 @@ class ReviewDocumentList(DocumentList):
 
 class ReviewFromIssuerDocumentList(DocumentList):
     serializer_class = ReviewFromIssuerDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(ReviewFromIssuerDocument, ReviewFromIssuer)
@@ -193,7 +198,6 @@ class ReviewFromIssuerDocumentList(DocumentList):
 
 class TripDocumentList(DocumentList):
     serializer_class = TripDocumentSerializer
-    permission_classes = [IsDocumentOwner | IsReviewer | IsIssuer | IsSecretary, ]
 
     def __init__(self):
         super().__init__(TripDocument, Trip)
