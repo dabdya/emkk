@@ -37,9 +37,12 @@ class App extends React.Component {
 			// 	console.error(error);
 			// 	removeUserSession();
 			// });
-
-			this.roles = getRoles(getToken());
-			this.setState({ isLogined: true });
+			try {
+				this.roles = getRoles(getToken());
+				this.setState({ isLogined: true });
+			} catch (e) {
+				this.onLogout();
+			}
 		} else {
 			this.setState({ isLogined: false });
 		}
@@ -47,13 +50,13 @@ class App extends React.Component {
 
 	onLogout() {
 		removeUserSession();
-		this.setState({ isLogined: false });
 		this.roles = {};
+		this.setState({ isLogined: false });
 	}
 
 	onChangeLogin(value, roles) {
-		this.setState({ isLogined: value });
 		this.roles = roles;
+		this.setState({ isLogined: value });
 	}
 
 
@@ -76,6 +79,7 @@ class App extends React.Component {
 						{this.state
 							.isLogined &&
 							<>
+								{this.roles.secretary && <a className="link" activeClassName="active" href={process.env.REACT_APP_ADMIN_URL}>Админка</a>}
 								<Link className="link" style={{ padding: "0 35px" }} to="/account">{getUser()}</Link>
 								<Link className="link" style={{ padding: "0 35px" }} onClick={this.onLogout} to="/home/dashboard" >Выйти</Link>
 							</>}
@@ -94,7 +98,7 @@ class App extends React.Component {
 								<Login onChangeLogin={this.onChangeLogin} {...this.props} />
 							</Route>
 
-							<Route path="/account" component={Account}/>
+							<Route path="/account" component={Account} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>
