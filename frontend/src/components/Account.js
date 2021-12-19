@@ -198,15 +198,15 @@ class Account extends React.Component {
                         <>
                             <div className="profile-cell">
                                 <div>Старый пароль:</div>
-                                <input name="old_password" onChange={this.changeProfile}/>
+                                <input type="password" name="old_password" onChange={this.changeProfile}/>
                             </div>
                             <div className="profile-cell">
                                 <div>Новый пароль:</div>
-                                <input name="password" onChange={this.changeProfile}/>
+                                <input type="password" name="password" onChange={this.changeProfile}/>
                             </div>
                             <div className="profile-cell">
                                 <div>Повторите пароль:</div>
-                                <input onChange={this.handleConfirmPassword}/>
+                                <input type="password" onChange={this.handleConfirmPassword}/>
                             </div>
                         </>}
                     </div>
