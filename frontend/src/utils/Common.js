@@ -22,10 +22,14 @@ const removeUserSession = () => {
 	localStorage.removeItem("secretary");
 	localStorage.removeItem("reviewer")
 }
-const setToken = (accessToken) => {
+const setAccessToken = (accessToken) => {
 	localStorage.setItem("access_token", accessToken);
 }
 
+const setTokens = (accessToken, refreshToken) => {
+	localStorage.setItem("access_token", accessToken);
+	localStorage.setItem("refresh_token", refreshToken);
+}
 
 const setUserSession = (accessToken, refreshToken, user) => {
 	localStorage.setItem("refresh_token", refreshToken);
@@ -58,4 +62,5 @@ const caseInsensitiveSort = (rowA, rowB) => {
 	return 0;
 };
 
-export { getUser, getToken, removeUserSession, setUserSession, getRefreshToken, setToken, caseInsensitiveSort, getRoles };
+export { getUser, getToken, removeUserSession, setUserSession,
+	getRefreshToken, setAccessToken, setTokens, caseInsensitiveSort, getRoles };

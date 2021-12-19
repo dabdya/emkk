@@ -1,6 +1,5 @@
 import React from "react";
 import { Switch, Route, NavLink, Link, Redirect, withRouter } from "react-router-dom";
-import axios from "axios";
 import Login from "./Login";
 import Home from "./Home";
 import Registration from "./Registration";
@@ -8,7 +7,7 @@ import NotFound from "./NotFound";
 import ForgetPass from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
 import Account from "./Account.js";
-import { getToken, getUser, removeUserSession, setUserSession, getRoles } from "../utils/Common";
+import { getToken, getUser, removeUserSession, getRoles } from "../utils/Common";
 import logo from "../images/mainlogo.png";
 
 
@@ -80,7 +79,7 @@ class App extends React.Component {
 							.isLogined &&
 							<>
 								{this.roles.secretary && <a className="link" activeClassName="active" href={process.env.REACT_APP_ADMIN_URL}>Админка</a>}
-								<Link className="link" style={{ padding: "0 35px" }} to="/account">{getUser()}</Link>
+								<Link className="link" style={{ padding: "0 35px" }} to="/home/account">{getUser()}</Link>
 								<Link className="link" style={{ padding: "0 35px" }} onClick={this.onLogout} to="/home/dashboard" >Выйти</Link>
 							</>}
 
@@ -97,8 +96,6 @@ class App extends React.Component {
 							<Route path="/login">
 								<Login onChangeLogin={this.onChangeLogin} {...this.props} />
 							</Route>
-
-							<Route path="/account" component={Account} />
 							<Route path="*" component={NotFound} />
 						</Switch>
 					</div>

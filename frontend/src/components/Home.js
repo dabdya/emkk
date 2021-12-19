@@ -8,6 +8,7 @@ import my_application from "../images/my_application.png"
 import application_form from "../images/application_form.png"
 import take_application_in_work from "../images/take_application_in_work.png"
 import hiking_dashboard from "../images/hiking_dashboard.png"
+import Account from "./Account";
 
 
 class Home extends React.Component {
@@ -49,6 +50,7 @@ class Home extends React.Component {
 				</div>
 				<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 					<Switch>
+						<Route path="/home/account" component={Account}/>
 						<Route path="/home/application/:id" component={() => this.props.roles.emkkMember ? <Application {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
 						<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
