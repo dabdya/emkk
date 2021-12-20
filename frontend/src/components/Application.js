@@ -4,15 +4,14 @@ import { Button, Select, ComboBox } from "@skbkontur/react-ui";
 import TextField from "@mui/material/TextField";
 import ReviewContent from "./ReviewContent";
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
-import Requests from "../utils/requests";
-import { getToken, getUser } from "../utils/Common";
+import request from "../utils/requests";
+import { getUser } from "../utils/Common";
 import icon from "../images/delete.ico";
 import ReviewForm from "./ReviewForm";
 
 
 class Application extends React.Component {
 
-	requests = new Requests();
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -59,22 +58,14 @@ class Application extends React.Component {
 		this.deleteDocumentInReview = this.deleteDocumentInReview.bind(this);
 		this.addDocument = this.addDocument.bind(this);
 		this.addFileInReview = this.addFileInReview.bind(this);
-		this.config = this.config.bind(this);
 		this.uploadReview = this.uploadReview.bind(this);
 		this.changeStatus = this.changeStatus.bind(this);
 		this.setter = this.setter.bind(this);
 	}
 
-	config() {
-		return {
-			headers: {
-				Authorization: "Token " + getToken()
-			}
-		}
-	};
 
 	async componentDidMount() {
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}`, this.config())
+		request.get(`/api/trips/${this.id}`)
 			.then(response => {
 				this.app = {
 					id: response.data.id,
@@ -102,7 +93,7 @@ class Application extends React.Component {
 			})
 			.catch(err => this.props.history.push("/"));
 
-		this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, this.config())
+		request.get(`/api/trips/${this.id}/documents`)
 			.then(async resp => {
 				resp.data.forEach(file => {
 					this.setState(prevState => ({
@@ -111,11 +102,11 @@ class Application extends React.Component {
 				});
 			});
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
+		request.get(`/api/trips/${this.id}/reviews`)
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 				resp?.data?.map(async review => {
-					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${review.id}/documents`, this.config())
+					await request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)
 						.then(resp => {
 							this.setState({ reviewsFiles: resp.data });
 						})
@@ -123,11 +114,11 @@ class Application extends React.Component {
 			})
 			.catch(err => console.error(err));
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer`, this.config())
+		await request.get(`/api/trips/${this.id}/reviews-from-issuer`)
 			.then(resp => {
 				this.setState({ issues: resp.data });
 				resp?.data?.map(async issue => {
-					await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`, this.config())
+					await request.get(`/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`)
 						.then(resp => {
 							this.setState({ issuesFiles: resp.data });
 						})
@@ -139,18 +130,16 @@ class Application extends React.Component {
 	async uploadReview(e) {
 		const file = e.target.files[0];
 
-		await this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`,
-			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] },
-			this.config())
+		await request.post(`/api/trips/${this.id}/reviews`,
+			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] })
 			.then(resp => {
 				const form = new FormData()
 				form.append("file", file);
-				this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews/${resp.data.id}/documents`,
-					form,
-					this.config())
+				request.post(`/api/trips/${this.id}/reviews/${resp.data.id}/documents`,
+					form)
 			});
 
-		await this.requests.get(`${process.env.REACT_APP_URL}/api/trips/${this.id}/reviews`, this.config())
+		await request.get(`/api/trips/${this.id}/reviews`)
 			.then(resp => {
 				this.setState({ reviews: resp.data });
 			})
@@ -178,15 +167,14 @@ class Application extends React.Component {
 
 	changeStatus(e) {
 		e.preventDefault();
-		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {},
-			this.config())
+		request.post(`/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {})
 			.then(resp => { console.log(resp); })
 	}
 
 	async createBlob(e, file) {
 		e.preventDefault()
 		let mime;
-		const resp = await this.requests.get(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`, { ...this.config(), responseType: "arraybuffer" })
+		const resp = await request.get(`/api/documents/${file.uuid}`, { responseType: "arraybuffer" })
 			.then(resp => {
 				mime = resp.headers["content-type"];
 				return resp;
@@ -203,7 +191,7 @@ class Application extends React.Component {
 	async onSubmit(event) {
 		event.preventDefault();
 		const { id, isEditing, files, reviews, ...data } = this.app;
-		await this.requests.patch(`${process.env.REACT_APP_URL}/api/trips/${id}`, data, this.config())
+		await request.patch(`/api/trips/${id}`, data)
 			.then(resp => {
 				this.app.last_modified_at = resp.data.last_modified_at;
 				this.changeEditing();
@@ -215,16 +203,14 @@ class Application extends React.Component {
 	}
 
 	deleteDocument(file) {
-		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
-			this.config())
+		request.delete(`/api/documents/${file.uuid}`)
 			.then(() => {
 				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
 			})
 	}
 
 	deleteDocumentInReview(file) {
-		this.requests.delete(`${process.env.REACT_APP_URL}/api/documents/${file.uuid}`,
-			this.config())
+		request.delete(`/api/documents/${file.uuid}`)
 			.then(() => {
 				this.setState(prevState => ({ reviewsFiles: prevState.reviewsFiles.filter(item => item.uuid !== file.uuid) }));
 				this.setState(prevState => ({ issuesFiles: prevState.issuesFiles.filter(item => item.uuid !== file.uuid) }));
@@ -244,8 +230,7 @@ class Application extends React.Component {
 			form.append("file", file);
 		}
 
-		this.requests.post(`${process.env.REACT_APP_URL}/api/trips/${this.id}/documents`, form,
-			this.config())
+		request.post(`/api/trips/${this.id}/documents`, form)
 			.then(resp => {
 				for (const item of resp.data) {
 					this.setState(prevState => ({ files: [...prevState.files, { uuid: item.uuid, filename: item.filename }] }));

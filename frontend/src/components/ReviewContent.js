@@ -3,8 +3,8 @@ import TextField from "@mui/material/TextField";
 import { Button } from "@skbkontur/react-ui";
 import ShowModal from "./ShowModal";
 import { STATUS } from "../utils/Constants";
-import Requests from "../utils/requests";
-import { getToken, getUser } from "../utils/Common";
+import request from "../utils/requests";
+import { getUser } from "../utils/Common";
 import rework from "../images/rework.png";
 import accepted from "../images/accepted.png";
 import rejected from "../images/rejected.png";
@@ -18,7 +18,6 @@ export default class ReviewContent extends React.Component {
 			editing: false,
 		}
 
-		this.requests = new Requests();
 		this.reviewer = this.props.reviewer;
 		this.result = this.props.result;
 		this.comment = this.props.comment;
@@ -27,28 +26,18 @@ export default class ReviewContent extends React.Component {
 		this.open = this.open.bind(this);
 		this.close = this.close.bind(this);
 		this.changeEditing = this.changeEditing.bind(this);
-		this.onSubmit = this.onSubmit.bind(this);
-		this.config = this.config.bind(this);
 	}
 
 	async onSubmit(e) {
 		e.preventDefault();
-		await this.requests.patch(`${process.env.REACT_APP_URL}/api/reviews/${this.props.id}`,
-			{ result_comment: e.target[0].value, result: e.nativeEvent.submitter.name }, this.config())
+		await request.patch(`/api/reviews/${this.props.id}`,
+			{ result_comment: e.target[0].value, result: e.nativeEvent.submitter.name })
 			.then(() => {
 				this.comment = e.target[0].value;
 				this.result = e.nativeEvent.submitter.name;
 				this.changeEditing()
 			})
 	}
-
-	config() {
-		return {
-			headers: {
-				Authorization: "Token " + getToken()
-			}
-		}
-	};
 
 	getImage() {
 		if (this.result === "accepted") {
@@ -130,7 +119,7 @@ export default class ReviewContent extends React.Component {
 						<input type="file" />
 					</form>}
 				{this.state.buttonIsPressed && <ShowModal header={`${this.reviewer?.first_name} ${this.reviewer?.last_name} ${this.reviewer?.patronymic}`}
-	close={this.close} message={getText(this.reviewer)}/>}
+					close={this.close} message={getText(this.reviewer)} />}
 			</div >
 		);
 	}

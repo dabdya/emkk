@@ -1,67 +1,33 @@
 import { getRefreshToken, getToken, setAccessToken } from "./Common";
 import axios from "axios";
-export default class Requests {
-	constructor() {
-		this.wrappedAxios = axios.create();
-	}
 
-	async get(url, config = { headers: {} }) {
-		return this.wrappedAxios.get(url, config)
-			.catch(async error => {
-				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
-						.then(async resp => {
-							setAccessToken(resp.data.access_token);
-							config.headers["Authorization"] = "Token " + getToken();
-							return this.wrappedAxios.get(url, config);
-						})
-				}
-				return Promise.reject(error)
-			});
+const request = new axios.create({
+	baseURL: process.env.REACT_APP_URL,
+	headers: {
+		Authorization: "Token " + getToken()
 	}
+});
 
-	async post(url, data, config = { headers: {} }) {
-		return this.wrappedAxios.post(url, data, config)
-			.catch(async error => {
-				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
-						.then(resp => {
-							setAccessToken(resp.data.access_token);
-							config.headers["Authorization"] = "Token " + getToken();
-							return this.wrappedAxios.post(url, data, config);
-						})
+request.interceptors.response.use((response) => {
+	return response
+}, function (error) {
+	const originalRequest = error.config;
+	// if (error.status !== 403) {
+	// 	return Promise.reject(error);
+	// }
+	if (error.response.status === 403 && !originalRequest._retry) {
+		originalRequest._retry = true;
+		return request.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
+			.then(res => {
+				if (res.status === 200) {
+					setAccessToken(res.data.access_token);
+					request.defaults.headers.common['Authorization'] = 'Token ' + getToken();
+					request.defaults.headers['Authorization'] = 'Token ' + getToken();
+					originalRequest.headers['Authorization'] = 'Token ' + getToken();
+					return request(originalRequest);
 				}
-				return Promise.reject(error)
-			});
+			})
 	}
+});
 
-	async patch(url, data, config = { headers: {} }) {
-		return this.wrappedAxios.patch(url, data, config)
-			.catch(async error => {
-				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
-						.then(resp => {
-							setAccessToken(resp.data.access_token);
-							config.headers["Authorization"] = "Token " + getToken();
-							return this.wrappedAxios.patch(url, data, config);
-						})
-				}
-				return Promise.reject(error)
-			});
-	}
-
-	async delete(url, config = { headers: {} }) {
-		return this.wrappedAxios.delete(url, config)
-			.catch(async error => {
-				if (error.response.data.detail === "Signature has expired") {
-					return await this.wrappedAxios.post(`${process.env.REACT_APP_URL}/auth/users/refresh`, { refresh_token: getRefreshToken() })
-						.then(resp => {
-							setAccessToken(resp.data.access_token);
-							config.headers["Authorization"] = "Token " + getToken();
-							return this.wrappedAxios.delete(url, config);
-						})
-				}
-				return Promise.reject(error)
-			});
-	}
-}
+export default request;

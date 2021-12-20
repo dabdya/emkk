@@ -53,7 +53,7 @@ class Home extends React.Component {
 						<Route path="/home/account" component={Account}/>
 						<Route path="/home/application/:id" component={() => this.props.roles.emkkMember ? <Application {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
-						<Route exact path="/home/dashboard" component={() => <Dashboard isMyApps={false} {...this.props} />} />
+						<Route exact path="/home/dashboard" render ={() => <Dashboard isMyApps={false} {...this.props} />} />
 						<Route exact path="/home/applications" component={() => this.props.roles.emkkMember ? <Dashboard isMyApps={true} {...this.props} /> : <NotFound {...this.props} />} />
 						<Route exact path="/home/my_reviews" component={() => (this.props.roles.reviewer || this.props.roles.issuer) ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="*" component={NotFound} />

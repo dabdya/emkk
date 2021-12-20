@@ -1,8 +1,8 @@
 import React from "react";
 import DataTable from "react-data-table-component";
 import { withRouter } from "react-router-dom";
-import { getToken, getUser, caseInsensitiveSort } from "../utils/Common";
-import Requests from "../utils/requests";
+import { getUser, caseInsensitiveSort } from "../utils/Common";
+import request from "../utils/requests";
 import { KIND_OF_TOURISM } from "../utils/Constants";
 import review from "../images/review.png";
 import rejected from "../images/rejected.png";
@@ -102,17 +102,11 @@ class Dashboard extends React.Component {
 	}
 
 	componentDidMount() {
-		const request = new Requests();
-		const config = getToken() ? {
-			headers: {
-				Authorization: "Token " + getToken()
-			}
-		} : {};
 
 		this._isMounted = true;
 
 		if (this.props.isMyReview) {
-			request.get(`${process.env.REACT_APP_URL}/api/trips?filter=work`, config)
+			request.get("/api/trips?filter=work")
 				.then(result => {
 					this._isMounted && this.setState({
 						trips: result.data.map(item => {
@@ -122,7 +116,7 @@ class Dashboard extends React.Component {
 					});
 				})
 		} else {
-			request.get(`${process.env.REACT_APP_URL}/api/trips${this.isMyApps ? "?filter=my" : ""}`, config)
+			request.get(`/api/trips${this.isMyApps ? "?filter=my" : ""}`)
 				.then(
 					(result) => {
 						this._isMounted && this.setState({
@@ -146,11 +140,11 @@ class Dashboard extends React.Component {
 	}
 
 	onClickOnRow(target) {
-		if(this.props.roles.secretary){
+		if (this.props.roles.secretary) {
 			this.props.history.push(`/home/application/${target.id}`);
 			return;
 		}
-		
+
 		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
 			return;
 		}

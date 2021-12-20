@@ -3,7 +3,7 @@ import { withRouter } from "react-router-dom";
 import ShowModal from "./ShowModal"
 import { GLOBAL_AREA, KIND_OF_TOURISM } from "../utils/Constants";
 import { getToken } from "../utils/Common";
-import Requests from "../utils/requests"
+import request from "../utils/requests"
 import HelpIcon from "@mui/icons-material/Help";
 import Tooltip from "@mui/material/Tooltip";
 import IconButton from "@mui/material/IconButton";
@@ -55,31 +55,24 @@ class ApplicationForm extends React.Component {
 	async onSubmit(event) {
 		event.preventDefault()
 		const { files, ...rest } = this.app;
-		const config = {
-			headers: {
-				Authorization: "Token " + getToken()
-			}
-		};
+
 		if (!rest.control_start_date) {
 			rest.control_start_date = rest.start_date;
 		}
 		if (!rest.control_end_date) {
 			rest.control_end_date = rest.end_date;
 		}
-		const request = new Requests();
-		await request.post(`${process.env.REACT_APP_URL}/api/trips`,
-			rest,
-			config).then(respForm => {
+
+		await request.post("/api/trips", rest)
+			.then(respForm => {
 				this.open();
 
 				const form = new FormData()
 				for (const file of this.app.files) {
 					form.append("file", file);
 				}
-				request.post(`${process.env.REACT_APP_URL}/api/trips/${respForm.data.id}/documents`,
-					form, config
-				);
-			})
+				request.post(`/api/trips/${respForm.data.id}/documents`, form);
+			});
 	}
 
 	changeInputRegister(event) {
@@ -442,10 +435,10 @@ class ApplicationForm extends React.Component {
 					/>
 				</div>
 				<div className="cell">
-					<Button variant="contained" endIcon={<AssignmentTurnedInIcon/>}
+					<Button variant="contained" endIcon={<AssignmentTurnedInIcon />}
 						type="submit"
 						tabIndex={21}
-						style={{ marginRight: "1.75rem", width: "90%", backgroundColor: "#136DAB"}}
+						style={{ marginRight: "1.75rem", width: "90%", backgroundColor: "#136DAB" }}
 					>Отправить заявку</Button>
 				</div>
 				{this.state.buttonIsPressed && <ShowModal header="ЭМКК" close={this.close} message="Заявка подана!" />}
