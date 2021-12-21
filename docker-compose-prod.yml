@@ -29,7 +29,7 @@ services:
     image: emkk_frontend
     build: ./frontend
     volumes:
-      - ./emkk/frontend/node_modules
+      - /emkk/frontend/node_modules
     command: sh -c "node ./server.js"
     ports:
       - "443:443"

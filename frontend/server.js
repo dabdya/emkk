@@ -1,12 +1,12 @@
-var fs = require("fs");
-var path = require("path");
-var https = require("https");
-var privateKey = fs.readFileSync("./server.key", "utf8");
-var certificate = fs.readFileSync("./server.crt", "utf8");
+const fs = require("fs");
+const path = require("path");
+const https = require("https");
+const privateKey = fs.readFileSync("./certs/server.key", "utf8");
+const certificate = fs.readFileSync("./certs/server.crt", "utf8");
 
-var credentials = { key: privateKey, cert: certificate };
-var express = require("express");
-var app = express();
+const credentials = { key: privateKey, cert: certificate };
+const express = require("express");
+const app = express();
 
 const BUILD_FOLDER = "build"
 

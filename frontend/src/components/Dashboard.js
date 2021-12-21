@@ -224,7 +224,7 @@ class Dashboard extends React.Component {
 						</div>
 						<div className="flex">
 							<img height="50px" src={take_papers} alt="take_papers" />
-							<p> - (take_papers)В работе?Ждёт подписи?</p>
+							<p> - Документы готовы</p>
 						</div>
 						<div className="flex">
 							<img height="50px" src={route_completed} alt="route_completed" />
