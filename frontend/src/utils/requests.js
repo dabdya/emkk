@@ -3,10 +3,19 @@ import axios from "axios";
 
 const request = new axios.create({
 	baseURL: process.env.REACT_APP_URL,
-	headers: {
-		Authorization: "Token " + getToken()
-	}
 });
+request.interceptors.request.use(
+	config => {
+		if (getToken() !== null) {
+			config.headers = {
+				'Authorization': `Token ${getToken()}`
+			}
+		}
+		return config;
+	},
+	error => {
+		Promise.reject(error)
+	});
 
 request.interceptors.response.use((response) => {
 	return response
