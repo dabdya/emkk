@@ -26,6 +26,7 @@ export default class ReviewContent extends React.Component {
 		this.open = this.open.bind(this);
 		this.close = this.close.bind(this);
 		this.changeEditing = this.changeEditing.bind(this);
+		this.onSubmit = this.onSubmit.bind(this);
 	}
 
 	async onSubmit(e) {

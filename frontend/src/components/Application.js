@@ -65,7 +65,7 @@ class Application extends React.Component {
 
 
 	async componentDidMount() {
-		request.get(`/api/trips/${this.id}`)
+		await request.get(`/api/trips/${this.id}`)
 			.then(response => {
 				this.app = {
 					id: response.data.id,
@@ -105,11 +105,12 @@ class Application extends React.Component {
 		request.get(`/api/trips/${this.id}/reviews`)
 			.then(resp => {
 				this.setState({ reviews: resp.data });
-				resp?.data?.map(async review => {
-					await request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)
+				resp.data.map(review => {
+					request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)
 						.then(resp => {
 							this.setState({ reviewsFiles: resp.data });
 						})
+						.catch(err => console.error(err));
 				})
 			})
 			.catch(err => console.error(err));
