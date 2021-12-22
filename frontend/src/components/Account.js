@@ -1,6 +1,5 @@
 import React from "react";
-import { withRouter } from "react-router-dom";
-import { getToken, getUser, setTokens } from "../utils/Common";
+import { getUser, setTokens } from "../utils/Common";
 import request from "../utils/requests";
 import Button from '@mui/material/Button'
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
@@ -209,4 +208,4 @@ class Account extends React.Component {
 		)
 	}
 }
-export default withRouter(Account);
+export default Account;

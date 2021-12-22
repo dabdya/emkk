@@ -48,7 +48,7 @@ class Registration extends React.Component {
 
 	close() {
 		this.setState(() => ({ buttonIsPressed: false }))
-		window.location.href = "/signup";
+		this.props.history.push("/")
 	}
 
 	async onSubmit(event) {

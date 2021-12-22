@@ -1,6 +1,6 @@
 import React from "react";
 import { withRouter } from "react-router-dom";
-import { Button, Select, ComboBox } from "@skbkontur/react-ui";
+import { Button, Select } from "@skbkontur/react-ui";
 import TextField from "@mui/material/TextField";
 import ReviewContent from "./ReviewContent";
 import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
@@ -105,7 +105,7 @@ class Application extends React.Component {
 		request.get(`/api/trips/${this.id}/reviews`)
 			.then(resp => {
 				this.setState({ reviews: resp.data });
-				resp.data.map(review => {
+				resp.data.forEach(review => {
 					request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)
 						.then(resp => {
 							this.setState({ reviewsFiles: resp.data });

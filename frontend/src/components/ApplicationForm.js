@@ -2,7 +2,6 @@ import React from "react";
 import { withRouter } from "react-router-dom";
 import ShowModal from "./ShowModal"
 import { GLOBAL_AREA, KIND_OF_TOURISM } from "../utils/Constants";
-import { getToken } from "../utils/Common";
 import request from "../utils/requests"
 import HelpIcon from "@mui/icons-material/Help";
 import Tooltip from "@mui/material/Tooltip";

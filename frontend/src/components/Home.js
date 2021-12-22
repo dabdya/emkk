@@ -1,5 +1,5 @@
 import React from "react";
-import { Switch, Route, NavLink, withRouter } from "react-router-dom";
+import { Switch, Route, NavLink } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import NotFound from "./NotFound";
 import Application from "./Application";
@@ -50,10 +50,10 @@ class Home extends React.Component {
 				</div>
 				<div className="content-home" style={{ paddingLeft: "3px", width: "100%" }}>
 					<Switch>
-						<Route path="/home/account" component={Account}/>
+						<Route path="/home/account" component={Account} />
 						<Route path="/home/application/:id" component={() => this.props.roles.emkkMember ? <Application {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="/home/form" component={() => this.props.roles.emkkMember ? <ApplicationForm /> : <NotFound {...this.props} />} />
-						<Route exact path="/home/dashboard" render ={() => <Dashboard isMyApps={false} {...this.props} />} />
+						<Route exact path="/home/dashboard" render={() => <Dashboard isMyApps={false} {...this.props} />} />
 						<Route exact path="/home/applications" component={() => this.props.roles.emkkMember ? <Dashboard isMyApps={true} {...this.props} /> : <NotFound {...this.props} />} />
 						<Route exact path="/home/my_reviews" component={() => (this.props.roles.reviewer || this.props.roles.issuer) ? <Dashboard isMyReview={true} {...this.props} /> : <NotFound {...this.props} />} />
 						<Route path="*" component={NotFound} />
@@ -64,4 +64,4 @@ class Home extends React.Component {
 	}
 }
 
-export default withRouter(Home);
+export default Home;

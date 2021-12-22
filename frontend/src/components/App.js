@@ -1,12 +1,11 @@
 import React from "react";
-import { Switch, Route, NavLink, Link, Redirect, withRouter } from "react-router-dom";
+import { Switch, Route, NavLink, Link, Redirect } from "react-router-dom";
 import Login from "./Login";
 import Home from "./Home";
 import Registration from "./Registration";
 import NotFound from "./NotFound";
 import ForgetPass from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
-import Account from "./Account.js";
 import { getToken, getUser, removeUserSession, getRoles } from "../utils/Common";
 import logo from "../images/mainlogo.png";
 
@@ -105,4 +104,4 @@ class App extends React.Component {
 
 	}
 }
-export default withRouter(App)
+export default App

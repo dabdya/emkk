@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 import { TextField, Button } from "@mui/material"
-import { withRouter } from "react-router-dom";
 
 class ForgetPass extends React.Component {
 
@@ -25,7 +24,6 @@ class ForgetPass extends React.Component {
 				this.setState({ success: `Письмо успешно отправлено на ${this.state.login}.\nЕсли Письмо не пришло, проверьте папку "Спам".` })
 			})
 			.catch(err => {
-				console.log(err.response);
 				if (err.response?.status === 422) {
 					this.setState({ error: "Пользователь с таким адресом почты не найден." })
 				} else {
@@ -70,4 +68,4 @@ class ForgetPass extends React.Component {
 	}
 }
 
-export default withRouter(ForgetPass);
+export default ForgetPass;
