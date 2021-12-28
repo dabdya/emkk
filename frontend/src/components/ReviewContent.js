@@ -100,7 +100,7 @@ export default class ReviewContent extends React.Component {
 						);
 					})}
 				</div>
-				{this.reviewer.username === getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
+				{this.reviewer.username === getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать рецензию</Button>}
 				{this.state.editing &&
 					<form onSubmit={this.onSubmit}>
 						<TextField
