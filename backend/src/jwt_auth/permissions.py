@@ -83,9 +83,7 @@ class IsTripOwner(BasePermission):
         return request.user.is_authenticated
 
     def has_object_permission(self, request, view, obj):
-        if isinstance(obj, Trip):
-            return obj.leader == request.user
-        return False
+        return obj.leader == request.user
 
 
 class IsDocumentOwner(BasePermission):

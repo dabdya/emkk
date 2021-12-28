@@ -15,11 +15,10 @@ class ForgetPass extends React.Component {
 	onSubmit(e) {
 		e.preventDefault();
 		this.setState({ isPressed: true });
-		const data = {
-			email: this.state.login,
-			reset_url: `${process.env.REACT_APP_RESET_URL}/reset-password`
-		}
-		axios.post("/auth/users/reset-password", data)
+		const form = new FormData();
+		form.append("email", this.state.login);
+		form.append("reset_url", `${process.env.REACT_APP_RESET_URL}/reset-password`);
+		axios.post(`${process.env.REACT_APP_URL}/auth/users/reset-password`, form)
 			.then(resp => {
 				this.setState({ error: "" })
 				this.setState({ success: `Письмо успешно отправлено на ${this.state.login}.\nЕсли Письмо не пришло, проверьте папку "Спам".` })

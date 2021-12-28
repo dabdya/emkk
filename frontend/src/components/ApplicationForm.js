@@ -120,7 +120,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="group_name"
+						id="outlined"
 						name="group_name"
 						label="Название спортивной организации"
 						style={styleTextField}
@@ -132,7 +132,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="coordinator_name"
+						id="outlined"
 						name="coordinator_name"
 						label="ФИО координатора"
 						style={styleTextField}
@@ -144,7 +144,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<Autocomplete
 						openOnFocus
-						id="global_region"
+						id="combo-box-demo"
 						options={GLOBAL_AREA}
 						style={styleTextField}
 						onSelect={(event) => this.handleTag(event, "global_region")}
@@ -159,7 +159,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="coordinator_phone_number"
+						id="outlined"
 						type="tel"
 						name="coordinator_phone_number"
 						label="Контактный телефон координатора"
@@ -174,7 +174,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="local_region"
+						id="outlined"
 						label="Локальный район"
 						name="local_region"
 						style={styleTextField}
@@ -186,7 +186,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="control_start_region"
+						id="outlined"
 						name="control_start_region"
 						label="Населённый пункт начала маршрута"
 						style={styleTextField}
@@ -198,7 +198,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<Autocomplete
 						openOnFocus
-						id="difficulty_category"
+						id="combo-box-demo"
 						options={["1", "2", "3", "4", "5", "6"]}
 						onSelect={(event) => this.handleTag(event, "difficulty_category")}
 						style={styleTextField}
@@ -211,7 +211,7 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						id="control_start_date"
+						id="outlined"
 						label="Контрольный срок сообщения о начале маршрута"
 						name="control_start_date"
 						type="date"
@@ -241,7 +241,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="control_end_region"
+						id="outlined"
 						label="Населённый пункт окончания маршрута"
 						name="control_end_region"
 						style={styleTextField}
@@ -253,7 +253,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="start_date"
+						id="outlined"
 						label="Дата выхода на маршрут"
 						name="start_date"
 						type="date"
@@ -266,7 +266,7 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
-						id="control_end_date"
+						id="outlined"
 						label="Контрольный срок сообщения об окончании маршрута"
 						name="control_end_date"
 						type="date"
@@ -280,7 +280,7 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="end_date"
+						id="outlined"
 						label="Дата выхода с маршрута"
 						name="end_date"
 						type="date"

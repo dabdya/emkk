@@ -28,7 +28,7 @@ services:
     container_name: 'emkk-frontend'
     image: emkk_frontend
     build: ./frontend
-    command: npm start
+    command: npm run start
     env_file:
       - ./frontend/dev.env
     volumes:

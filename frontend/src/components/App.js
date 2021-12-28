@@ -8,13 +8,12 @@ import ForgetPass from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
 import { getToken, getUser, removeUserSession, getRoles } from "../utils/Common";
 import logo from "../images/mainlogo.png";
-import axios from "axios";
+
 
 class App extends React.Component {
 
 	constructor(props) {
-		super(props);
-		axios.defaults.baseURL = process.env.REACT_APP_URL;
+		super(props)
 		this.state = { isLogined: false };
 		this.onLogout = this.onLogout.bind(this);
 		this.onChangeLogin = this.onChangeLogin.bind(this);
@@ -23,6 +22,19 @@ class App extends React.Component {
 
 	componentDidMount() {
 		if (getToken()) {
+			// const config = {
+			// 	headers: {
+			// 		Authorization: "Token " + getToken()
+			// 	}
+			// };
+
+			// axios.get(`${process.env.REACT_APP_URL}/auth/user`, config).then(response => {
+			// 	setUserSession(response.data.user.access_token, response.data.user.refresh_token, response.data.user.username);
+			// 	this.setState({ isLogined: true });
+			// }).catch(error => {
+			// 	console.error(error);
+			// 	removeUserSession();
+			// });
 			try {
 				this.roles = getRoles(getToken());
 				this.setState({ isLogined: true });
@@ -56,13 +68,14 @@ class App extends React.Component {
 								<img width="62px" height="62px" src={logo} alt="logo" />
 							</a>
 						</div>
-						<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЭМКК</div>
+						<div style={{ marginTop: "15px", marginLeft: "15px", marginBottom: "15px", fontSize: "35px" }} className="emkk justify-start">ЕМКК</div>
 						{!this.state.isLogined &&
 							<>
 								<NavLink className="link" activeClassName="active" to="/login">Логин</NavLink>
 								<NavLink className="link" activeClassName="active" to="/signup">Регистрация</NavLink>
 							</>}
-						{this.state.isLogined &&
+						{this.state
+							.isLogined &&
 							<>
 								{this.roles.secretary && <a className="link" activeClassName="active" href={process.env.REACT_APP_ADMIN_URL}>Админка</a>}
 								<Link className="link" style={{ padding: "0 35px" }} to="/home/account">{getUser()}</Link>

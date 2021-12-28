@@ -75,7 +75,7 @@ class Registration extends React.Component {
 			if (this.state.patronymic) {
 				Object.assign(data, { patronymic: this.state.patronymic });
 			}
-			axios.post("/auth/users", {
+			axios.post(`${process.env.REACT_APP_URL}/auth/users`, {
 				user: data
 			}).then(res => {
 				this.setState({
