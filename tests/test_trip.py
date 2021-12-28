@@ -13,12 +13,12 @@ class TestTrip(TestCase):
         self.trip_data = {
             "group_name": "Selenium", "global_region": "Норвегия", "local_region": "Осло",
             "difficulty_category": 1, "kind": "Лыжный",
-            "start_date": "10/10/2022", "end_date": "10/20/2022",
+            "start_date": "2222-02-22", "end_date": "2222-02-25",
             "participants_count": 6, "insurance_company_name": "ФИИТ",
-            "insurance_number": 12345, "insurance_policy_validity_duration": "10/25/2022",
+            "insurance_number": 12345, "insurance_policy_validity_duration": "2222-02-26",
             "coordinator_name": "Selenium", "coordinator_phone_number": 12345,
-            "control_start_region": "Пункт А", "control_start_date": "10/10/2022",
-            "control_end_region": "Пункт Б", "control_end_date": "10/20/2022",
+            "control_start_region": "Пункт А", "control_start_date": "2222-02-22",
+            "control_end_region": "Пункт Б", "control_end_date": "2222-02-25",
         }
 
     def tearDown(self):
@@ -37,17 +37,17 @@ class TestTrip(TestCase):
             login_condition=condition_for_success_login)
 
         condition_for_created_trip = expected_conditions\
-            .presence_of_element_located((By.XPATH, "//p[text()='Заявка подана']"))
+            .presence_of_element_located((By.XPATH, "//p[text()='Заявка подана!']"))
         trip_was_created = self.manager.create_trip(
             trip_condition=condition_for_created_trip, **self.trip_data)
         self.assertTrue(trip_was_created)
 
-    # def test_trip_not_created_if_data_is_invalid(self):
-    #     """Этот тест стоит разбить на маленькие кусочки = невалидные случаи"""
-    #     pass
-    #
-    # def test_created_trip_appear_in_my_trips_menu(self):
-    #     pass
-    #
-    # def test_user_can_see_other_trips_in_dashboard(self):
-    #     pass
+    def test_trip_not_created_if_data_is_invalid(self):
+        """Этот тест стоит разбить на маленькие кусочки = невалидные случаи"""
+        pass
+
+    def test_created_trip_appear_in_my_trips_menu(self):
+        pass
+
+    def test_user_can_see_other_trips_in_dashboard(self):
+        pass

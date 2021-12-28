@@ -114,9 +114,6 @@ class HelpToolsManager:
                 form_field.send_keys(Keys.DOWN)
                 form_field.send_keys(Keys.ENTER)
 
-            if "date" in field:
-                self.driver.execute_script("$('#start_date').value = '2222-02-22'")
-
         create_trip_button = self.driver.find_element(
             By.XPATH, "//button[text()='Отправить заявку']")
         create_trip_button.click()
