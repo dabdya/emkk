@@ -2,8 +2,9 @@ import { getRefreshToken, getToken, setAccessToken } from "./Common";
 import axios from "axios";
 
 const request = new axios.create({
-	baseURL: process.env.REACT_APP_URL,
+	baseURL: process.env.REACT_APP_URL
 });
+
 request.interceptors.request.use(
 	config => {
 		if (getToken() !== null) {
