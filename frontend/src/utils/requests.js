@@ -8,9 +8,7 @@ const request = new axios.create({
 request.interceptors.request.use(
 	config => {
 		if (getToken() !== null) {
-			config.headers = {
-				'Authorization': `Token ${getToken()}`
-			}
+			config.headers['Authorization'] = `Token ${getToken()}`;
 		}
 		return config;
 	},
