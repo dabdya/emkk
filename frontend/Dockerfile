@@ -10,3 +10,4 @@ RUN npm install
 COPY . /emkk/frontend/
 
 RUN npm run build:env
+RUN chmod 777 /emkk/frontend/node_modules/.cache/.eslintcache
