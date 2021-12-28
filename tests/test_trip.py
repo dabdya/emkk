@@ -42,11 +42,13 @@ class TestTrip(TestCase):
             trip_condition=condition_for_created_trip, **self.trip_data)
         self.assertTrue(trip_was_created)
 
+        my_trips_url = "https://emkk-site.ru/home/applications"
+        condition_for_my_trip_page = expected_conditions.url_to_be(my_trips_url)
+        user_on_my_trip_page = self.manager.go_to(my_trips_url, condition_for_my_trip_page)
+        self.assertTrue(user_on_my_trip_page)
+
     def test_trip_not_created_if_data_is_invalid(self):
         """Этот тест стоит разбить на маленькие кусочки = невалидные случаи"""
-        pass
-
-    def test_created_trip_appear_in_my_trips_menu(self):
         pass
 
     def test_user_can_see_other_trips_in_dashboard(self):
