@@ -53,9 +53,9 @@ class Login extends React.Component {
 				justifyContent: "center"
 			}}>
 				<form style={{ width: "80%", display: "flex", flexFlow: "column wrap", height: "fit-content" }} onSubmit={this.onSubmit}>
-					<TextField fullWidth error={this.state.error.length > 0} id="outlined-required" name="login"
+					<TextField fullWidth error={this.state.error.length > 0} name="login"
 						required margin="normal" label="Логин или Email" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
-					<TextField fullWidth error={this.state.error.length > 0} id="outlined-password-input" name="password"
+					<TextField fullWidth error={this.state.error.length > 0} name="password"
 						required margin="normal" label="Пароль" type="password" helperText={this.state.error} variant="outlined" onChange={this.changeInputRegister} />
 					<div>
 						<Button variant="outlined" size="small" href="/forget-password">

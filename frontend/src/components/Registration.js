@@ -97,45 +97,34 @@ class Registration extends React.Component {
 
 	render() {
 		return (
-			<div className="box" style={{
-				padding: "3rem 2rem 1rem 2rem",
-				display: "flex",
-				width: "35%",
-				border: "0.1rem outset gray",
-				borderRadius: 15,
-				position: "fixed",
-				top: "55%",
-				left: "50%", transform: "translate(-50%, -50%)",
-				justifyContent: "center",
-				maxHeight: "75%",
-			}}>
+			<div id="registration">
 				<form style={{
 					width: "80%",
 					display: "inline-block"
 				}} onSubmit={this.onSubmit}>
-					<TextField fullWidth id="outlined-required" size="small" name="username" required
+					<TextField fullWidth size="small" name="username" required
 						error={this.state.loginError.length > 0} helperText={this.state.loginError}
 						margin="normal" label="Логин"
 						variant="outlined" onChange={this.changeInputRegister} />
-					<TextField error={this.state.emailError.length > 0} helperText={this.state.emailError} fullWidth id="outlined-required" size="small" name="email" required
+					<TextField error={this.state.emailError.length > 0} helperText={this.state.emailError} fullWidth size="small" name="email" required
 						margin="normal" label="Email"
 						variant="outlined" onChange={this.changeEmail} />
 					<div style={{ display: "flex", justifyContent: "space-between" }}>
-						<TextField id="outlined-required" size="small" name="firstName" required
+						<TextField size="small" name="firstName" required
 							margin="normal" label="Имя"
 							variant="outlined" onChange={this.changeInputRegister} />
-						<TextField id="outlined-required" size="small" name="secondName" required
+						<TextField size="small" name="secondName" required
 							margin="normal" label="Фамилия"
 							variant="outlined" onChange={this.changeInputRegister} />
 					</div>
-					<TextField fullWidth id="outlined" size="small" name="patronymic"
+					<TextField fullWidth size="small" name="patronymic"
 						margin="normal" label="Отчество"
 						variant="outlined" onChange={this.changeInputRegister} />
 					<TextField error={this.state.passwordValidityError.length > 0}
-						fullWidth id="outlined-required" size="small" type="password" name="password" required
+						fullWidth size="small" type="password" name="password" required
 						margin="normal" label="Пароль"
 						variant="outlined" onChange={this.changeInputRegister} />
-					<TextField error={this.state.passwordValidityError.length > 0} fullWidth id="outlined-required" size="small"
+					<TextField error={this.state.passwordValidityError.length > 0} fullWidth size="small"
 						helperText={this.state.passwordValidityError}
 						type="password" name="password2" required
 						margin="normal" label="Повторите пароль"

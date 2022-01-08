@@ -427,7 +427,7 @@ class Application extends React.Component {
 					Рецензии
 					{reviews.map(review =>
 						<ReviewContent files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
-							reviewer={review.reviewer} id={review.id} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
+							reviewer={review.reviewer} id={review.id} key={review.id} setter={this.setter} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
@@ -441,7 +441,7 @@ class Application extends React.Component {
 					Выпуски
 					{issues.map(issue =>
 						<ReviewContent files={this.state.issuesFiles} id={issue.id} result={issue.result} comment={issue.result_comment}
-							reviewer={issue.reviewer} key={issue.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
+							reviewer={issue.reviewer} key={issue.id} setter={this.setter} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{

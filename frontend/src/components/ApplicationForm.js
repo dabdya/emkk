@@ -106,24 +106,16 @@ class ApplicationForm extends React.Component {
 	render() {
 		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
 			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
-		const styleTextField = { width: "100%" };
 		return (
 			<form className="application"
-				onSubmit={this.onSubmit}
-				style={{
-					display: "grid",
-					gridTemplateColumns: "auto auto",
-					gridColumnGap: "5px",
-					gridRowGap: "10px",
-					margin: "10px 10px 10px 10px"
-				}}>
+				onSubmit={this.onSubmit}>
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="group_name"
 						name="group_name"
 						label="Название спортивной организации"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 1, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -132,10 +124,10 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="coordinator_name"
 						name="coordinator_name"
 						label="ФИО координатора"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 12, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -144,9 +136,9 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<Autocomplete
 						openOnFocus
+						fullWidth
 						id="global_region"
 						options={GLOBAL_AREA}
-						style={styleTextField}
 						onSelect={(event) => this.handleTag(event, "global_region")}
 						renderInput={(params) =>
 							<TextField {...params}
@@ -159,12 +151,12 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="coordinator_phone_number"
 						type="tel"
 						name="coordinator_phone_number"
 						label="Контактный телефон координатора"
 						placeholder="+7(999)99999999"
-						style={styleTextField}
 						variant="filled"
 						//eslint-disable-next-line
 						InputProps={{ inputProps: { tabIndex: 13, pattern: "\+?[0-9\s\-\(\)]+", autoComplete: "off" } }}
@@ -174,10 +166,10 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="local_region"
 						label="Локальный район"
 						name="local_region"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 3, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -186,10 +178,10 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="control_start_region"
 						name="control_start_region"
 						label="Населённый пункт начала маршрута"
-						style={styleTextField}
 						variant="filled"
 						InputProps={{ inputProps: { tabIndex: 14, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
@@ -198,24 +190,24 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<Autocomplete
 						openOnFocus
+						fullWidth
 						id="difficulty_category"
 						options={["1", "2", "3", "4", "5", "6"]}
 						onSelect={(event) => this.handleTag(event, "difficulty_category")}
-						style={styleTextField}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
-								inputProps={{ ...params.inputProps, required: true, tabIndex: 4 }}
+								inputProps={{ ...params.inputProps, tabIndex: 4 }}
 								label="Категория сложности" required />}
 					/>
 				</div>
 				<div className="cell">
 					<TextField
+						fullWidth
 						id="control_start_date"
 						label="Контрольный срок сообщения о начале маршрута"
 						name="control_start_date"
 						type="date"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 15 } }}
 						InputLabelProps={{ shrink: true }}
 						variant="filled"
@@ -225,9 +217,9 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<Autocomplete
 						openOnFocus
+						fullWidth
 						id="kind"
 						options={tourismVariants}
-						style={styleTextField}
 						onSelect={(event) => this.handleTag(event, "kind")}
 						renderInput={(params) =>
 							<TextField {...params}
@@ -241,10 +233,10 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="control_end_region"
 						label="Населённый пункт окончания маршрута"
 						name="control_end_region"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 16, autoComplete: "off" } }}
 						variant="filled"
 						onChange={this.changeInputRegister}
@@ -253,11 +245,11 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="start_date"
 						label="Дата выхода на маршрут"
 						name="start_date"
 						type="date"
-						style={styleTextField}
 						variant="filled"
 						InputProps={{ inputProps: { tabIndex: 6 } }}
 						InputLabelProps={{ shrink: true }}
@@ -266,12 +258,12 @@ class ApplicationForm extends React.Component {
 				</div>
 				<div className="cell">
 					<TextField
+						fullWidth
 						id="control_end_date"
 						label="Контрольный срок сообщения об окончании маршрута"
 						name="control_end_date"
 						type="date"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 17 } }}
 						InputLabelProps={{ shrink: true }}
 						onChange={this.changeInputRegister}
@@ -280,12 +272,12 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
+						fullWidth
 						id="end_date"
 						label="Дата выхода с маршрута"
 						name="end_date"
 						type="date"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 7 }, autoComplete: "off" }}
 						InputLabelProps={{
 							shrink: true
@@ -318,11 +310,11 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="outlined"
+						fullWidth
+						id="participants_count"
 						name="participants_count"
 						label="Количество участников"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 8, pattern: "[0-9]+", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -352,11 +344,11 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="outlined"
+						fullWidth
+						id="insurance_company_name"
 						label="Наименование страховой компании"
 						name="insurance_company_name"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 9, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -385,11 +377,11 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="outlined"
+						fullWidth
+						id="insurance_number"
 						label="Номер полиса"
 						name="insurance_number"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 10, autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
@@ -420,16 +412,14 @@ class ApplicationForm extends React.Component {
 				<div className="cell">
 					<TextField
 						required
-						id="outlined"
+						fullWidth
+						id="insurance_policy_validity_duration"
 						label="Срок окончания страховых полисов"
 						name="insurance_policy_validity_duration"
 						type="date"
 						variant="filled"
-						style={styleTextField}
 						InputProps={{ inputProps: { tabIndex: 11 } }}
-						InputLabelProps={{
-							shrink: true
-						}}
+						InputLabelProps={{ shrink: true }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>

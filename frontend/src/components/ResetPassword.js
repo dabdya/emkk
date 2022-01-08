@@ -11,16 +11,14 @@ class ResetPassword extends React.Component {
 		super(props);
 		this.resetToken = this.props.match.params.token;
 		try {
-			const currentDate = new Date();
 			const decodedToken = jwt_decode(this.resetToken);
-			if (decodedToken.exp * 1000 < currentDate.getTime()) {
+			if (decodedToken.exp * 1000 < new Date().getTime()) {
 				throw new Error("Invalid token or expired token");
 			}
-		}
-		catch (e) {
+		} catch (e) {
 			this.props.history.push("/");
 		}
-		this.state = { password: "", secondPassword: "", error: "" };
+		this.state = { password: "", secondPassword: "", message: "" };
 		this.onSubmit = this.onSubmit.bind(this);
 
 	}
@@ -28,9 +26,9 @@ class ResetPassword extends React.Component {
 	onSubmit(e) {
 		e.preventDefault();
 		if (this.state.password !== this.state.secondPassword) {
-			this.setState({ error: "Пароли не совпадают" });
+			this.setState({ message: "Пароли не совпадают" });
 		} else if (!validator.isStrongPassword(this.state.password, { minLength: 6, minSymbols: 0, minNumbers: 0, minUppercase: 0 })) {
-			this.setState({ error: "Пароль должен состоять из шести маленьких латинских букв" });
+			this.setState({ message: "Пароль должен состоять из шести маленьких латинских букв" });
 		} else {
 			axios.patch("/auth/user",
 				{
@@ -39,25 +37,18 @@ class ResetPassword extends React.Component {
 					},
 					reset_token: "Token " + this.resetToken
 				}
-			).then(resp => {
-				this.setState({ error: "Пароль успешно поменян" });
+			).then(() => {
+				this.setState({ message: "Вы успешно сменили пароль" });
 			})
 		}
-
-
 	}
 
 	render() {
 		return (
 			<div className="center">
-				<form onSubmit={this.onSubmit}
-					style={{
-						display: "grid",
-						border: "0.5px solid gray",
-						borderRadius: 15,
-						padding: 35,
-						gridRowGap: 10,
-					}}>
+				<form
+					className="reset-password"
+					onSubmit={this.onSubmit}>
 					<TextField
 						name="password" type="password"
 						required label="Новый пароль" variant="outlined"
@@ -69,7 +60,7 @@ class ResetPassword extends React.Component {
 					<Button type="submit" variant="contained">
 						Сменить пароль
 					</Button>
-					{this.state.error}
+					{this.state.message}
 				</form>
 			</div>
 		);

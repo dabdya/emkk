@@ -32,6 +32,12 @@ code {
 	margin: 0;
 	background: #ffffff;
 	border-bottom: 1px solid #999;
+	width: 100%;
+	box-shadow: 2px 2px 2px grey;
+}
+
+.header>div {
+	margin-left: 15px;
 }
 
 .header-home {
@@ -65,16 +71,17 @@ code {
 
 .header .emkk {
 	margin-right: auto;
+	padding: 0 15px;
+	margin-top: 15px;
+	margin-left: 15px;
+	margin-bottom: 15px;
+	font-size: 35px
 }
 
 .header .link {
 	padding: 0 15px;
 	color: #0072ff;
 	text-decoration: none;
-}
-
-.header .emkk {
-	padding: 0 15px;
 }
 
 .header a:hover {
@@ -111,7 +118,7 @@ code {
 	font-weight: bolder;
 	overflow: visible !important;
 	white-space: normal !important;
-} 
+}
 
 .formInputField:focus {
 	border: 2px solid #00518E;
@@ -151,12 +158,19 @@ code {
 	width: 100px;
 }
 
+.application {
+	display: grid;
+	grid-template-columns: auto auto;
+	grid-column-gap: 5px;
+	grid-row-gap: 10px;
+	margin: 10px 10px 10px 10px;
+}
+
 .application .cell {
 	flex-direction: column;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-
 }
 
 .application .cell-file {
@@ -166,7 +180,6 @@ code {
 }
 
 .custom-file-upload {
-	/*border: 1px solid #ccc;*/
 	display: inline-block;
 	padding: 6px 12px;
 	cursor: pointer;
@@ -334,6 +347,65 @@ code {
 #application a {
 	text-decoration: none;
 }
+
+#registration {
+	padding: 3rem 2rem 1rem 2rem;
+	display: flex;
+	width: 35%;
+	border: 0.1rem outset gray;
+	border-radius: 15px;
+	position: fixed;
+	top: 55%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	justify-content: center;
+	max-height: 75%;
+}
+
+.review-content {
+	background-color: #D4D4D4;
+	border-radius: 10px;
+	margin-right: 49px;
+}
+
+.review-content .comment {
+	height: fit-content;
+	min-height: 150px;
+	margin: 20px 30px 10px 30px;
+	padding: 10px 10px;
+}
+
+.review-content .status {
+	margin-left: 37px;
+	padding-top: 22px;
+	display: flex;
+	align-items: center;
+}
+
+.reset-password {
+	display: grid;
+	border: 0.5px solid gray;
+	border-radius: 15px;
+	padding: 35px;
+	grid-row-gap: 10px;
+}
+
+#not-found {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-direction: column;
+}
+
+#not-found>span {
+	font-size: 140px;
+}
+
+#not-found>span+span, code {
+	font-size: 30px;
+}
+
 
 @media screen and (max-width : 1024px) {
 	#application #data-application {
