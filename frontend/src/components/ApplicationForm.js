@@ -366,7 +366,7 @@ class ApplicationForm extends React.Component {
 						<Tooltip
 							placement="top-start"
 							tabIndex={20}
-							title="Какие-то справки">
+							title="Справки участников">
 							<IconButton>
 								<HelpIcon />
 							</IconButton>

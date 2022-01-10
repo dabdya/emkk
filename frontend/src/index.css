@@ -309,6 +309,10 @@ code {
 	margin-top: 10px;
 }
 
+.review-content-editing {
+	padding-left: 40px;
+}
+
 .profile-box {
 	background-color: white;
 	width: 70%;
