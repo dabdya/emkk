@@ -2,7 +2,6 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import { Button } from "@skbkontur/react-ui";
 import ShowModal from "./ShowModal";
-import ReviewForm from "./ReviewForm";
 import { STATUS } from "../utils/Constants";
 import request from "../utils/requests";
 import { getUser } from "../utils/Common";

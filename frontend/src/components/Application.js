@@ -397,9 +397,9 @@ class Application extends React.Component {
 					<h1>Документы</h1>
 					<div>
 						<div id="files">
-							{files.map(file => {
+							{files.map((file, i) => {
 								return (
-									<div>
+									<div key={i}>
 										{/*eslint-disable-next-line */}
 										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
 										{getUser() === this.app.leader.username &&
