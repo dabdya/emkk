@@ -426,8 +426,8 @@ class Application extends React.Component {
 				<div className="box">
 					Рецензии
 					{reviews.map(review =>
-						<ReviewContent files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
-							reviewer={review.reviewer} id={review.id} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
+						<ReviewContent isReview={true} files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
+							reviewer={review.reviewer} id={review.id} addFile={this.addFileInReview} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{
@@ -441,7 +441,7 @@ class Application extends React.Component {
 					Выпуски
 					{issues.map(issue =>
 						<ReviewContent files={this.state.issuesFiles} id={issue.id} result={issue.result} comment={issue.result_comment}
-							reviewer={issue.reviewer} key={issue.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
+							reviewer={issue.reviewer} key={issue.id} addFile={this.addFileInReview} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
 				</div>
 				{

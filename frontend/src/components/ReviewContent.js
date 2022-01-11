@@ -2,6 +2,7 @@ import React from "react";
 import TextField from "@mui/material/TextField";
 import { Button } from "@skbkontur/react-ui";
 import ShowModal from "./ShowModal";
+import ReviewForm from "./ReviewForm";
 import { STATUS } from "../utils/Constants";
 import request from "../utils/requests";
 import { getUser } from "../utils/Common";
@@ -30,12 +31,28 @@ export default class ReviewContent extends React.Component {
 	}
 
 	async onSubmit(e) {
+		const id = this.props.id;
+		const isReview = this.props.isReview;
 		e.preventDefault();
-		await request.patch(`/api/reviews/${this.props.id}`,
+		await request.patch(`/api/reviews/${id}`,
 			{ result_comment: e.target[0].value, result: e.nativeEvent.submitter.name })
-			.then(() => {
+			.then(resp => {
 				this.comment = e.target[0].value;
 				this.result = e.nativeEvent.submitter.name;
+				const file = e.target[6].files[0];
+				if (file) {
+					const fileUrl = isReview
+						? `/api/trips/${id}/reviews/${resp.data.id}/documents`
+						: `/api/trips/${id}/reviews-from-issuer/${resp.data.id}/documents`;
+					const form = new FormData();
+					form.append("file", file);
+					request.post(fileUrl,
+						form)
+						.then(resp => {
+							this.props.addFile(resp.data[0], isReview);
+						});
+				}
+
 				this.changeEditing()
 			})
 	}
@@ -69,26 +86,16 @@ export default class ReviewContent extends React.Component {
 		}
 
 		return (
-			<div className="wrapper" style={{ backgroundColor: "#D4D4D4", borderRadius: 10, marginRight: "49px" }}>
-				<div className="status" style={{
-					marginLeft: "37px",
-					paddingTop: "22px",
-					display: "flex",
-					alignItems: "center"
-				}}>
-					<img alt="" src={this.getImage()} height="50px" width="50px" />
+			<div className="review-content">
+				<div className="status">
+					<img alt="status" src={this.getImage()} height="50px" width="50px" />
 					<div style={{ marginLeft: "13.02px", height: "50" }}>
 						<a href="#" onClick={this.open} style={{ marginLeft: "3px", fontSize: 18 }}>{this.reviewer?.first_name} {this.reviewer?.last_name} {this.reviewer?.patronymic}</ a> < br />
 						<span style={{ marginLeft: "3px", fontSize: 16 }}>Рецензент</ span> < br />
 						<span style={{ marginLeft: "3px", fontSize: 14 }}>статус: {STATUS[this.result]}</ span> < br />
 					</div>
 				</div>
-				<div className="comment" style={{
-					height: "fit-content",
-					minHeight: "150px",
-					margin: "20px 30px 10px 30px",
-					padding: "10px 10px"
-				}}>
+				<div className="comment">
 					{this.comment}
 					{this.props?.files?.map(file => {
 						return (
@@ -100,11 +107,12 @@ export default class ReviewContent extends React.Component {
 						);
 					})}
 				</div>
-				{this.reviewer.username === getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать рецензию</Button>}
+				{this.reviewer.username === getUser() && <Button onClick={this.changeEditing} style={{ marginLeft: 40, marginBottom: 10 }}>Редактировать рецензию</Button>}
 				{this.state.editing &&
-					<form onSubmit={this.onSubmit}>
+					<form
+						className="review-content-editing"
+						onSubmit={this.onSubmit}>
 						<TextField
-							name="info_for_reviewer"
 							defaultValue={this.comment}
 							placeholder="Текст"
 							multiline

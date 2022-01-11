@@ -20,7 +20,7 @@ class ForgetPass extends React.Component {
 			reset_url: `${process.env.REACT_APP_RESET_URL}/reset-password`
 		}
 		axios.post("/auth/users/reset-password", data)
-			.then(resp => {
+			.then(_ => {
 				this.setState({ error: "" })
 				this.setState({ success: `Письмо успешно отправлено на ${this.state.login}.\nЕсли Письмо не пришло, проверьте папку "Спам".` })
 			})

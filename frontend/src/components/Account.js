@@ -1,12 +1,12 @@
 import React from "react";
 import { getUser, setTokens } from "../utils/Common";
 import request from "../utils/requests";
-import Button from '@mui/material/Button'
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import Button from "@mui/material/Button"
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import { red, green } from "@material-ui/core/colors";
 
-class Account extends React.Component {
+export default class Account extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -118,7 +118,7 @@ class Account extends React.Component {
 	 */
 
 	render() {
-		const { username, repeatedPasswordError, editingMainInfo, editingPassword } = this.state
+		const { username, repeatedPasswordError, editingMainInfo, editingPassword } = this.state;
 		return (
 			<div className="profile-parent-box">
 				<div className="profile-header">
@@ -208,4 +208,3 @@ class Account extends React.Component {
 		)
 	}
 }
-export default Account;
