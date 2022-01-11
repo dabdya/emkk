@@ -20,7 +20,7 @@ from src.emkk_site.serializers import (
 
 from src.emkk_site.services import (
     try_change_status_from_review_to_at_issuer,
-    try_change_trip_status_to_issuer_result, )
+    try_change_trip_status_to_issuer_result, notify_reviewers_on_trip_updated, )
 
 from src.emkk_site.models import (
     TripDocument, Trip, ReviewFromReviewer, TripStatus,
@@ -80,6 +80,7 @@ class TripDetail(generics.RetrieveUpdateDestroyAPIView):
                 "Rejected trip cannot be changed",
                 status=status.HTTP_400_BAD_REQUEST)
         response = super().update(request, args, kwargs)
+        notify_reviewers_on_trip_updated(Trip.objects.get(pk=kwargs["pk"]))
         return response
 
     def get_object(self):
