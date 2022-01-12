@@ -78,13 +78,12 @@ class ReviewFromIssuerDocumentSerializer(serializers.ModelSerializer):
 
 class BaseReviewSerializer(serializers.ModelSerializer):
     reviewer = UserSerializer(read_only=True)
-    trip = TripPartSerializer(read_only=True)
 
     class Meta:
         model = Review
         depth = 1
-        fields = '__all__'
-        read_only_fields = ['reviewer', 'trip', ]
+        exclude = ['trip', ]
+        read_only_fields = ['reviewer', ]
 
     def create(self, validated_data):
         reviewer = self.context['reviewer']
