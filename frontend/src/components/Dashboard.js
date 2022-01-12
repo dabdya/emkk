@@ -232,7 +232,7 @@ class Dashboard extends React.Component {
 								Все
 							</ToggleButton>
 							<ToggleButton value="my">
-								С моей рецензией
+								Без моей рецензии
 							</ToggleButton>
 						</ToggleButtonGroup>}
 					<div className="legend">
