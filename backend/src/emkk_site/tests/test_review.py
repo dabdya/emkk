@@ -282,5 +282,5 @@ class ReviewTest(TestCase):
         self.env.client_post(
             f'/api/trips/{trip.id}/reviews',
             data=self.get_review_data(trip.id), user=self.env.user)
-        r = self.env.client_get(f'/api/trips?filter=unanswered', user=self.env.user)
+        r = self.env.client_get(f'/api/trips?filter=unreviewed', user=self.env.user)
         self.assertNotIn(trip.id, [t.get("id") for t in r.data])

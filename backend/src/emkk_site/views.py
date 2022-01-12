@@ -53,8 +53,8 @@ class TripList(generics.ListCreateAPIView):
             "all": Trip.objects.all,
             "my": partial(Trip.objects.filter, leader=self.request.user),
             "work": partial(get_trips_available_for_work, self.request.user),
-            "unanswered": partial(
-                get_trips_available_for_work, self.request.user, only_unanswered=True)
+            "unreviewed": partial(
+                get_trips_available_for_work, self.request.user, only_unreviewed=True)
         }
 
         return filters[f]()
