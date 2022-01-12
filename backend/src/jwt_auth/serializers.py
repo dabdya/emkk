@@ -78,20 +78,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     """Сериализация и десериализация пользователей"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.Meta.fields = ['password', 'email', 'username', 'first_name', 'last_name', 'patronymic',
-                            'access_token', 'refresh_token']
     password = serializers.CharField(max_length=128, min_length=8, write_only=True)
 
     class Meta:
         model = User
+        fields = ['password', 'email', 'username', 'first_name', 'last_name', 'patronymic', ]
         write_only_fields = ['password', ]
-
-    def without_fields(self, fields=None):
-        self.Meta.fields = list(set(self.Meta.fields) - set(fields))
-        return self
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)

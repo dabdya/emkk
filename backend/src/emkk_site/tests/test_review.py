@@ -219,7 +219,7 @@ class ReviewTest(TestCase):
         }
 
         r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 200)
         self.assertDictEqual(patch_data, {
             "result": r.data["result"], "result_comment": r.data["result_comment"]})
 
@@ -240,7 +240,7 @@ class ReviewTest(TestCase):
         }
 
         r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data, user=issuer)
-        self.assertEqual(r.status_code, 204)
+        self.assertEqual(r.status_code, 200)
         self.assertEqual(Review.objects.get(id=review.id).trip.status, patch_data["result"])
 
     def test_review_patch_should_not_work_if_permission_denied(self):
@@ -264,3 +264,23 @@ class ReviewTest(TestCase):
 
         r = self.env.client_patch(f'/api/reviews/{review.id}', data=patch_data)
         self.assertEqual(r.status_code, 403)
+
+    def test_trip_for_review_return_all_trips_include_reviewed_trips(self):
+        trip = self.env.trips[0]
+        UserExperience(user=self.env.user, trip_kind=trip.kind,
+                       difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=False).save()
+        self.env.client_post(
+            f'/api/trips/{trip.id}/reviews',
+            data=self.get_review_data(trip.id), user=self.env.user)
+        r = self.env.client_get(f'/api/trips?filter=work', user=self.env.user)
+        self.assertIn(trip.id, [t.get("id") for t in r.data])
+
+    def test_reviewer_can_get_only_unanswered_trips(self):
+        trip = self.env.trips[0]
+        UserExperience(user=self.env.user, trip_kind=trip.kind,
+                       difficulty_as_for_reviewer=trip.difficulty_category + 1, is_issuer=False).save()
+        self.env.client_post(
+            f'/api/trips/{trip.id}/reviews',
+            data=self.get_review_data(trip.id), user=self.env.user)
+        r = self.env.client_get(f'/api/trips?filter=unreviewed', user=self.env.user)
+        self.assertNotIn(trip.id, [t.get("id") for t in r.data])

@@ -55,7 +55,7 @@ class BaseReviewSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(BaseReviewSerializer):
-    reviewer = UserSerializer(read_only=True).without_fields(['access_token', 'refresh_token', ])
+    reviewer = UserSerializer(read_only=True)
 
     class Meta:
         model = ReviewFromReviewer
@@ -65,7 +65,7 @@ class ReviewSerializer(BaseReviewSerializer):
 
 
 class ReviewFromIssuerSerializer(BaseReviewSerializer):
-    reviewer = UserSerializer(read_only=True).without_fields(['access_token', 'refresh_token', ])
+    reviewer = UserSerializer(read_only=True)
 
     class Meta:
         model = ReviewFromIssuer
@@ -75,7 +75,7 @@ class ReviewFromIssuerSerializer(BaseReviewSerializer):
 
 
 class TripSerializer(serializers.ModelSerializer):
-    leader = UserSerializer(read_only=True).without_fields(['access_token', 'refresh_token', ])
+    leader = UserSerializer(read_only=True)
 
     class Meta:
         model = Trip
@@ -91,7 +91,7 @@ class TripSerializer(serializers.ModelSerializer):
 
 
 class TripDetailSerializer(serializers.ModelSerializer):
-    leader = UserSerializer(read_only=True).without_fields(['access_token', 'refresh_token', ])
+    leader = UserSerializer(read_only=True)
 
     class Meta:
         model = Trip
@@ -104,7 +104,7 @@ class TripDetailSerializer(serializers.ModelSerializer):
 
 
 class TripForAnonymousSerializer(serializers.ModelSerializer):
-    leader = UserSerializer().without_fields(['access_token', 'refresh_token', ])
+    leader = UserSerializer()
 
     class Meta:
         model = Trip

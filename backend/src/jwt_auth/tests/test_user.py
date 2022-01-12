@@ -21,9 +21,6 @@ class UserTest(TestCase):
         self.assertEqual(r.data["username"], patch_data["user"]["username"])
         self.assertEqual(User.objects.get(pk=self.env.user.id).username, patch_data["user"]["username"])
 
-        self.assertTrue("access_token" in r.data)
-        self.assertTrue("refresh_token" in r.data)
-
     def test_user_password_update_should_correct_work(self):
         self.env.user.set_password("current_password")
         self.env.user.save()

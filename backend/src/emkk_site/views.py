@@ -11,7 +11,8 @@ from typing import Union
 from functools import partial
 
 from src.jwt_auth.permissions import (
-    IsReviewer, IsIssuer, IsAuthenticated, ReadOnly, IsTripOwner, IsDocumentOwner, IsSecretary)
+    IsReviewer, IsIssuer, IsAuthenticated, ReadOnly,
+    IsAuthenticatedAndReadOnly, IsTripOwner, IsDocumentOwner, IsSecretary)
 
 from src.emkk_site.serializers import (
     TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
@@ -52,6 +53,8 @@ class TripList(generics.ListCreateAPIView):
             "all": Trip.objects.all,
             "my": partial(Trip.objects.filter, leader=self.request.user),
             "work": partial(get_trips_available_for_work, self.request.user),
+            "unreviewed": partial(
+                get_trips_available_for_work, self.request.user, only_unreviewed=True)
         }
 
         return filters[f]()
@@ -283,7 +286,7 @@ class ReviewerList(ReviewView):
         super(ReviewerList, self).__init__(ReviewFromReviewer)
 
     serializer_class = ReviewSerializer
-    permission_classes = [IsReviewer | IsSecretary | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsReviewer | IsSecretary | IsAuthenticatedAndReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
@@ -297,7 +300,7 @@ class IssuerList(ReviewView):
         super(IssuerList, self).__init__(ReviewFromIssuer)
 
     serializer_class = ReviewFromIssuerSerializer
-    permission_classes = [IsSecretary | IsIssuer | IsAuthenticated & ReadOnly, ]
+    permission_classes = [IsSecretary | IsIssuer | IsAuthenticatedAndReadOnly, ]
 
     def create(self, request, *args, **kwargs):
         kwargs.update({"context_class": self})
@@ -333,7 +336,7 @@ def change_trip_status(request, *args, **kwargs):
     try:
         trip = Trip.objects.get(pk=trip_id)
     except Trip.DoesNotExist:
-        raise Response(f"No trip by id: {trip_id}", status=status.HTTP_404_NOT_FOUND)
+        return Response(f"No trip by id: {trip_id}", status=status.HTTP_404_NOT_FOUND)
     new_status_str = request.query_params["new_status"].upper()
     status_by_name = {
         "ROUTE_COMPLETED": TripStatus.ROUTE_COMPLETED,

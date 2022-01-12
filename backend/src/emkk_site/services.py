@@ -28,9 +28,9 @@ def try_change_trip_status_to_issuer_result(trip, result):
         trip.save()
 
 
-def get_trips_available_for_work(user):
-    for_issue = get_trips_available_for_issue(user)
-    for_review = get_trips_available_for_review(user)
+def get_trips_available_for_work(user, only_unreviewed=False):
+    for_issue = get_trips_available_for_issue(user, only_unreviewed)
+    for_review = get_trips_available_for_review(user, only_unreviewed)
 
     if user.ISSUER and user.REVIEWER:
         return for_review + for_issue
@@ -40,21 +40,27 @@ def get_trips_available_for_work(user):
         return for_review
 
 
-def get_trips_available_for_review(user):
+def get_trips_available_for_review(user, only_unreviewed=False):
     trips = Trip.objects.filter(
         Q(status=TripStatus.ON_REVIEW) | Q(status=TripStatus.AT_ISSUER))
+    key = lambda u, t: True
+    if only_unreviewed:
+        key = lambda u, t: first_review_for(u, t)
     trips_available_for_review = [
         trip for trip in trips
-        if user_can_be_reviewer(user, trip) and first_review_for(user, trip)
+        if user_can_be_reviewer(user, trip) and key(user, trip)
     ]
     return trips_available_for_review
 
 
-def get_trips_available_for_issue(user):
+def get_trips_available_for_issue(user, only_unreviewed=False):
     trips = Trip.objects.filter(status=TripStatus.AT_ISSUER)
+    key = lambda u, t: True
+    if only_unreviewed:
+        key = lambda u, t: first_issue_for(u, t)
     trips_available_for_issue = [
         trip for trip in trips
-        if user_can_be_issuer(user, trip) and first_issue_for(user, trip)
+        if user_can_be_issuer(user, trip) and key(user, trip)
     ]
     return trips_available_for_issue
 
