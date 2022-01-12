@@ -1,7 +1,6 @@
 import os
 from pathlib import Path
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Domain names
@@ -14,7 +13,6 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = os.environ.get('EMAIL_PORT')
 EMAIL_USE_TLS = bool(eval(os.environ.get('EMAIL_USE_TLS', '1')))
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
@@ -53,6 +51,9 @@ SECRET_KEY = 'django-insecure-_h+q=r8547dqnw7m@f14#arp(rzc1$6vp__cez+-4gmv60vby4
 RESET_KEY = 'DZJyQpwPEK4Z+shP9r7XW8KOBvbY+L3qwXIA2ISMWEiXAblWrhALmbVZexfwkOYs55'
 
 ALLOWED_HOSTS = ['testserver', 'localhost', DEPLOY_HOST, DEPLOY_HOST_WWW]
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
