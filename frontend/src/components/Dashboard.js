@@ -1,6 +1,8 @@
 import React from "react";
 import DataTable from "react-data-table-component";
 import { withRouter } from "react-router-dom";
+import ToggleButton from '@mui/material/ToggleButton';
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import { getUser, caseInsensitiveSort } from "../utils/Common";
 import request from "../utils/requests";
 import { KIND_OF_TOURISM } from "../utils/Constants";
@@ -99,6 +101,7 @@ class Dashboard extends React.Component {
 			this.columns.splice(2, 0, this.addedColumns[1]);
 		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
+		this.filter = this.filter.bind(this);
 	}
 
 	componentDidMount() {
@@ -152,6 +155,30 @@ class Dashboard extends React.Component {
 
 	};
 
+	async filter(e) {
+		if (e.target.value == "all") {
+			await request.get("/api/trips?filter=work")
+				.then(result => {
+					this._isMounted && this.setState({
+						trips: result.data.map(item => {
+							item.status = this.renderImage(item.status);
+							return item;
+						})
+					});
+				})
+		} else {
+			await request.get("/api/trips?filter=unreviewed")
+				.then(result => {
+					this._isMounted && this.setState({
+						trips: result.data.map(item => {
+							item.status = this.renderImage(item.status);
+							return item;
+						})
+					});
+				})
+		}
+	}
+
 	renderImage(status) {
 		if (status === "on_review") {
 			return review;
@@ -195,6 +222,19 @@ class Dashboard extends React.Component {
 							selectAllRowsItemText: "Все"
 						}}
 					/>
+					{this.props.isMyReview &&
+						<ToggleButtonGroup
+							exclusive
+							onChange={this.filter}
+							style={{ marginLeft: 40 }}
+						>
+							<ToggleButton value="all" >
+								Все
+							</ToggleButton>
+							<ToggleButton value="my">
+								С моей рецензией
+							</ToggleButton>
+						</ToggleButtonGroup>}
 					<div className="legend">
 						<div className="flex">
 							<img height="50px" width="50px" src={accepted} alt="accepted" />
