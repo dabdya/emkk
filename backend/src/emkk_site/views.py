@@ -15,7 +15,7 @@ from src.jwt_auth.permissions import (
     IsAuthenticatedAndReadOnly, IsTripOwner, IsDocumentOwner, IsSecretary)
 
 from src.emkk_site.serializers import (
-    TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripForAnonymousSerializer,
+    TripDocumentSerializer, TripSerializer, TripDetailSerializer, TripPartSerializer,
     ReviewSerializer, ReviewFromIssuerSerializer, BaseReviewSerializer,
     ReviewDocumentSerializer, ReviewFromIssuerDocumentSerializer)
 
@@ -42,9 +42,9 @@ class TripList(generics.ListCreateAPIView):
         return context
 
     def get_serializer_class(self):
-        if self.request.user.is_authenticated:
+        if self.request.method == "POST":
             return TripSerializer
-        return TripForAnonymousSerializer
+        return TripPartSerializer
 
     def get_queryset(self):
         f = self.request.query_params.get('filter', 'all')
