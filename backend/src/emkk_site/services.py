@@ -1,4 +1,8 @@
-from src.emkk_site.models import Trip, TripStatus, ReviewFromReviewer, ReviewFromIssuer, UserExperience
+from django.core.mail import send_mail
+
+from src import emails
+from django.conf import settings
+from src.emkk_site.models import Trip, TripStatus, ReviewFromReviewer, ReviewFromIssuer, UserExperience, Review
 from django.db.models import Q
 
 
@@ -71,3 +75,14 @@ def first_review_for(user, trip):
 def user_can_be_reviewer(user, trip):
     experience = UserExperience.objects.filter(user=user, trip_kind=trip.kind)
     return bool(experience) and experience[0].difficulty_as_for_reviewer >= trip.difficulty_category
+
+
+def notify_reviewers_on_trip_updated(trip):
+    reviews = Review.objects.filter(trip=trip)
+    reviewers = set(x.reviewer for x in reviews)
+    for user in reviewers:
+        send_mail(subject=emails.UPDATE.HEAD % (trip.id, trip.global_region, trip.local_region,),
+                  message=emails.UPDATE.BODY % (trip.id, trip.global_region, trip.local_region,),
+                  from_email=settings.EMAIL_HOST_USER,
+                  recipient_list=[user.email, ],
+                  fail_silently=True)
