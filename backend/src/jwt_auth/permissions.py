@@ -31,6 +31,14 @@ class ReadOnly(BasePermission):
         return self.has_permission(request, view)
 
 
+class IsAuthenticatedAndReadOnly(BasePermission):
+    def has_permission(self, request, view):
+        return request.method in SAFE_METHODS and request.user.is_authenticated
+
+    def has_object_permission(self, request, view, obj):
+        return self.has_permission(request, view)
+
+
 class ResetPassword(BasePermission):
     def has_permission(self, request, view):
         reset_token = request.data.get('reset_token', None)

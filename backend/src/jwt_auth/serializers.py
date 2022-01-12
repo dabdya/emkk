@@ -91,6 +91,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def without_fields(self, fields=None):
         self.Meta.fields = list(set(self.Meta.fields) - set(fields))
+        print(self.Meta.fields)
         return self
 
     def update(self, instance, validated_data):
