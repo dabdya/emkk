@@ -37,6 +37,8 @@ class ReviewFromIssuerDocumentSerializer(serializers.ModelSerializer):
 
 
 class BaseReviewSerializer(serializers.ModelSerializer):
+    reviewer = UserSerializer(read_only=True)
+
     class Meta:
         model = Review
         depth = 1
@@ -55,8 +57,6 @@ class BaseReviewSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(BaseReviewSerializer):
-    reviewer = UserSerializer(read_only=True)
-
     class Meta:
         model = ReviewFromReviewer
         depth = 1
@@ -65,8 +65,6 @@ class ReviewSerializer(BaseReviewSerializer):
 
 
 class ReviewFromIssuerSerializer(BaseReviewSerializer):
-    reviewer = UserSerializer(read_only=True)
-
     class Meta:
         model = ReviewFromIssuer
         depth = 1
