@@ -1,14 +1,9 @@
 export const KIND_OF_TOURISM = {
 	"Лыжный": "ski",
-	"ski": "Лыжный",
 	"Пеший": "pedestrian",
-	"pedestrian": "Пеший",
-	"Велотуризм": "cycling",
-	"cycling": "Велотуризм",
+	"Велосипедный": "cycling",
 	"Горный": "mountain",
-	"mountain": "Горный",
 	"Водный": "water",
-	"water": "Водный",
 	"Пеше-водный": "pedestrian_water",
 	"pedestrian_water": "Пеше-водный",
 	"Спелео": "speleo",
@@ -19,6 +14,11 @@ export const KIND_OF_TOURISM = {
 	"horse_sport": "Конный",
 	"Авто-мото": "auto_moto",
 	"auto_moto": "Авто-мото",
+	"ski": "Лыжный",
+	"pedestrian": "Пеший",
+	"cycling": "Велосипедный",
+	"water": "Водный",
+	"mountain": "Горный",
 }
 
 export const STATUS = {
@@ -29,6 +29,8 @@ export const STATUS = {
 	"Отклонить": "rejected",
 	"Принять": "accepted",
 	"На доработку": "on_rework",
+	
+	
 }
 
 export const GLOBAL_AREA = [
