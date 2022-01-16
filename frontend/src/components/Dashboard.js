@@ -148,7 +148,7 @@ class Dashboard extends React.Component {
 			return;
 		}
 
-		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer) {
+		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer && !this.props.roles.issuer) {
 			return;
 		}
 		this.props.history.push(`/home/application/${target.id}`);
