@@ -80,8 +80,8 @@ class ApplicationForm extends React.Component {
 		this.app[event.target.name] = event.target.value;
 	};
 
-	handleTag({ target }, fieldName) {
-		const { value } = target;
+	handleTag(value, fieldName) {
+
 		if (fieldName === "kind") {
 			this.app[fieldName] = KIND_OF_TOURISM[value];
 		} else {
@@ -139,7 +139,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="global_region"
 						options={GLOBAL_AREA}
-						onSelect={(event) => this.handleTag(event, "global_region")}
+						onInputChange={(event, value) => this.handleTag(value, "global_region")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
@@ -193,7 +193,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="difficulty_category"
 						options={["1", "2", "3", "4", "5", "6"]}
-						onSelect={(event) => this.handleTag(event, "difficulty_category")}
+						onInputChange={(event, value) => this.handleTag(value, "difficulty_category")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
@@ -220,7 +220,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="kind"
 						options={tourismVariants}
-						onSelect={(event) => this.handleTag(event, "kind")}
+						onInputChange={(event, value) => this.handleTag(value, "kind")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
