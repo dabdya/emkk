@@ -88,13 +88,8 @@ class Dashboard extends React.Component {
 
 	constructor(props) {
 		super(props);
-		this._isMounted = false;
 		this.user = getUser();
-		this.state = {
-			error: null,
-			isLoaded: false,
-			trips: [],
-		};
+		this.state = { trips: [], };
 		this.isMyApps = this.props.isMyApps;
 		if (!this.isMyApps) {
 			this.columns.splice(0, 0, this.addedColumns[0]);
@@ -102,44 +97,22 @@ class Dashboard extends React.Component {
 		}
 		this.onClickOnRow = this.onClickOnRow.bind(this);
 		this.filter = this.filter.bind(this);
+		this.updateTrips = this.updateTrips.bind(this);
 	}
 
-	componentDidMount() {
-
-		this._isMounted = true;
-
-		if (this.props.isMyReview) {
-			request.get("/api/trips?filter=work")
-				.then(result => {
-					this._isMounted && this.setState({
-						trips: result.data.map(item => {
-							item.status = this.renderImage(item.status);
-							return item;
-						})
-					});
-				})
-		} else {
-			request.get(`/api/trips${this.isMyApps ? "?filter=my" : ""}`)
-				.then(
-					(result) => {
-						this._isMounted && this.setState({
-							trips: result.data.map(item => {
-								item.status = this.renderImage(item.status);
-								return item;
-							})
-						});
-					},
-					(error) => {
-						this._isMounted && this.setState({
-							isLoaded: true,
-							error
-						});
-					});
-		}
+	async componentDidMount() {
+		const url = this.props.isMyReview ? "/api/trips?filter=work" : `/api/trips${this.isMyApps ? "?filter=my" : ""}`;
+		const data = (await request.get(url)).data;
+		this.updateTrips(data)
 	}
 
-	componentWillUnmount() {
-		this._isMounted = false;
+	updateTrips(data) {
+		this.setState({
+			trips: data.map(item => {
+				item.status = this.getImage(item.status);
+				return item;
+			})
+		});
 	}
 
 	onClickOnRow(target) {
@@ -148,7 +121,7 @@ class Dashboard extends React.Component {
 			return;
 		}
 
-		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer && !this.props.roles.issuer) {
+		if ((!this.props.roles.emkkMember || target.leader.username !== getUser()) && !this.props.roles.reviewer && !this.props.roles.issuer ) {
 			return;
 		}
 		this.props.history.push(`/home/application/${target.id}`);
@@ -156,30 +129,13 @@ class Dashboard extends React.Component {
 	};
 
 	async filter(e) {
-		if (e.target.value == "all") {
-			await request.get("/api/trips?filter=work")
-				.then(result => {
-					this._isMounted && this.setState({
-						trips: result.data.map(item => {
-							item.status = this.renderImage(item.status);
-							return item;
-						})
-					});
-				})
-		} else {
-			await request.get("/api/trips?filter=unreviewed")
-				.then(result => {
-					this._isMounted && this.setState({
-						trips: result.data.map(item => {
-							item.status = this.renderImage(item.status);
-							return item;
-						})
-					});
-				})
-		}
+		const url = e.target.value === "all" ? "/api/trips?filter=work" : "/api/trips?filter=unreviewed";
+		const data = (await request.get(url)).data;
+		this.updateTrips(data)
 	}
 
-	renderImage(status) {
+
+	getImage(status) {
 		if (status === "on_review") {
 			return review;
 		} else if (status === "rejected") {
@@ -202,78 +158,76 @@ class Dashboard extends React.Component {
 
 	render() {
 		return (
-			<div>
-				<div id="dashboard">
-					<DataTable
-						columns={this.columns}
-						data={this.state.trips}
-						subHeaderWrap={false}
-						fixedHeader={true}
-						onRowClicked={row => { this.onClickOnRow(row); }}
-						pagination
-						highlightOnHover={this.props.roles.emkkMember}
-						pointerOnHover={this.props.roles.emkkMember}
-						subHeaderAlign="left"
-						noDataComponent="Таблица пустая"
-						paginationComponentOptions={{
-							rowsPerPageText: "Страница: ",
-							rangeSeparatorText: "из",
-							selectAllRowsItem: true,
-							selectAllRowsItemText: "Все"
-						}}
-					/>
-					{this.props.isMyReview &&
-						<ToggleButtonGroup
-							exclusive
-							onChange={this.filter}
-							style={{ marginLeft: 40 }}
-						>
-							<ToggleButton value="all" >
-								Все
-							</ToggleButton>
-							<ToggleButton value="my">
-								Без моей рецензии
-							</ToggleButton>
-						</ToggleButtonGroup>}
-					<div className="legend">
-						<div className="flex">
-							<img height="50px" width="50px" src={accepted} alt="accepted" />
-							<p> - Заявка одобрена</p>
-						</div>
-						<div className="flex">
-							<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
-							<p> - Заявка у выпускающего</p>
-						</div>
-						<div className="flex">
-							<img height="50px" width="50px" src={review} alt="review" />
-							<p> - Заявка на рецензии</p>
-						</div>
-						<div className="flex">
-							<img height="50px" width="50px" src={rework} alt="rework" />
-							<p>- Заявка на доработке</p>
-						</div>
-						<div className="flex">
-							<img height="50px" width="50px" src={rejected} alt="rejected" />
-							<p> - Заявка отклонена</p>
-						</div>
+			<div id="dashboard">
+				<DataTable
+					columns={this.columns}
+					data={this.state.trips}
+					subHeaderWrap={false}
+					fixedHeader={true}
+					onRowClicked={row => { this.onClickOnRow(row); }}
+					pagination
+					highlightOnHover={this.props.roles.emkkMember}
+					pointerOnHover={this.props.roles.emkkMember}
+					subHeaderAlign="left"
+					noDataComponent="Таблица пустая"
+					paginationComponentOptions={{
+						rowsPerPageText: "Страница: ",
+						rangeSeparatorText: "из",
+						selectAllRowsItem: true,
+						selectAllRowsItemText: "Все"
+					}}
+				/>
+				{this.props.isMyReview &&
+					<ToggleButtonGroup
+						exclusive
+						onChange={this.filter}
+						style={{ marginLeft: 40 }}
+					>
+						<ToggleButton value="all" >
+							Все
+						</ToggleButton>
+						<ToggleButton value="my">
+							Без моей рецензии
+						</ToggleButton>
+					</ToggleButtonGroup>}
+				<div className="legend">
+					<div className="flex">
+						<img height="50px" width="50px" src={accepted} alt="accepted" />
+						<p> - Заявка одобрена</p>
 					</div>
-					<div className="legend">
-						<div className="flex">
-							<img height="50px" src={on_route} alt="on_route" />
-							<p>- На маршруте</p>
-						</div>
-						<div className="flex">
-							<img height="50px" src={take_papers} alt="take_papers" />
-							<p> - Документы готовы</p>
-						</div>
-						<div className="flex">
-							<img height="50px" src={route_completed} alt="route_completed" />
-							<p>- Маршрут завершён</p>
-						</div>
-						<div className="flex">
-							<img height="50px" width="50px" src={alarm} alt="alarm" />
-							<p>- Аварийная ситуация</p>
-						</div>
+					<div className="flex">
+						<img height="50px" width="50px" src={at_issuer} alt="at_issuer" />
+						<p> - Заявка у выпускающего</p>
+					</div>
+					<div className="flex">
+						<img height="50px" width="50px" src={review} alt="review" />
+						<p> - Заявка на рецензии</p>
+					</div>
+					<div className="flex">
+						<img height="50px" width="50px" src={rework} alt="rework" />
+						<p>- Заявка на доработке</p>
+					</div>
+					<div className="flex">
+						<img height="50px" width="50px" src={rejected} alt="rejected" />
+						<p> - Заявка отклонена</p>
+					</div>
+				</div>
+				<div className="legend">
+					<div className="flex">
+						<img height="50px" src={on_route} alt="on_route" />
+						<p>- На маршруте</p>
+					</div>
+					<div className="flex">
+						<img height="50px" src={take_papers} alt="take_papers" />
+						<p> - Документы готовы</p>
+					</div>
+					<div className="flex">
+						<img height="50px" src={route_completed} alt="route_completed" />
+						<p>- Маршрут завершён</p>
+					</div>
+					<div className="flex">
+						<img height="50px" width="50px" src={alarm} alt="alarm" />
+						<p>- Аварийная ситуация</p>
 					</div>
 				</div>
 			</div>
