@@ -6,7 +6,7 @@ import Registration from "./Registration";
 import NotFound from "./NotFound";
 import ForgetPass from "./ForgetPassword";
 import ResetPassword from "./ResetPassword";
-import { getToken, getUser, removeUserSession, getRoles } from "../utils/Common";
+import { getToken, getUser, removeUserSession, getRoles, checkTokenExpiration, getRefreshToken } from "../utils/Common";
 import logo from "../images/mainlogo.png";
 import axios from "axios";
 
@@ -25,8 +25,13 @@ export default class App extends React.Component {
 	componentDidMount() {
 		if (getToken()) {
 			try {
-				this.roles = getRoles(getToken());
-				this.setState({ isLogined: true });
+				if (checkTokenExpiration(getRefreshToken)) {
+					this.roles = getRoles(getToken());
+					this.setState({ isLogined: true });
+				} else {
+					this.setState({ isLogined: false });
+				}
+
 			} catch (e) {
 				this.onLogout();
 			}

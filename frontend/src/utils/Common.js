@@ -47,6 +47,12 @@ const getRoles = (accessToken) => {
 	}
 }
 
+const checkTokenExpiration = () => {
+	const token = getRefreshToken();
+	return jwt_decode(token).exp > Date.now() / 1000;
+};
+
+
 const caseInsensitiveSort = (rowA, rowB) => {
 	const fname = rowA.leader.first_name + rowA.leader.last_name[0] + rowA.leader.patronymic;
 	const sname = rowB.leader.first_name + rowB.leader.last_name[0] + rowB.leader.patronymic;
@@ -62,5 +68,7 @@ const caseInsensitiveSort = (rowA, rowB) => {
 	return 0;
 };
 
-export { getUser, getToken, removeUserSession, setUserSession,
-	getRefreshToken, setAccessToken, setTokens, caseInsensitiveSort, getRoles };
+export {
+	getUser, getToken, removeUserSession, setUserSession,
+	getRefreshToken, setAccessToken, setTokens, caseInsensitiveSort, getRoles, checkTokenExpiration
+};

@@ -19,7 +19,7 @@ export default class ReviewForm extends React.Component {
 		request.post(url,
 			{ result: e.nativeEvent.submitter.name, result_comment: e.target[0].value })
 			.then(resp => {
-				this.props.setter(resp, this.props.isReview);
+				this.props.setter(resp.data, this.props.isReview);
 				const fileUrl = this.props.isReview
 					? `/api/trips/${id}/reviews/${resp.data.id}/documents`
 					: `/api/trips/${id}/reviews-from-issuer/${resp.data.id}/documents`;

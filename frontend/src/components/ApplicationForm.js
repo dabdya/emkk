@@ -139,7 +139,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="global_region"
 						options={GLOBAL_AREA}
-						onInputChange={(event, value) => this.handleTag(value, "global_region")}
+						onInputChange={(_, value) => this.handleTag(value, "global_region")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
@@ -156,10 +156,9 @@ class ApplicationForm extends React.Component {
 						type="tel"
 						name="coordinator_phone_number"
 						label="Контактный телефон координатора"
-						placeholder="+7(999)99999999"
+						placeholder="799999999999"
 						variant="filled"
-						//eslint-disable-next-line
-						InputProps={{ inputProps: { tabIndex: 13, pattern: "\+?[0-9\s\-\(\)]+", autoComplete: "off" } }}
+						InputProps={{ inputProps: { tabIndex: 13, pattern: "7[0-9]{10}", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>
@@ -193,7 +192,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="difficulty_category"
 						options={["1", "2", "3", "4", "5", "6"]}
-						onInputChange={(event, value) => this.handleTag(value, "difficulty_category")}
+						onInputChange={(_, value) => this.handleTag(value, "difficulty_category")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"
@@ -220,7 +219,7 @@ class ApplicationForm extends React.Component {
 						fullWidth
 						id="kind"
 						options={tourismVariants}
-						onInputChange={(event, value) => this.handleTag(value, "kind")}
+						onInputChange={(_, value) => this.handleTag(value, "kind")}
 						renderInput={(params) =>
 							<TextField {...params}
 								variant="filled"

@@ -3,7 +3,7 @@ import { withRouter } from "react-router-dom";
 import { Button, Select } from "@skbkontur/react-ui";
 import TextField from "@mui/material/TextField";
 import ReviewContent from "./ReviewContent";
-import { KIND_OF_TOURISM, GLOBAL_AREA, STATUS } from "../utils/Constants";
+import { KIND_OF_TOURISM, GLOBAL_AREA } from "../utils/Constants";
 import request from "../utils/requests";
 import { getUser } from "../utils/Common";
 import icon from "../images/delete.ico";
@@ -24,28 +24,7 @@ class Application extends React.Component {
 			status: "",
 		};
 
-		this.app = {
-			id: 0,
-			group_name: "",
-			leader: "",
-			global_region: "",
-			local_region: "",
-			participants_count: "",
-			difficulty_category: "",
-			kind: "",
-			start_date: "",
-			end_date: "",
-			coordinator: "",
-			control_end_date: "",
-			control_end_region: "",
-			control_start_date: "",
-			control_start_region: "",
-			insurance_company_name: "",
-			insurance_policy_validity_duration: "",
-			last_modified_at: "",
-			info_for_reviewer: "",
-			status: "",
-		}
+		this.app = {}
 
 		this.roles = this.props.roles;
 		this.id = this.props.match.params.id;
@@ -58,133 +37,72 @@ class Application extends React.Component {
 		this.deleteDocumentInReview = this.deleteDocumentInReview.bind(this);
 		this.addDocument = this.addDocument.bind(this);
 		this.addFileInReview = this.addFileInReview.bind(this);
-		this.uploadReview = this.uploadReview.bind(this);
 		this.changeStatus = this.changeStatus.bind(this);
 		this.setter = this.setter.bind(this);
 	}
 
 
 	async componentDidMount() {
-		await request.get(`/api/trips/${this.id}`)
-			.then(response => {
-				this.app = {
-					id: response.data.id,
-					group_name: response.data.group_name,
-					leader: response.data.leader,
-					global_region: response.data.global_region,
-					local_region: response.data.local_region,
-					participants_count: response.data.participants_count,
-					difficulty_category: response.data.difficulty_category,
-					kind: response.data.kind,
-					start_date: response.data.start_date,
-					end_date: response.data.end_date,
-					coordinator: response.data.coordinator_name,
-					coordinator_phone_number: response.data.coordinator_phone_number,
-					control_end_date: response.data.control_end_date,
-					control_end_region: response.data.control_end_region,
-					control_start_date: response.data.control_start_date,
-					control_start_region: response.data.control_start_region,
-					insurance_company_name: response.data.insurance_company_name,
-					insurance_policy_validity_duration: response.data.insurance_policy_validity_duration,
-					last_modified_at: response.data.last_modified_at,
-					info_for_reviewer: response.data.info_for_reviewer,
-				}
-				this.setState({ status: response.data.status });
-			})
-			.catch(err => this.props.history.push("/"));
+		const response = await request.get(`/api/trips/${this.id}`).catch(() => this.props.history.push("/"));
+		this.app = response.data;
+		this.setState({ status: this.app.status });
 
-		request.get(`/api/trips/${this.id}/documents`)
-			.then(async resp => {
-				resp.data.forEach(file => {
-					this.setState(prevState => ({
-						files: [...prevState.files, { uuid: file.uuid, filename: file.filename }]
-					}))
-				});
-			});
+		const files = (await request.get(`/api/trips/${this.id}/documents`)).data;
+		files.forEach(file => {
+			this.setState(prevState => ({
+				files: [...prevState.files, { uuid: file.uuid, filename: file.filename }]
+			}))
+		});
 
-		request.get(`/api/trips/${this.id}/reviews`)
-			.then(resp => {
-				this.setState({ reviews: resp.data });
-				resp.data.forEach(review => {
-					request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)
-						.then(resp => {
-							this.setState({ reviewsFiles: resp.data });
-						})
-						.catch(err => console.error(err));
-				})
-			})
-			.catch(err => console.error(err));
+		const reviews = (await request.get(`/api/trips/${this.id}/reviews`)).data;
+		this.setState({ reviews: reviews });
+		reviews.forEach(async review => {
+			const reviewsFiles = (await request.get(`/api/trips/${this.id}/reviews/${review.id}/documents`)).data;
+			this.setState({ reviewsFiles: reviewsFiles });
+		});
 
-		await request.get(`/api/trips/${this.id}/reviews-from-issuer`)
-			.then(resp => {
-				this.setState({ issues: resp.data });
-				resp?.data?.map(async issue => {
-					await request.get(`/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`)
-						.then(resp => {
-							this.setState({ issuesFiles: resp.data });
-						})
-				})
-			})
-			.catch(err => console.error(err));
+		const issues = (await request.get(`/api/trips/${this.id}/reviews-from-issuer`)).data;
+		issues.forEach(async issue => {
+			const issuesFiles = (await request.get(`/api/trips/${this.id}/reviews-from-issuer/${issue.id}/documents`)).data;
+			this.setState({ issuesFiles: issuesFiles });
+		});
 	};
 
-	async uploadReview(e) {
-		const file = e.target.files[0];
-
-		await request.post(`/api/trips/${this.id}/reviews`,
-			{ result: STATUS[this.state.result], result_comment: STATUS[this.state.result] })
-			.then(resp => {
-				const form = new FormData()
-				form.append("file", file);
-				request.post(`/api/trips/${this.id}/reviews/${resp.data.id}/documents`,
-					form)
-			});
-
-		await request.get(`/api/trips/${this.id}/reviews`)
-			.then(resp => {
-				this.setState({ reviews: resp.data });
-			})
-			.catch(err => console.error(err));
-	}
-
-	setter(resp, isReview) {
+	setter(data, isReview) {
 		const name = isReview ? "reviews" : "issues";
 		this.setState(prevState => ({
-			status: resp.data.trip.status,
+			status: data.trip.status,
 			[name]:
 				[...prevState[name],
 				{
-					id: resp.data.id,
-					result: resp.data.result,
-					result_comment: resp.data.result_comment,
-					reviewer: resp.data.reviewer,
+					id: data.id,
+					result: data.result,
+					result_comment: data.result_comment,
+					reviewer: data.reviewer,
 				}]
 		}));
-	}
+	};
 
 	changeTourismKind(value) {
 		this.app.kind = KIND_OF_TOURISM[value];
 	};
 
-	changeStatus(e) {
+	async changeStatus(e) {
 		e.preventDefault();
-		request.post(`/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {})
-			.then(resp => { console.log(resp); })
-	}
+		await request.post(`/api/trips/${this.app.id}/change-status?new_status=${e.nativeEvent.target[0].value}`, {})
+	};
 
 	async createBlob(e, file) {
 		e.preventDefault()
-		let mime;
-		const resp = await request.get(`/api/documents/${file.uuid}`, { responseType: "arraybuffer" })
-			.then(resp => {
-				mime = resp.headers["content-type"];
-				return resp;
-			})
-		const blob = new Blob([resp.data], { type: mime });
-		const a = document.createElement("a")
-		a.download = file.filename;
-		a.href = URL.createObjectURL(blob);
-		a.click();
+
+		const response = await request.get(`/api/documents/${file.uuid}`, { responseType: "arraybuffer" });
+		const blob = new Blob([response.data], { type: response.headers["content-type"] });
+
+		const link = document.createElement("a")
+		link.download = file.filename;
+		link.href = URL.createObjectURL(blob);
+		link.click();
+		link.remove();
 	};
 
 
@@ -192,30 +110,26 @@ class Application extends React.Component {
 	async onSubmit(event) {
 		event.preventDefault();
 		const { id, isEditing, files, reviews, ...data } = this.app;
-		await request.patch(`/api/trips/${id}`, data)
-			.then(resp => {
-				this.app.last_modified_at = resp.data.last_modified_at;
-				this.changeEditing();
-			})
+		this.app.last_modified_at = (await request.patch(`/api/trips/${id}`, data)).data.last_modified_at;
+		this.changeEditing();
 	}
 
 	changeEditing() {
-		this.setState({ isEditing: !this.state.isEditing })
+		this.setState({ isEditing: !this.state.isEditing });
 	}
 
-	deleteDocument(file) {
-		request.delete(`/api/documents/${file.uuid}`)
-			.then(() => {
-				this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
-			})
+	async deleteDocument(file) {
+		await request.delete(`/api/documents/${file.uuid}`);
+		this.setState(prevState => ({ files: prevState.files.filter(item => item.uuid !== file.uuid) }));
+
 	}
 
-	deleteDocumentInReview(file) {
-		request.delete(`/api/documents/${file.uuid}`)
-			.then(() => {
-				this.setState(prevState => ({ reviewsFiles: prevState.reviewsFiles.filter(item => item.uuid !== file.uuid) }));
-				this.setState(prevState => ({ issuesFiles: prevState.issuesFiles.filter(item => item.uuid !== file.uuid) }));
-			})
+	async deleteDocumentInReview(file) {
+		await request.delete(`/api/documents/${file.uuid}`);
+		this.setState(prevState => ({
+			reviewsFiles: prevState.reviewsFiles.filter(item => item.uuid !== file.uuid),
+			issuesFiles: prevState.issuesFiles.filter(item => item.uuid !== file.uuid)
+		}));
 	}
 
 	addFileInReview(file, isReview) {
@@ -223,26 +137,26 @@ class Application extends React.Component {
 		this.setState(prevState => ({ [name]: [...prevState[name], file] }));
 	}
 
-	addDocument(afile) {
-		const files = afile.target.files;
+	async addDocument(newFiles) {
+		const files = newFiles.target.files;
 
 		const form = new FormData()
 		for (const file of files) {
 			form.append("file", file);
 		}
 
-		request.post(`/api/trips/${this.id}/documents`, form)
-			.then(resp => {
-				for (const item of resp.data) {
-					this.setState(prevState => ({ files: [...prevState.files, { uuid: item.uuid, filename: item.filename }] }));
-				}
-			})
+		const data = (await request.post(`/api/trips/${this.id}/documents`, form)).data;
+
+		for (const item of data) {
+			this.setState(prevState => ({ files: [...prevState.files, { uuid: item.uuid, filename: item.filename }] }));
+		}
 	}
 
 	render() {
 		const { isEditing, issues, files, reviews, status } = this.state;
-		const tourismVariants = ["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
-			"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
+		const tourismVariants =
+			["Пеший", "Лыжный", "Водный", "Горный", "Пеше-водный",
+				"Спелео", "Велотуризм", "Парусный", "Конный", "Авто-мото"];
 		const changeApp = e => this.app[e.target.name] = e.target.value;
 
 		return (
@@ -262,12 +176,12 @@ class Application extends React.Component {
 						{!isEditing && getUser() === this.app.leader?.username && <Button onClick={this.changeEditing} style={{ marginLeft: 20 }}>Редактировать заявку</Button>}
 						{isEditing && <Button type="submit" style={{ marginLeft: 20 }} >Сохранить</Button>}
 						{isEditing && <Button type="submit" onClick={this.changeEditing} style={{ marginLeft: 20 }} >Отмена</Button>}
-						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app.last_modified_at).toLocaleString()}</span>
+						<span style={{ marginLeft: 10 }}>Последнее изменение: {new Date(this.app?.last_modified_at).toLocaleString()}</span>
 					</div>
 					<div id="data-application">
 						<div className="cell-app">
 							<div>ФИО руководителя:</div>
-							<div>{`${this.app.leader.first_name} ${this.app.leader.last_name} ${this.app.leader.patronymic ? this.app.leader.patronymic : ""}`}</div>
+							<div>{`${this.app.leader?.first_name} ${this.app.leader?.last_name} ${this.app.leader?.patronymic ? this.app.leader?.patronymic : ""}`}</div>
 						</div>
 						<div className="cell-app">
 							<div>Спортивная организация:</div>
@@ -402,7 +316,7 @@ class Application extends React.Component {
 									<div key={i}>
 										{/*eslint-disable-next-line */}
 										<a onClick={(e) => this.createBlob(e, file)} href="#" target="_blank">{file.filename}</a>
-										{getUser() === this.app.leader.username &&
+										{getUser() === this.app.leader?.username &&
 											<img src={icon} onClick={() => this.deleteDocument(file)} alt="delete" className="deleteIcon" />}
 									</div>
 								);
@@ -416,7 +330,7 @@ class Application extends React.Component {
 								style={{ display: "none" }}
 								multiple={true}
 							/>
-							{getUser() === this.app.leader.username && <Button onClick={() => this.refs.fileInput.click()}>Добавить документы</Button>}
+							{getUser() === this.app.leader?.username && <Button onClick={() => this.refs.fileInput.click()}>Добавить документы</Button>}
 						</div>
 					</div>
 				</div >
@@ -429,27 +343,27 @@ class Application extends React.Component {
 						<ReviewContent isReview={true} files={this.state.reviewsFiles} result={review.result} comment={review.result_comment}
 							reviewer={review.reviewer} id={review.id} addFile={this.addFileInReview} key={review.id} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
+					{
+						this.roles.reviewer &&
+						(status === "on_review" ||
+							status === "at_issuer") &&
+						reviews.filter(rev => rev.reviewer.username === getUser()).length === 0 &&
+						<ReviewForm isReview={true} id={this.id} setter={this.setter} addFile={this.addFileInReview} />
+					}
 				</div>
-				{
-					this.roles.reviewer &&
-					(status === "on_review" ||
-						status === "at_issuer") &&
-					reviews.filter(rev => rev.reviewer.username === getUser()).length === 0 &&
-					<ReviewForm isReview={true} id={this.id} setter={this.setter} addFile={this.addFileInReview} />
-				}
 				<div className="box">
 					Выпуски
 					{issues.map(issue =>
 						<ReviewContent files={this.state.issuesFiles} id={issue.id} result={issue.result} comment={issue.result_comment}
 							reviewer={issue.reviewer} key={issue.id} addFile={this.addFileInReview} createBlob={this.createBlob} deleteDocument={this.deleteDocumentInReview} />
 					)}
+					{
+						this.roles.issuer &&
+						status === "at_issuer" &&
+						!issues[0] &&
+						<ReviewForm id={this.id} setter={this.setter} addFile={this.addFileInReview} />
+					}
 				</div>
-				{
-					this.roles.issuer &&
-					status === "at_issuer" &&
-					!issues[0] &&
-					<ReviewForm id={this.id} setter={this.setter} addFile={this.addFileInReview} />
-				}
 			</div >
 		)
 	}
