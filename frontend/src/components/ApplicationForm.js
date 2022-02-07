@@ -156,9 +156,9 @@ class ApplicationForm extends React.Component {
 						type="tel"
 						name="coordinator_phone_number"
 						label="Контактный телефон координатора"
-						placeholder="799999999999"
+						placeholder="+799999999999 или 89999999999"
 						variant="filled"
-						InputProps={{ inputProps: { tabIndex: 13, pattern: "7[0-9]{10}", autoComplete: "off" } }}
+						InputProps={{ inputProps: { tabIndex: 13, pattern: "\\+?[78][0-9]{10}", autoComplete: "off" } }}
 						onChange={this.changeInputRegister}
 					/>
 				</div>

@@ -260,8 +260,8 @@ class Application extends React.Component {
 						<div className="cell-app">
 							<div>Координатор-связной:</div>
 							<div>{isEditing
-								? <input defaultValue={this.app.coordinator} name="coordinator" onChange={changeApp} />
-								: this.app.coordinator}</div>
+								? <input defaultValue={this.app.coordinator_name} name="coordinator_name" onChange={changeApp} />
+								: this.app.coordinator_name}</div>
 						</div>
 						<div className="cell-app">
 							<div>Контрольные сроки конца:</div>

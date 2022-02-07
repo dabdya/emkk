@@ -113,6 +113,13 @@ code {
 	height: 35px;
 }
 
+.rdt_TableCol_Sortable {
+	overflow: visible !important;
+}
+
+[data-column-id="1"] {
+	padding-left: 10px;
+}
 
 .rdt_TableCol_Sortable :first-child {
 	font-weight: bolder;
