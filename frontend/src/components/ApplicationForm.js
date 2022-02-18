@@ -66,7 +66,7 @@ class ApplicationForm extends React.Component {
 			.then(respForm => {
 				this.open();
 
-				const form = new FormData()
+				const form = new FormData();
 				for (const file of this.app.files) {
 					form.append("file", file);
 				}
@@ -304,7 +304,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.routeBookCount >= 1 && `Загружен(о) ${this.state.routeBookCount} файл/а/ов`}
+					{this.state.routeBookCount >= 1 && `Загружено файлов: ${this.state.routeBookCount}`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -338,7 +338,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.cartographicMaterialCount >= 1 && `Загружен(о) ${this.state.cartographicMaterialCount} файл/а/ов`}
+					{this.state.cartographicMaterialCount >= 1 && `Загружено файлов: ${this.state.cartographicMaterialCount}`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -371,7 +371,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.participantsReferencesCount >= 1 && `Загружен(о) ${this.state.participantsReferencesCount} файл/а/ов`}
+					{this.state.participantsReferencesCount >= 1 && `Загружено файлов: ${this.state.participantsReferencesCount}`}
 				</div>
 				<div className="cell">
 					<TextField
@@ -406,7 +406,7 @@ class ApplicationForm extends React.Component {
 							</IconButton>
 						</Tooltip>
 					</div>
-					{this.state.insurancePolicyScansCount >= 1 && `Загружен(о) ${this.state.insurancePolicyScansCount} файл/а/ов`}
+					{this.state.insurancePolicyScansCount >= 1 && `Загружено файлов: ${this.state.insurancePolicyScansCount}`}
 				</div>
 				<div className="cell">
 					<TextField

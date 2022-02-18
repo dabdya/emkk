@@ -25,10 +25,11 @@ export default class App extends React.Component {
 	componentDidMount() {
 		if (getToken()) {
 			try {
-				if (checkTokenExpiration(getRefreshToken)) {
+				if (checkTokenExpiration()) {
 					this.roles = getRoles(getToken());
 					this.setState({ isLogined: true });
 				} else {
+					removeUserSession();
 					this.setState({ isLogined: false });
 				}
 
